@@ -1,0 +1,40 @@
+const express = require("express");
+const router = express.Router();
+
+const userRouter = require("./userRouters");
+const productRouter = require("./productRouters");
+const cartRouter = require("./cartRouters");
+const ingredientRouter = require("./ingredientRouter");
+const orderRouter = require("./orderRouters");
+const reviewRouter = require("./reviewRouters");
+const staffRouter = require("./staffRouters");
+const voucherRouter = require("./voucherRouters.js");
+const multerRouter = require("./multerRouter.js");
+const adminRouter = require("./adminRouter");
+const tableRouter = require("./tableRouter.js");
+const paymentRouter = require("./paymentsRouter.js");
+const categoryRouter = require("./categoryRouters.js");
+const addressRouter = require("./addressRouters.js");
+const vnpayRouter = require("./vnpayRouter.js");
+const sizeRouter = require("./sizeRouter.js");
+const optionRouter = require("./optionRouter.js");
+
+router.use("/users", userRouter);
+router.use("/products", productRouter);
+router.use("/cart", cartRouter);
+router.use("/ingredients", ingredientRouter);
+router.use("/orders", orderRouter);
+router.use("/reviews", reviewRouter);
+router.use("/staff", staffRouter);
+router.use("/vouchers", voucherRouter);
+router.use("/multer", multerRouter);
+router.use("/admin", adminRouter);
+router.use("/table", tableRouter);
+router.use("/payment", paymentRouter);
+router.use("/category", categoryRouter);
+router.use("/address", addressRouter);
+router.use("/payment", vnpayRouter);
+router.use("/size", sizeRouter);
+router.use("/option", optionRouter);
+
+module.exports = router;
