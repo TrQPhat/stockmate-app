@@ -1,4 +1,6 @@
 const { User } = require("../models");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 class UserController {
   // Lấy danh sách tất cả người dùng
@@ -27,8 +29,8 @@ class UserController {
     }
   }
 
-  // Tạo người dùng mới
-  async create(req, res) {
+  // Đăng ký người dùng mới
+  async register(req, res) {
     try {
       const {
         user_id,
@@ -40,19 +42,89 @@ class UserController {
         gender,
       } = req.body;
 
+      // Kiểm tra email đã tồn tại chưa
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ error: "Email đã được sử dụng" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password_hash, 10);
+
       const newUser = await User.create({
         user_id,
         email,
         phone,
         full_name,
-        password_hash,
+        password_hash: hashedPassword,
         avatar_url,
         gender,
       });
 
       res.status(201).json(newUser);
     } catch (error) {
-      res.status(500).json({ error: "Lỗi khi tạo người dùng" });
+      res.status(500).json({ error: "Lỗi khi đăng ký người dùng" });
+    }
+  }
+
+  // Đăng nhập người dùng
+  async login(req, res) {
+    const { email, password } = req.body;
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({
+          message: "Sai tên đăng nhập hoặc mật khẩu",
+          response: false,
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password_hash);
+      if (!isMatch) {
+        return res.status(401).json({
+          message: "Sai tên đăng nhập hoặc mật khẩu",
+          response: false,
+        });
+      }
+
+      // 🔹 Tạo Access Token (hết hạn sau 1 giờ)
+      const accessToken = jwt.sign(
+        { id: user.id, email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
+      // 🔹 Tạo Refresh Token (hết hạn sau 7 ngày)
+      const refreshToken = jwt.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      // 🏷️ Lưu các thông tin vào cookie
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Lax",
+        path: "/",
+      };
+
+      res.cookie("refreshToken", refreshToken, cookieOptions);
+      res.cookie("accessToken", accessToken, cookieOptions);
+
+      // ✅ Thêm userRole và userName vào cookie
+      res.cookie("userRole", user.role, { ...cookieOptions, httpOnly: false });
+      res.cookie("userName", user.name, { ...cookieOptions, httpOnly: false });
+
+      res.status(200).json({
+        message: "Đăng nhập thành công",
+        response: true,
+        accessToken,
+        refreshToken,
+        user: user,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Đã xảy ra lỗi: " + error.message });
     }
   }
 
