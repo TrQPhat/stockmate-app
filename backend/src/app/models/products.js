@@ -1,18 +1,50 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/db');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
-const Product = sequelize.define('Product', {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    name: { type: DataTypes.STRING, allowNull: false },
-    image: { type: DataTypes.STRING, allowNull: true },
-    category_id: { type: DataTypes.INTEGER, allowNull: true },
-    type: { type: DataTypes.STRING, allowNull: false },
-    price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    countInStock: { type: DataTypes.INTEGER, allowNull: false },
-    isAvailable:{ type: DataTypes.BOOLEAN, allowNull: false }
-}, {
-    tableName: 'products',
-    timestamps: false
-});
+const Product = sequelize.define(
+  "Product",
+  {
+    id: {
+      type: DataTypes.CHAR(36),
+      primaryKey: true,
+    },
+    storage_id: {
+      type: DataTypes.CHAR(36),
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    category: DataTypes.TEXT,
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    unit: DataTypes.TEXT,
+    import_date: DataTypes.DATEONLY,
+    expire_date: DataTypes.DATEONLY,
+    note: DataTypes.TEXT,
+    status: {
+      type: DataTypes.ENUM("con_dung", "het_han", "da_dung", "huy"),
+      allowNull: false,
+      defaultValue: "con_dung",
+    },
+    image_path: DataTypes.TEXT,
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: "products",
+    timestamps: false,
+  }
+);
 
 module.exports = Product;

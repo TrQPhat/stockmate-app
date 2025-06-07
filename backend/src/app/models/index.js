@@ -1,69 +1,40 @@
-// models/index.js
 const sequelize = require("../../config/db");
+
+// Import các model
 const User = require("./users");
+const FcmToken = require("./fcm_tokens");
+const Storage = require("./storages");
+const StorageMember = require("./storage_members");
 const Product = require("./products");
-const Cart = require("./carts");
-const Category = require("./categories");
-const Order = require("./orders");
-const OrderDetail = require("./orderDetails");
-const Review = require("./reviews");
-const Voucher = require("./vouchers");
-const Payment = require("./payments");
-const Delivery = require("./deliveries");
-const Table = require("./tables");
-const Address = require("./addresses");
-const Size = require("./size");
-const Option = require("./option");
+const ProductLog = require("./product_logs");
 
-// Define associations
-User.hasMany(Order, { foreignKey: "user_id" });
-Order.belongsTo(User, { foreignKey: "user_id" });
+// --- Associations ---
 
-Order.hasMany(OrderDetail, { foreignKey: "order_id", onDelete: "CASCADE" });
-OrderDetail.belongsTo(Order, { foreignKey: "order_id" });
+User.hasMany(FcmToken, { foreignKey: "user_id", sourceKey: "user_id" });
+FcmToken.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
 
-User.hasMany(Cart, { foreignKey: "user_id" });
-Cart.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(Storage, { foreignKey: "owner_id", sourceKey: "user_id" });
+Storage.belongsTo(User, { foreignKey: "owner_id", targetKey: "user_id" });
 
-Product.hasMany(Cart, { foreignKey: "product_id" });
-Cart.belongsTo(Product, { foreignKey: "product_id" });
+Storage.hasMany(StorageMember, { foreignKey: "storage_id" });
+StorageMember.belongsTo(Storage, { foreignKey: "storage_id" });
 
-Product.belongsTo(Category, { foreignKey: "category_id" });
-Category.hasMany(Product, { foreignKey: "category_id" });
+User.hasMany(StorageMember, { foreignKey: "user_id", sourceKey: "user_id" });
+StorageMember.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
 
-Product.hasMany(Review, { foreignKey: "product_id" });
-Review.belongsTo(Product, { foreignKey: "product_id" });
+Storage.hasMany(Product, { foreignKey: "storage_id" });
+Product.belongsTo(Storage, { foreignKey: "storage_id" });
 
-Product.hasMany(OrderDetail, { foreignKey: "product_id" });
-OrderDetail.belongsTo(Product, { foreignKey: "product_id" });
+Product.hasMany(ProductLog, { foreignKey: "product_id" });
+ProductLog.belongsTo(Product, { foreignKey: "product_id" });
 
-User.hasMany(Review, { foreignKey: "user_id" });
-Review.belongsTo(User, { foreignKey: "user_id" });
-
-Order.belongsTo(Delivery, { foreignKey: "deliveries_id", onDelete: "CASCADE" });
-Order.belongsTo(Payment, { foreignKey: "payments_id", onDelete: "CASCADE" });
-
-User.hasMany(Address, { foreignKey: "user_id", onDelete: "CASCADE" });
-Address.belongsTo(User, { foreignKey: "user_id" });
-
-// Một sản phẩm (Product) có nhiều tùy chọn (Option)
-Product.hasMany(Option, { foreignKey: "product_id", onDelete: "CASCADE" });
-Option.belongsTo(Product, { foreignKey: "product_id" });
-
+// Export các model cùng sequelize instance
 module.exports = {
   sequelize,
   User,
+  FcmToken,
+  Storage,
+  StorageMember,
   Product,
-  Cart,
-  Category,
-  Order,
-  OrderDetail,
-  Review,
-  Voucher,
-  Payment,
-  Delivery,
-  Table,
-  Address,
-  Size,
-  Option,
+  ProductLog,
 };

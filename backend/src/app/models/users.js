@@ -1,24 +1,43 @@
-// models/User.js
 const { DataTypes } = require("sequelize");
-const sequelize = require("../../config/db");
+const sequelize = require("../config/db");
 
 const User = sequelize.define(
   "User",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    name: { type: DataTypes.STRING, allowNull: false },
-    email: {
-      type: DataTypes.STRING,
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    user_id: {
+      type: DataTypes.CHAR(36),
       allowNull: false,
-      unique: true, // Đảm bảo chỉ có một UNIQUE
+      unique: true,
     },
-
-    password: { type: DataTypes.STRING, allowNull: true },
-    role: {
-      type: DataTypes.ENUM("Admin", "Customer", "Seller", "Delivery"),
-      defaultValue: "Customer",
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
     },
-    phone: { type: DataTypes.STRING, allowNull: true },
+    phone: DataTypes.STRING(20),
+    full_name: DataTypes.STRING(255),
+    password_hash: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    avatar_url: DataTypes.TEXT,
+    gender: {
+      type: DataTypes.ENUM("male", "female", "other"),
+      defaultValue: "other",
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     tableName: "users",
