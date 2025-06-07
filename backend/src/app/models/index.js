@@ -6,7 +6,7 @@ const FcmToken = require("./fcm_tokens");
 const Storage = require("./storages");
 const StorageMember = require("./storage_members");
 const Product = require("./products");
-const ProductLog = require("./product_logs");
+const ProductLog = require("./product_log");
 
 // --- Associations ---
 

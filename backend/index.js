@@ -27,13 +27,13 @@ app.use(
   })
 );
 
-const { sequelize } = require("../server/src/app/models/index");
+const { sequelize } = require("../backend/src/app/models/index.js");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("combined"));
 
-const router = require("../server/src/router");
+const router = require("../backend/src/router");
 app.use("/api", router);
 app.use("/uploads", express.static(path.join(__dirname, "/src/uploads")));
 
