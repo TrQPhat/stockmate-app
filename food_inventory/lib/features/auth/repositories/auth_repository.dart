@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/di/injection_container.dart';
@@ -23,7 +22,7 @@ class AuthRepository {
         'password': password,
       });
 
-      final user = User.fromJson(response.data);
+      final user = User.fromJson(response.data['user']);
 
       if (rememberMe) {
         // Lưu token và user data
@@ -31,12 +30,30 @@ class AuthRepository {
         await prefs.setString(AppConfig.tokenKey, response.data['accessToken']);
         await prefs.setString(AppConfig.userKey, user.toJson().toString());
         await prefs.setString(AppConfig.userId, user.userId);
+        await prefs.setString(
+            AppConfig.lastLoginTimeKey, DateTime.now().toIso8601String());
       }
 
       return user;
     } catch (e) {
       throw Exception('Đăng nhập thất bại: ${e.toString()}');
     }
+  }
+
+  Future<bool> checkLoggedIn() async {
+    final prefs = getIt<SharedPreferences>();
+    final lastLoginStr = prefs.getString(AppConfig.lastLoginTimeKey);
+
+    if (lastLoginStr == null) return false; // Chưa từng đăng nhập
+
+    final lastLoginTime = DateTime.tryParse(lastLoginStr);
+    if (lastLoginTime == null) return false;
+
+    final currentTime = DateTime.now();
+    final difference = currentTime.difference(lastLoginTime);
+
+    // Nếu bé ngày
+    return difference.inDays <= 5;
   }
 
   // Đăng ký
@@ -65,6 +82,24 @@ class AuthRepository {
     } catch (e) {
       print(e.toString());
       throw Exception('Đăng ký thất bại: ${e.toString()}');
+    }
+  }
+
+  //Refresh Token
+  Future<bool> refreshToken() async {
+    try {
+      final response = await _dioClient.post(
+        '$baseUrl/refreshToken',
+      );
+
+      final prefs = getIt<SharedPreferences>();
+      await prefs.setString(AppConfig.tokenKey, response.data['accessToken']);
+      await prefs.setString(
+          AppConfig.lastLoginTimeKey, DateTime.now().toIso8601String());
+      return true;
+    } catch (e) {
+      print('Error refreshing token: $e');
+      return false;
     }
   }
 

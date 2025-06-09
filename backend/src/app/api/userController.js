@@ -129,6 +129,59 @@ class UserController {
     }
   }
 
+  async refreshToken(req, res) {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      if (!refreshToken) {
+        return res
+          .status(401)
+          .json({ message: "Không có refresh token", response: false });
+      }
+
+      jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET,
+        async (err, decoded) => {
+          if (err) {
+            return res
+              .status(403)
+              .json({ message: "Refresh token không hợp lệ", response: false });
+          }
+
+          const user = await User.findByPk(decoded.id);
+          if (!user) {
+            return res
+              .status(404)
+              .json({ message: "Người dùng không tồn tại", response: false });
+          }
+
+          // 🔹 Tạo Access Token mới (hết hạn sau 1 giờ)
+          const newAccessToken = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+          );
+
+          res.cookie("accessToken", newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Lax",
+            path: "/",
+          });
+
+          return res.status(200).json({
+            message: "Refresh token thành công",
+            response: true,
+            accessToken: newAccessToken,
+          });
+        }
+      );
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Đã xảy ra lỗi: " + error.message });
+    }
+  }
+
   // Cập nhật người dùng theo user_id
   async update(req, res) {
     try {

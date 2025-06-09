@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stock_mate/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
 
 import '../config/app_config.dart';
 import '../network/dio_client.dart';

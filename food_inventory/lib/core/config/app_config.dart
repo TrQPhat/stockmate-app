@@ -8,6 +8,7 @@ class AppConfig {
   static const String userKey = 'user_data';
   static const String userId = 'user_id';
   static const String currentStorageKey = 'current_storage';
+  static const String lastLoginTimeKey = 'last_login_time';
 
   // App constants
   static const int requestTimeout = 30000;

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:stock_mate/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:stock_mate/features/auth/views/widgets/auth_text_field.dart';
+import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
+import 'package:stock_mate/features/auth/widgets/auth_text_field.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import 'package:stock_mate/core/theme/app_theme.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -92,15 +92,6 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 48.h),
 
                   // Email field
-                  Text(
-                    'Email',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  // Email field
                   AuthTextField(
                     controller: _emailController,
                     label: 'Email',
@@ -118,15 +109,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 16.h),
 
-                  // Password field
-                  Text(
-                    'Mật khẩu',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
                   // Password field
                   AuthTextField(
                     controller: _passwordController,

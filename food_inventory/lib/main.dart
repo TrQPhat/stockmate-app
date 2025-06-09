@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:stock_mate/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
+import 'package:stock_mate/services/refresh_token_service.dart';
 
 import 'core/di/injection_container.dart';
 import 'core/router/app_router.dart';
@@ -17,6 +18,9 @@ void main() async {
 
   // Initialize dependencies
   await initializeDependencies();
+
+  final tokenRefreshService = TokenRefreshService();
+  tokenRefreshService.startAutoRefresh();
 
   runApp(const StockMateApp());
 }

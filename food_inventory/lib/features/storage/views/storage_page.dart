@@ -32,7 +32,8 @@ class StoragePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.primaryGreen.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: AppTheme.primaryGreen.withOpacity(0.3)),
+                border:
+                    Border.all(color: AppTheme.primaryGreen.withOpacity(0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +76,7 @@ class StoragePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 24.h),
-            
+
             // Storage list
             Text(
               'Danh sách kho',
@@ -144,7 +145,7 @@ class StoragePage extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12.w),
-          
+
           // Storage info
           Expanded(
             child: Column(
@@ -162,7 +163,8 @@ class StoragePage extends StatelessWidget {
                     if (isOwner) ...[
                       SizedBox(width: 8.w),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 8.w, vertical: 2.h),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryGreen,
                           borderRadius: BorderRadius.circular(10.r),
@@ -190,7 +192,7 @@ class StoragePage extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Actions
           PopupMenuButton(
             icon: Icon(Icons.more_vert, size: 20.w),
@@ -226,7 +228,7 @@ class StoragePage extends StatelessWidget {
 
   void _showCreateStorageDialog(BuildContext context) {
     final nameController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -257,7 +259,7 @@ class StoragePage extends StatelessWidget {
 
   void _showJoinStorageDialog(BuildContext context) {
     final codeController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

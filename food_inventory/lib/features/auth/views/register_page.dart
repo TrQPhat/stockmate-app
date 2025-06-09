@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:stock_mate/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:stock_mate/features/auth/views/widgets/auth_text_field.dart';
+import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
+import 'package:stock_mate/features/auth/widgets/auth_text_field.dart';
 
 import '../../../../core/theme/app_theme.dart';
 
