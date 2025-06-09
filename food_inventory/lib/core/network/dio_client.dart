@@ -1,24 +1,57 @@
 import 'package:dio/dio.dart';
+import '../config/app_config.dart';
 
 class DioClient {
-  static const String baseUrl = 'https://your-api-url.com/api';
-  
-  static Dio createDio() {
-    final dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
-    
-    dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-    ));
-    
-    return dio;
+  final Dio _dio;
+  final String baseUrl;
+
+  DioClient(this._dio, {required this.baseUrl}) {
+    _dio
+      ..options.baseUrl = baseUrl
+      ..options.connectTimeout = const Duration(milliseconds: AppConfig.requestTimeout)
+      ..options.receiveTimeout = const Duration(milliseconds: AppConfig.requestTimeout)
+      ..interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+      ));
+  }
+
+  // GET request
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.get(path, queryParameters: queryParameters, options: options);
+  }
+
+  // POST request
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.post(path, data: data, queryParameters: queryParameters, options: options);
+  }
+
+  // PUT request
+  Future<Response> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.put(path, data: data, queryParameters: queryParameters, options: options);
+  }
+
+  // DELETE request
+  Future<Response> delete(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.delete(path, data: data, queryParameters: queryParameters, options: options);
   }
 }

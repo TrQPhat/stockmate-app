@@ -41,7 +41,7 @@ class UserController {
         avatar_url,
         gender,
       } = req.body;
-
+      console.log(email);
       // Kiểm tra email đã tồn tại chưa
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
@@ -62,6 +62,7 @@ class UserController {
 
       res.status(201).json(newUser);
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: "Lỗi khi đăng ký người dùng" });
     }
   }

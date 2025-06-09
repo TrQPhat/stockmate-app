@@ -1,6 +1,6 @@
 {
-    "name": "ingredients_manager_stockmate",
-    "short_name": "ingredients_manager_stockmate",
+    "name": "stock_mate",
+    "short_name": "stock_mate",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

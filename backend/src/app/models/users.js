@@ -25,7 +25,7 @@ const User = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    avatar_url: DataTypes.TEXT,
+    avatar_url: { type: DataTypes.TEXT, allowNull: true },
     gender: {
       type: DataTypes.ENUM("male", "female", "other"),
       defaultValue: "other",

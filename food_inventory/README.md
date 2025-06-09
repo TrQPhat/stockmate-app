@@ -1,103 +1,16 @@
-# Storage Manager
+# stock_mate
 
-Ứng dụng quản lý kho nguyên liệu được xây dựng bằng Flutter.
+A new Flutter project.
 
-## 🚀 Cài đặt
+## Getting Started
 
-### Yêu cầu hệ thống
+This project is a starting point for a Flutter application.
 
-- Flutter SDK >= 3.10.0
-- Dart SDK >= 3.0.0
-- Android Studio / VS Code
-- Git
+A few resources to get you started if this is your first Flutter project:
 
-### Các bước cài đặt
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-1. **Clone repository**
-   \`\`\`bash
-   git clone <repository-url>
-   cd storage_manager
-   \`\`\`
-
-2. **Cài đặt dependencies**
-   \`\`\`bash
-   flutter pub get
-   \`\`\`
-
-3. **Generate code**
-   \`\`\`bash
-   flutter pub run build_runner build
-   \`\`\`
-
-4. **Chạy ứng dụng**
-   \`\`\`bash
-   flutter run
-   \`\`\`
-
-## 📁 Cấu trúc project
-
-\`\`\`
-lib/
-├── core/ # Core functionality
-│ ├── di/ # Dependency injection
-│ ├── network/ # Network configuration
-│ ├── router/ # App routing
-│ ├── theme/ # App theming
-│ └── widgets/ # Reusable widgets
-├── features/ # Feature modules
-│ ├── auth/ # Authentication
-│ ├── home/ # Home screen
-│ ├── storage/ # Storage management
-│ └── product/ # Product management
-└── main.dart # App entry point
-\`\`\`
-
-## 🏗️ Kiến trúc
-
-- **Clean Architecture**: Phân tách rõ ràng các layer
-- **BLoC Pattern**: State management
-- **Feature-based**: Tổ chức code theo tính năng
-- **Dependency Injection**: Quản lý dependencies
-
-## 🔧 Tính năng
-
-- ✅ Đăng nhập/Đăng ký
-- ✅ Quản lý kho nguyên liệu
-- ✅ Thêm/Sửa/Xóa sản phẩm
-- ✅ Phân loại sản phẩm
-- ✅ Theo dõi hạn sử dụng
-- 🚧 Thống kê kho
-- 🚧 Đề xuất mua sắm
-- 🚧 Lập kế hoạch sử dụng
-
-## 🛠️ Development
-
-### Code generation
-
-\`\`\`bash
-flutter pub run build_runner build --delete-conflicting-outputs
-\`\`\`
-
-### Testing
-
-\`\`\`bash
-flutter test
-\`\`\`
-
-### Build APK
-
-\`\`\`bash
-flutter build apk --release
-\`\`\`
-
-## 📱 Screenshots
-
-[Thêm screenshots ở đây]
-
-## 🤝 Contributing
-
-1. Fork project
-2. Tạo feature branch
-3. Commit changes
-4. Push to branch
-5. Tạo Pull Request
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
