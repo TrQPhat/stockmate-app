@@ -24,10 +24,10 @@ class ShoppingController {
 
     async createList(req, res) {
         try {
-            const { name } = req.body;
+            const { id, name } = req.body;
             const userUUID = req.user.user_id; // Lấy từ decoded token
             const newList = await ShoppingList.create({
-                id: uuidv4(),
+                id,
                 name,
                 user_id: userUUID
             });
@@ -53,7 +53,7 @@ class ShoppingController {
     }
 
     async updateList(req, res) {
-         try {
+        try {
             const userUUID = req.user.user_id;
             const list = await checkOwnership(req.params.listId, userUUID);
             if (!list) {
@@ -89,7 +89,7 @@ class ShoppingController {
             const { listId } = req.params;
             const userUUID = req.user.user_id;
             if (!await checkOwnership(listId, userUUID)) {
-                 return res.status(404).json({ error: "Danh sách không tồn tại hoặc bạn không có quyền truy cập." });
+                return res.status(404).json({ error: "Danh sách không tồn tại hoặc bạn không có quyền truy cập." });
             }
 
             const { product_id, item_name, quantity, unit } = req.body;
@@ -117,16 +117,16 @@ class ShoppingController {
             res.status(500).json({ error: "Lỗi khi thêm mặt hàng." });
         }
     }
-    
+
     async updateItemInList(req, res) {
         try {
             const { listId, itemId } = req.params;
             const userUUID = req.user.user_id;
             if (!await checkOwnership(listId, userUUID)) {
-                 return res.status(404).json({ error: "Danh sách không tồn tại hoặc bạn không có quyền truy cập." });
+                return res.status(404).json({ error: "Danh sách không tồn tại hoặc bạn không có quyền truy cập." });
             }
 
-            const item = await ShoppingListItem.findOne({ where: { id: itemId, shopping_list_id: listId }});
+            const item = await ShoppingListItem.findOne({ where: { id: itemId, shopping_list_id: listId } });
             if (!item) {
                 return res.status(404).json({ error: "Mặt hàng không tồn tại trong danh sách này." });
             }
@@ -145,13 +145,13 @@ class ShoppingController {
     }
 
     async deleteItemFromList(req, res) {
-         try {
+        try {
             const { listId, itemId } = req.params;
             const userUUID = req.user.user_id;
             if (!await checkOwnership(listId, userUUID)) {
-                 return res.status(404).json({ error: "Danh sách không tồn tại hoặc bạn không có quyền truy cập." });
+                return res.status(404).json({ error: "Danh sách không tồn tại hoặc bạn không có quyền truy cập." });
             }
-            const item = await ShoppingListItem.findOne({ where: { id: itemId, shopping_list_id: listId }});
+            const item = await ShoppingListItem.findOne({ where: { id: itemId, shopping_list_id: listId } });
             if (!item) {
                 return res.status(404).json({ error: "Mặt hàng không tồn tại trong danh sách này." });
             }
