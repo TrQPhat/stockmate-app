@@ -13,6 +13,7 @@ const StorageMember = sequelize.define(
       allowNull: false,
     },
     user_id: {
+      unique: true,
       type: DataTypes.CHAR(36),
       allowNull: false,
     },

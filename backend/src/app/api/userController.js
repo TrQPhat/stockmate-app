@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, StorageMember } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -116,12 +116,19 @@ class UserController {
       res.cookie("userRole", user.role, { ...cookieOptions, httpOnly: false });
       res.cookie("userName", user.name, { ...cookieOptions, httpOnly: false });
 
+      const storage_id = (
+        await StorageMember.findOne({
+          where: { user_id: user.user_id },
+          attributes: ["storage_id"],
+        })
+      )?.storage_id;
       res.status(200).json({
         message: "Đăng nhập thành công",
         response: true,
         accessToken,
         refreshToken,
-        user: user,
+        user,
+        ...(storage_id != null && { storage_id }),
       });
     } catch (error) {
       console.error("Error:", error);
