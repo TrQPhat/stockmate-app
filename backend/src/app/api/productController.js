@@ -7,7 +7,10 @@ class ProductController {
       const products = await Product.findAll();
       res.status(200).json(products);
     } catch (error) {
-      res.status(500).json({ error: "Lỗi khi lấy danh sách sản phẩm" });
+      res.status(500).json({
+        error: "Lỗi khi lấy danh sách sản phẩm",
+        detail: error.message,
+      });
     }
   }
 
@@ -58,7 +61,9 @@ class ProductController {
 
       res.status(201).json(newProduct);
     } catch (error) {
-      res.status(500).json({ error: "Lỗi khi tạo sản phẩm" });
+      res
+        .status(500)
+        .json({ error: "Lỗi khi tạo sản phẩm", detail: error.message });
     }
   }
 

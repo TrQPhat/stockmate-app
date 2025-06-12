@@ -89,7 +89,12 @@ class UserController {
 
       // 🔹 Tạo Access Token (hết hạn sau 1 giờ)
       const accessToken = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
+        {
+          id: user.id,
+          user_id: user.user_id,
+          email: user.email,
+          role: user.role,
+        },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
@@ -129,6 +134,7 @@ class UserController {
         refreshToken,
         user,
         ...(storage_id != null && { storage_id }),
+        user: user,
       });
     } catch (error) {
       console.error("Error:", error);
