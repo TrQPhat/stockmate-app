@@ -1,15 +1,15 @@
-import 'package:equatable/equatable.dart';
-
-class Storage extends Equatable {
+class Storage {
   final String id;
   final String name;
   final String ownerId;
+  final String key;
   final DateTime createdAt;
 
   const Storage({
     required this.id,
     required this.name,
     required this.ownerId,
+    required this.key,
     required this.createdAt,
   });
 
@@ -19,7 +19,9 @@ class Storage extends Equatable {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       ownerId: json['owner_id'] ?? '',
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      key: json['key'] ?? '',
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 
@@ -29,10 +31,8 @@ class Storage extends Equatable {
       'id': id,
       'name': name,
       'owner_id': ownerId,
+      'key': key,
       'created_at': createdAt.toIso8601String(),
     };
   }
-
-  @override
-  List<Object> get props => [id, name, ownerId, createdAt];
 }

@@ -11,13 +11,12 @@ class StorageInitial extends StorageState {}
 
 class StorageLoading extends StorageState {}
 
-class StorageLoaded extends StorageState {
-  final List<Storage> storages;
-
-  const StorageLoaded(this.storages);
+class StorageSuccess extends StorageState {
+  final String storageId;
+  const StorageSuccess({required this.storageId});
 
   @override
-  List<Object> get props => [storages];
+  List<Object> get props => [storageId];
 }
 
 class StorageError extends StorageState {

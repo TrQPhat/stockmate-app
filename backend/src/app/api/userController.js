@@ -165,7 +165,8 @@ class UserController {
 
   async refreshToken(req, res) {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const { refresh_token: refreshToken } = req.body;
+
       if (!refreshToken) {
         return res
           .status(401)

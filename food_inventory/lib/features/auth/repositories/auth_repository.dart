@@ -26,16 +26,23 @@ class AuthRepository {
 
       final user = User.fromJson(response.data['user']);
 
+      // Lưu token và user data
+      final prefs = getIt<SharedPreferences>();
+      await prefs.setString(
+          AppConfig.accessTokenKey, response.data['accessToken']);
+      await prefs.setString(
+          AppConfig.refreshTokenKey, response.data['refreshToken']);
+      await prefs.setString(
+          AppConfig.nameStorageKey, response.data['storage_name'] ?? "");
+      await prefs.setString(
+          AppConfig.codeStorageKey, response.data['storage_key'] ?? "");
+      await prefs.setString(
+          AppConfig.currentStorageKey, response.data['storage_id'] ?? "");
+      await prefs.setString(AppConfig.userKey, user.toJson().toString());
+      await prefs.setString(AppConfig.userIdKey, user.userId);
       if (rememberMe) {
-        // Lưu token và user data
-        final prefs = getIt<SharedPreferences>();
-        await prefs.setString(AppConfig.tokenKey, response.data['accessToken']);
-        await prefs.setString(AppConfig.userKey, user.toJson().toString());
-        await prefs.setString(AppConfig.userId, user.userId);
         await prefs.setString(
             AppConfig.lastLoginTimeKey, DateTime.now().toIso8601String());
-        await prefs.setString(AppConfig.currentStorageKey,
-            response.data['storage_id'].toString());
       }
 
       return user;
@@ -56,7 +63,7 @@ class AuthRepository {
     final currentTime = DateTime.now();
     final difference = currentTime.difference(lastLoginTime);
 
-    // Nếu bé ngày
+    // Nếu bé hơn 5 ngày
     return difference.inDays <= 5;
   }
 
@@ -92,12 +99,13 @@ class AuthRepository {
   //Refresh Token
   Future<bool> refreshToken() async {
     try {
-      final response = await _dioClient.post(
-        '$baseUrl/refreshToken',
-      );
-
       final prefs = getIt<SharedPreferences>();
-      await prefs.setString(AppConfig.tokenKey, response.data['accessToken']);
+      final refreshToken = prefs.getString(AppConfig.refreshTokenKey);
+      final response = await _dioClient
+          .post('$baseUrl/refreshToken', data: {'refresh_token': refreshToken});
+
+      await prefs.setString(
+          AppConfig.accessTokenKey, response.data['accessToken']);
       await prefs.setString(
           AppConfig.lastLoginTimeKey, DateTime.now().toIso8601String());
       return true;
@@ -122,9 +130,9 @@ class AuthRepository {
 
       //Xoá dữ liệu nền
       final prefs = getIt<SharedPreferences>();
-      await prefs.remove(AppConfig.tokenKey);
+      await prefs.remove(AppConfig.accessTokenKey);
       await prefs.remove(AppConfig.userKey);
-      await prefs.remove(AppConfig.userId);
+      await prefs.remove(AppConfig.userIdKey);
       await prefs.remove(AppConfig.lastLoginTimeKey);
       await prefs.remove(AppConfig.currentStorageKey);
 
@@ -156,7 +164,7 @@ class AuthRepository {
   Future<String?> getUserId() async {
     try {
       final prefs = getIt<SharedPreferences>();
-      final userId = prefs.getString(AppConfig.userId);
+      final userId = prefs.getString(AppConfig.userIdKey);
 
       if (userId != null) {
         return userId;
@@ -172,6 +180,6 @@ class AuthRepository {
   Future<bool> isLoggedIn() async {
     final prefs = getIt<SharedPreferences>();
     return prefs.containsKey(AppConfig.userKey) &&
-        prefs.containsKey(AppConfig.tokenKey);
+        prefs.containsKey(AppConfig.accessTokenKey);
   }
 }

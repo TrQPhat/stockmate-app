@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:stock_mate/features/home/views/home_page.dart';
 import 'package:stock_mate/features/splash/views/splash_screen.dart';
+import 'package:stock_mate/features/user/views/user_management_page.dart';
 import '../../features/auth/views/login_page.dart';
 import '../../features/auth/views/register_page.dart';
 import '../../features/products/views/products_page.dart';
@@ -47,6 +48,10 @@ class AppRouter {
       GoRoute(
         path: '/statistics',
         builder: (context, state) => const StatisticsPage(),
+      ),
+      GoRoute(
+        path: '/user',
+        builder: (context, state) => const UserManagementPage(),
       ),
     ],
   );

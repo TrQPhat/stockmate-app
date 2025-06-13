@@ -6,10 +6,10 @@ import 'package:stock_mate/features/storage/models/storage.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/config/app_config.dart';
 
-class StorageRepository {
+class UserRepository {
   final DioClient _dioClient;
 
-  StorageRepository(this._dioClient);
+  UserRepository(this._dioClient);
 
   final baseUrl = "${AppConfig.baseUrl}/storages";
 

@@ -35,10 +35,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       currentStorageId = prefs.getString(AppConfig.currentStorageKey);
     });
-    print("currentStorageId: $currentStorageId");
-
-    // TODO: Load storage details from API or local storage
-    // For now we're using a default name
   }
 
   @override
@@ -101,10 +97,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: currentStorageId != null ? _buildMainView() : _buildNoStorageView(),
+      body: currentStorageId == "" ? _buildNoStorageView() : _buildMainView(),
 
       // Thêm floating action button
-      floatingActionButton: currentStorageId == null
+      floatingActionButton: currentStorageId == ""
           ? FloatingActionButton(
               onPressed: () {
                 // Hiển thị bottom sheet với 2 nút
@@ -301,7 +297,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => context.push('/storage'),
+                      onPressed: () => context.push('/user'),
                       icon: const Icon(
                         Icons.settings,
                         color: Colors.white,
@@ -505,20 +501,42 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.trim().isNotEmpty) {
-                final prefs = getIt<SharedPreferences>();
-                prefs.setString(AppConfig.currentStorageKey, 'temp_storage_id');
+          // ElevatedButton(
+          //   onPressed: () {
+          //     if (nameController.text.trim().isNotEmpty) {
+          //       setState(() {
+          //         currentStorageId = 'temp_storage_id';
+          //         storageName = nameController.text.trim();
+          //       });
+          //       Navigator.pop(context);
+          //     }
+          //   },
+          //   child: const Text('Tạo'),
+          // ),
+          BlocListener<StorageBloc, StorageState>(
+            listener: (context, state) {
+              if (state is StorageSuccess) {
                 setState(() {
-                  currentStorageId = 'temp_storage_id';
-                  storageName = nameController.text.trim();
+                  currentStorageId = state.storageId;
                 });
-                Navigator.pop(context);
+
+                Navigator.pop(context); // Đóng dialog sau khi tạo xong
+              } else if (state is StorageError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
               }
             },
-            child: const Text('Tạo'),
-          ),
+            child: ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isNotEmpty) {
+                  context.read<StorageBloc>().add(StorageCreateRequested(name));
+                }
+              },
+              child: const Text('Tạo'),
+            ),
+          )
         ],
       ),
     );

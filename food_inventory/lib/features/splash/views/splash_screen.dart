@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:stock_mate/core/theme/constants.dart';
 import 'package:stock_mate/features/auth/repositories/auth_repository.dart';
 import 'package:stock_mate/features/splash/widgets/food_icons.dart';
+import 'package:stock_mate/services/refresh_token_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -48,6 +49,8 @@ class _SplashScreenState extends State<SplashScreen>
         Future.delayed(const Duration(milliseconds: 500), () {
           getIt<AuthRepository>().checkLoggedIn().then((loggedIn) {
             if (loggedIn) {
+              final tokenRefreshService = TokenRefreshService();
+              tokenRefreshService.refreshToken();
               // ignore: use_build_context_synchronously
               context.go("/home");
             } else {

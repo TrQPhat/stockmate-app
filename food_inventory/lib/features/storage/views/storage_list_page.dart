@@ -49,7 +49,7 @@ class _StorageListPageState extends State<StorageListPage> {
             );
           }
 
-          if (state is StorageLoaded) {
+          if (state is StorageSuccess) {
             if (state.storages.isEmpty) {
               return Center(
                 child: Column(
