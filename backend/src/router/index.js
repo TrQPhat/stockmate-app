@@ -7,6 +7,7 @@ const fcmTokenRouter = require("./fcmTokenRouters");
 const storageRouter = require("./storageRouters");
 const storageMemberRouter = require("./storageMemberRouters");
 const productLogRouter = require("./productLogRouters");
+const cookingHistoryRouter = require("./cookingHistoryRouters");
 
 router.use("/users", userRouter);
 router.use("/products", productRouter);
@@ -23,5 +24,5 @@ router.use("/storage-members", storageMemberRouter);
 router.use("/product-logs", productLogRouter);
 router.use("/shopping-lists", shoppingListRouter);
 router.use("/dishes", dishRouter);
-
+router.use("/cooking-history", cookingHistoryRouter);
 module.exports = router;
