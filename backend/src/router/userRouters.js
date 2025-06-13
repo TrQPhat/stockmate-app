@@ -6,6 +6,7 @@ const authToken = require("../middleware/authToken");
 router.get("/", authToken, userController.getAll);
 router.get("/:id", authToken, userController.getById);
 router.post("/login", userController.login);
+router.post("/logout", userController.logout);
 router.post("/refreshToken", userController.refreshToken);
 router.post("/register", userController.register);
 router.put("/:id", authToken, userController.update);

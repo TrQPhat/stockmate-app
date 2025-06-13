@@ -16,6 +16,10 @@ const Storage = sequelize.define(
       type: DataTypes.CHAR(36),
       allowNull: false,
     },
+    key: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

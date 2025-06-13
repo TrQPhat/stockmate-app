@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+
 import '../../../core/network/dio_client.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/di/injection_container.dart';
@@ -107,9 +109,29 @@ class AuthRepository {
 
   // Đăng xuất
   Future<void> logout() async {
-    final prefs = getIt<SharedPreferences>();
-    await prefs.remove(AppConfig.userKey);
-    await prefs.remove(AppConfig.tokenKey);
+    try {
+      await _dioClient.post(
+        '$baseUrl/logout',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          extra: {'withCredentials': true},
+        ),
+      );
+
+      //Xoá dữ liệu nền
+      final prefs = getIt<SharedPreferences>();
+      await prefs.remove(AppConfig.tokenKey);
+      await prefs.remove(AppConfig.userKey);
+      await prefs.remove(AppConfig.userId);
+      await prefs.remove(AppConfig.lastLoginTimeKey);
+      await prefs.remove(AppConfig.currentStorageKey);
+
+      print("Đăng xuất thành công.");
+    } catch (e) {
+      print('Lỗi khi đăng xuất: $e');
+    }
   }
 
   // Lấy user hiện tại

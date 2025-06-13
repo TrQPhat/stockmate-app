@@ -142,6 +142,27 @@ class UserController {
     }
   }
 
+  async logout(req, res) {
+    try {
+      // Xóa các cookie đã lưu khi đăng nhập
+      res.clearCookie("accessToken", { path: "/" });
+      res.clearCookie("refreshToken", { path: "/" });
+      res.clearCookie("userRole", { path: "/" });
+      res.clearCookie("userName", { path: "/" });
+
+      return res.status(200).json({
+        message: "Đăng xuất thành công",
+        response: true,
+      });
+    } catch (error) {
+      console.error("Logout Error:", error);
+      return res.status(500).json({
+        message: "Đã xảy ra lỗi khi đăng xuất: " + error.message,
+        response: false,
+      });
+    }
+  }
+
   async refreshToken(req, res) {
     try {
       const refreshToken = req.cookies.refreshToken;

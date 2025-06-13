@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/di/injection_container.dart';
+import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
 import 'package:stock_mate/features/storage/models/storage.dart';
 
 import '../../../core/theme/app_theme.dart';
@@ -18,18 +20,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? currentStorageId;
+  String? storageName =
+      "Kho của tôi"; // Default name until we load the actual storage
 
   @override
   void initState() {
     super.initState();
     // Kiểm tra storage hiện tại khi vào trang
-    //context.read<StorageBloc>().add(CheckCurrentStorage());
     checkCurrentStorage();
   }
 
   void checkCurrentStorage() async {
-    currentStorageId =
-        getIt<SharedPreferences>().getString(AppConfig.currentStorageKey);
+    final prefs = getIt<SharedPreferences>();
+    setState(() {
+      currentStorageId = prefs.getString(AppConfig.currentStorageKey);
+    });
+    print("currentStorageId: $currentStorageId");
+
+    // TODO: Load storage details from API or local storage
+    // For now we're using a default name
   }
 
   @override
@@ -44,20 +53,156 @@ class _HomePageState extends State<HomePage> {
               // TODO: Handle notifications
             },
           ),
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              // TODO: Handle profile
+            onSelected: (value) {
+              if (value == 'logout') {
+                _showLogoutConfirmDialog(context);
+              } else if (value == 'profile') {
+                // TODO: Navigate to profile page
+              } else if (value == 'settings') {
+                // TODO: Navigate to settings page
+              }
             },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    const Icon(Icons.person, color: AppTheme.primaryGreen),
+                    SizedBox(width: 8.w),
+                    const Text('Hồ sơ cá nhân'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    const Icon(Icons.settings, color: AppTheme.primaryGreen),
+                    SizedBox(width: 8.w),
+                    const Text('Cài đặt'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    const Icon(Icons.logout, color: Colors.red),
+                    SizedBox(width: 8.w),
+                    const Text('Đăng xuất',
+                        style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
       body: currentStorageId != null ? _buildMainView() : _buildNoStorageView(),
 
       // Thêm floating action button
-      floatingActionButton: currentStorageId != null
-          ? _buildStorageOptionsButton()
+      floatingActionButton: currentStorageId == null
+          ? FloatingActionButton(
+              onPressed: () {
+                // Hiển thị bottom sheet với 2 nút
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) => Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(16.r)),
+                    ),
+                    padding: EdgeInsets.all(16.w),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Create storage button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48.h,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context); // Đóng bottom sheet
+                              _showCreateStorageDialog();
+                            },
+                            icon: const Icon(Icons.add),
+                            label: Text(
+                              'Tạo kho mới',
+                              style: TextStyle(fontSize: 16.sp),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        // Join storage button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48.h,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context); // Đóng bottom sheet
+                              _showJoinStorageDialog();
+                            },
+                            icon: const Icon(Icons.group_add),
+                            label: Text(
+                              'Tham gia kho',
+                              style: TextStyle(fontSize: 16.sp),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.primaryGreen,
+                              side: const BorderSide(
+                                  color: AppTheme.primaryGreen),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                            height: MediaQuery.of(context).viewInsets.bottom),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              backgroundColor: AppTheme.primaryGreen,
+              child: const Icon(Icons.more_horiz),
+            )
           : const SizedBox.shrink(),
+    );
+  }
+
+  // Hiển thị dialog xác nhận đăng xuất
+  void _showLogoutConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận đăng xuất'),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Gọi event đăng xuất
+              context.read<AuthBloc>().add(LogoutRequested());
+
+              // Điều hướng về trang login
+              context.go('/login');
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Đăng xuất'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -104,71 +249,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           SizedBox(height: 48.h),
-          FloatingActionButton(
-            onPressed: () {
-              // Hiển thị bottom sheet với 2 nút
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                isScrollControlled: true,
-                builder: (context) => Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(16.r)),
-                  ),
-                  padding: EdgeInsets.all(16.w),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Create storage button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48.h,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(context); // Đóng bottom sheet
-                            _showCreateStorageDialog();
-                          },
-                          icon: const Icon(Icons.add),
-                          label: Text(
-                            'Tạo kho mới',
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      // Join storage button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48.h,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(context); // Đóng bottom sheet
-                            _showJoinStorageDialog();
-                          },
-                          icon: const Icon(Icons.group_add),
-                          label: Text(
-                            'Tham gia kho',
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.primaryGreen,
-                            side:
-                                const BorderSide(color: AppTheme.primaryGreen),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                          height: MediaQuery.of(context).viewInsets.bottom),
-                    ],
-                  ),
-                ),
-              );
-            },
-            child: const Icon(Icons.add),
-            backgroundColor: AppTheme.primaryGreen,
-          )
         ],
       ),
     );
@@ -210,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            "storage.name",
+                            storageName ?? "Kho của tôi",
                             style: TextStyle(
                               fontSize: 20.sp,
                               fontWeight: FontWeight.bold,
@@ -221,7 +301,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => context.go('/storage'),
+                      onPressed: () => context.push('/storage'),
                       icon: const Icon(
                         Icons.settings,
                         color: Colors.white,
@@ -292,22 +372,22 @@ class _HomePageState extends State<HomePage> {
                 _buildActionCard(
                   icon: Icons.add_box,
                   title: 'Thêm sản phẩm',
-                  onTap: () => context.go('/products'),
+                  onTap: () => context.push('/products'),
                 ),
                 _buildActionCard(
                   icon: Icons.shopping_cart,
                   title: 'Danh sách mua sắm',
-                  onTap: () => context.go('/shopping'),
+                  onTap: () => context.push('/shopping'),
                 ),
                 _buildActionCard(
                   icon: Icons.storage,
                   title: 'Quản lý kho',
-                  onTap: () => context.go('/storage'),
+                  onTap: () => context.push('/storage'),
                 ),
                 _buildActionCard(
                   icon: Icons.analytics,
                   title: 'Thống kê',
-                  onTap: () => context.go('/statistics'),
+                  onTap: () => context.push('/statistics'),
                 ),
               ],
             ),
@@ -425,25 +505,20 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
-          // ElevatedButton(
-          //       onPressed: state is StorageLoading
-          //           ? null
-          //           : () {
-          //               // if (nameController.text.trim().isNotEmpty) {
-          //               //   context.read<StorageBloc>().add(
-          //               //         CreateStorage(nameController.text.trim()),
-          //               //       );
-          //               //   Navigator.pop(context);
-          //               // }
-          //             },
-          //       child: state is StorageLoading
-          //           ? const SizedBox(
-          //               width: 16,
-          //               height: 16,
-          //               child: CircularProgressIndicator(strokeWidth: 2),
-          //             )
-          //           : const Text('Tạo'),
-          //     );
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.trim().isNotEmpty) {
+                final prefs = getIt<SharedPreferences>();
+                prefs.setString(AppConfig.currentStorageKey, 'temp_storage_id');
+                setState(() {
+                  currentStorageId = 'temp_storage_id';
+                  storageName = nameController.text.trim();
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Tạo'),
+          ),
         ],
       ),
     );
@@ -468,71 +543,25 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
-          // BlocBuilder<StorageBloc, StorageState>(
-          //   builder: (context, state) {
-          //     return ElevatedButton(
-          //       onPressed: state is StorageLoading
-          //           ? null
-          //           : () {
-          //               // if (codeController.text.trim().isNotEmpty) {
-          //               //   context.read<StorageBloc>().add(
-          //               //         JoinStorage(codeController.text.trim()),
-          //               //       );
-          //               //   Navigator.pop(context);
-          //               // }
-          //             },
-          //       child: state is StorageLoading
-          //           ? const SizedBox(
-          //               width: 16,
-          //               height: 16,
-          //               child: CircularProgressIndicator(strokeWidth: 2),
-          //             )
-          //           : const Text('Tham gia'),
-          //     );
-          //   },
-          // ),
+          ElevatedButton(
+            onPressed: () {
+              if (codeController.text.trim().isNotEmpty) {
+                // TODO: Implement storage joining
+                // For now, just simulate storage joining
+                final prefs = getIt<SharedPreferences>();
+                prefs.setString(
+                    AppConfig.currentStorageKey, 'joined_storage_id');
+                setState(() {
+                  currentStorageId = 'joined_storage_id';
+                  storageName = 'Kho đã tham gia';
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Tham gia'),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStorageOptionsButton() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Tạo kho mới
-        FloatingActionButton.extended(
-          onPressed: () => _showCreateStorageDialog(),
-          heroTag: "create_storage",
-          backgroundColor: AppTheme.primaryGreen,
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: Text(
-            'Tạo kho mới',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        SizedBox(height: 12.h),
-
-        // Tham gia kho
-        FloatingActionButton.extended(
-          onPressed: () => _showJoinStorageDialog(),
-          heroTag: "join_storage",
-          backgroundColor: AppTheme.lightGreen,
-          icon: const Icon(Icons.group_add, color: Colors.white),
-          label: Text(
-            'Tham gia kho',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
