@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, StorageMember } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -89,7 +89,12 @@ class UserController {
 
       // 🔹 Tạo Access Token (hết hạn sau 1 giờ)
       const accessToken = jwt.sign(
-        { id: user.id, user_id: user.user_id, email: user.email, role: user.role },
+        {
+          id: user.id,
+          user_id: user.user_id,
+          email: user.email,
+          role: user.role,
+        },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
@@ -116,16 +121,45 @@ class UserController {
       res.cookie("userRole", user.role, { ...cookieOptions, httpOnly: false });
       res.cookie("userName", user.name, { ...cookieOptions, httpOnly: false });
 
+      const storage_id = (
+        await StorageMember.findOne({
+          where: { user_id: user.user_id },
+          attributes: ["storage_id"],
+        })
+      )?.storage_id;
       res.status(200).json({
         message: "Đăng nhập thành công",
         response: true,
         accessToken,
         refreshToken,
+        user,
+        ...(storage_id != null && { storage_id }),
         user: user,
       });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: "Đã xảy ra lỗi: " + error.message });
+    }
+  }
+
+  async logout(req, res) {
+    try {
+      // Xóa các cookie đã lưu khi đăng nhập
+      res.clearCookie("accessToken", { path: "/" });
+      res.clearCookie("refreshToken", { path: "/" });
+      res.clearCookie("userRole", { path: "/" });
+      res.clearCookie("userName", { path: "/" });
+
+      return res.status(200).json({
+        message: "Đăng xuất thành công",
+        response: true,
+      });
+    } catch (error) {
+      console.error("Logout Error:", error);
+      return res.status(500).json({
+        message: "Đã xảy ra lỗi khi đăng xuất: " + error.message,
+        response: false,
+      });
     }
   }
 

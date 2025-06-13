@@ -17,7 +17,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   double _loadingProgress = 0.0;
-  bool _showWelcome = false;
+  final bool _showWelcome = false;
   late AnimationController _logoAnimationController;
   late Animation<double> _logoScaleAnimation;
 
@@ -48,8 +48,10 @@ class _SplashScreenState extends State<SplashScreen>
         Future.delayed(const Duration(milliseconds: 500), () {
           getIt<AuthRepository>().checkLoggedIn().then((loggedIn) {
             if (loggedIn) {
+              // ignore: use_build_context_synchronously
               context.go("/home");
             } else {
+              // ignore: use_build_context_synchronously
               context.go("/login");
             }
           });

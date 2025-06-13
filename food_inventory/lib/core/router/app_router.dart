@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 import 'package:stock_mate/features/home/views/home_page.dart';
-import 'package:stock_mate/features/home/views/home_page2.dart';
 import 'package:stock_mate/features/splash/views/splash_screen.dart';
 import '../../features/auth/views/login_page.dart';
 import '../../features/auth/views/register_page.dart';

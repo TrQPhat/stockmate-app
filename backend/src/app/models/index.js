@@ -7,11 +7,13 @@ const Storage = require("./storages");
 const StorageMember = require("./storage_members");
 const Product = require("./products");
 const ProductLog = require("./product_log");
+
 const Category = require("./categories");
 const ShoppingList = require("./shopping_lists");
 const ShoppingListItem = require("./shopping_list_items");
 const Dish = require("./dishes");
 const DishIngredient = require("./dish_ingredients");
+
 // --- Associations ---
 
 User.hasMany(FcmToken, { foreignKey: "user_id", sourceKey: "user_id" });
@@ -38,20 +40,26 @@ Product.belongsTo(Category, { foreignKey: "category_id" });
 User.hasMany(ShoppingList, { foreignKey: "user_id", sourceKey: "user_id" });
 ShoppingList.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
 
-ShoppingList.hasMany(ShoppingListItem, { foreignKey: "shopping_list_id", onDelete: 'CASCADE' });
+ShoppingList.hasMany(ShoppingListItem, {
+  foreignKey: "shopping_list_id",
+  onDelete: "CASCADE",
+});
 ShoppingListItem.belongsTo(ShoppingList, { foreignKey: "shopping_list_id" });
 
 Product.hasMany(ShoppingListItem, { foreignKey: "product_id" });
 ShoppingListItem.belongsTo(Product, { foreignKey: "product_id" });
 
-User.hasMany(Dish, { foreignKey: 'created_by_user_id', sourceKey: 'user_id' });
-Dish.belongsTo(User, { foreignKey: 'created_by_user_id', targetKey: 'user_id' });
+User.hasMany(Dish, { foreignKey: "created_by_user_id", sourceKey: "user_id" });
+Dish.belongsTo(User, {
+  foreignKey: "created_by_user_id",
+  targetKey: "user_id",
+});
 
-Dish.hasMany(DishIngredient, { foreignKey: 'dish_id', onDelete: 'CASCADE' });
-DishIngredient.belongsTo(Dish, { foreignKey: 'dish_id' });
+Dish.hasMany(DishIngredient, { foreignKey: "dish_id", onDelete: "CASCADE" });
+DishIngredient.belongsTo(Dish, { foreignKey: "dish_id" });
 
-Product.hasMany(DishIngredient, { foreignKey: 'product_id' });
-DishIngredient.belongsTo(Product, { foreignKey: 'product_id' });
+Product.hasMany(DishIngredient, { foreignKey: "product_id" });
+DishIngredient.belongsTo(Product, { foreignKey: "product_id" });
 
 // Export các model cùng sequelize instance
 module.exports = {
@@ -66,5 +74,5 @@ module.exports = {
   ShoppingList,
   ShoppingListItem,
   Dish,
-  DishIngredient
+  DishIngredient,
 };

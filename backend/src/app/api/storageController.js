@@ -1,4 +1,5 @@
-const { Storage } = require("../models");
+const { v4: uuidv4 } = require("uuid");
+const { Storage, StorageMember } = require("../models");
 
 class StorageController {
   // Lấy danh sách tất cả storage
@@ -25,19 +26,56 @@ class StorageController {
     }
   }
 
-  // Tạo mới storage
+  generateRandomKey(length = 10) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let key = "";
+    for (let i = 0; i < length; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  }
+
+  async generateUniqueKey() {
+    let key;
+    let exists = true;
+
+    while (exists) {
+      key = this.generateRandomKey();
+      const existing = await Storage.findOne({ where: { key } });
+      exists = !!existing;
+    }
+
+    return key;
+  }
+
   async createStorage(req, res) {
     try {
-      const { id, name, owner_id } = req.body;
+      const { id = uuidv4(), name, owner_id } = req.body;
+
+      if (!name || !owner_id) {
+        return res.status(400).json({ error: "Thiếu name hoặc owner_id" });
+      }
+
+      const key = await this.generateUniqueKey();
 
       const newStorage = await Storage.create({
         id,
         name,
+        key,
         owner_id,
+      });
+
+      await StorageMember.create({
+        id: uuidv4(),
+        storage_id: newStorage.id,
+        user_id: owner_id,
+        role: "owner",
+        joined_at: new Date(),
       });
 
       res.status(201).json(newStorage);
     } catch (error) {
+      console.error("Error creating storage:", error);
       res.status(500).json({ error: "Lỗi khi tạo storage" });
     }
   }

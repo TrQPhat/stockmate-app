@@ -7,6 +7,9 @@ const fcmTokenRouter = require("./fcmTokenRouters");
 const storageRouter = require("./storageRouters");
 const storageMemberRouter = require("./storageMemberRouters");
 const productLogRouter = require("./productLogRouters");
+
+router.use("/users", userRouter);
+router.use("/products", productRouter);
 const categoryRouter = require("./categoryRouters");
 const shoppingListRouter = require("./shoppingListRouters");
 const dishRouter = require("./dishRouters");
