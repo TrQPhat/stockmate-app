@@ -14,7 +14,7 @@ const ShoppingListItem = sequelize.define(
     },
     product_id: {
       type: DataTypes.CHAR(36),
-      allowNull: true, // Có thể là một món hàng tùy chỉnh không có trong kho
+      allowNull: true,
     },
     item_name: {
       type: DataTypes.TEXT,
@@ -27,6 +27,11 @@ const ShoppingListItem = sequelize.define(
     unit: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0.00,
     },
     is_purchased: {
       type: DataTypes.BOOLEAN,
