@@ -16,13 +16,21 @@ const ShoppingList = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    purchase_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    total_cost: {
+      type: DataTypes.DECIMAL(15, 2),
+      defaultValue: 0.00,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
     updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     }
   },
   {

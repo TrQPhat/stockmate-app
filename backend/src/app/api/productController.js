@@ -35,7 +35,7 @@ class ProductController {
         id,
         storage_id,
         name,
-        category,
+        category_id,
         quantity,
         unit,
         import_date,
@@ -49,7 +49,7 @@ class ProductController {
         id,
         storage_id,
         name,
-        category,
+        category_id,
         quantity,
         unit,
         import_date,
@@ -79,7 +79,7 @@ class ProductController {
       const {
         storage_id,
         name,
-        category,
+        category_id,
         quantity,
         unit,
         import_date,
@@ -91,7 +91,7 @@ class ProductController {
 
       product.storage_id = storage_id ?? product.storage_id;
       product.name = name ?? product.name;
-      product.category = category ?? product.category;
+      product.category_id = category_id ?? product.category_id;
       product.quantity = quantity ?? product.quantity;
       product.unit = unit ?? product.unit;
       product.import_date = import_date ?? product.import_date;
