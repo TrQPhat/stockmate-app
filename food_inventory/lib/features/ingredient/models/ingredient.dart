@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-enum ProductStatus { conDung, hetHan, daDung, huy }
+enum IngredientStatus { conDung, hetHan, daDung, huy }
 
-class Product extends Equatable {
+class Ingredient extends Equatable {
   final String id;
   final String storageId;
   final String name;
@@ -12,12 +12,12 @@ class Product extends Equatable {
   final DateTime? importDate;
   final DateTime? expireDate;
   final String? note;
-  final ProductStatus status;
+  final IngredientStatus status;
   final String? imagePath;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const Product({
+  const Ingredient({
     required this.id,
     required this.storageId,
     required this.name,
@@ -34,21 +34,27 @@ class Product extends Equatable {
   });
 
   // Factory constructor từ JSON
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory Ingredient.fromJson(Map<String, dynamic> json) {
+    return Ingredient(
       id: json['id'] ?? '',
       storageId: json['storage_id'] ?? '',
       name: json['name'] ?? '',
       categoryId: json['category_id'],
       quantity: json['quantity'] ?? 0,
       unit: json['unit'],
-      importDate: json['import_date'] != null ? DateTime.parse(json['import_date']) : null,
-      expireDate: json['expire_date'] != null ? DateTime.parse(json['expire_date']) : null,
+      importDate: json['import_date'] != null
+          ? DateTime.parse(json['import_date'])
+          : null,
+      expireDate: json['expire_date'] != null
+          ? DateTime.parse(json['expire_date'])
+          : null,
       note: json['note'],
       status: _parseStatus(json['status']),
       imagePath: json['image_path'],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(
+          json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 
@@ -71,48 +77,48 @@ class Product extends Equatable {
     };
   }
 
-  static ProductStatus _parseStatus(String? status) {
+  static IngredientStatus _parseStatus(String? status) {
     switch (status) {
       case 'con_dung':
-        return ProductStatus.conDung;
+        return IngredientStatus.conDung;
       case 'het_han':
-        return ProductStatus.hetHan;
+        return IngredientStatus.hetHan;
       case 'da_dung':
-        return ProductStatus.daDung;
+        return IngredientStatus.daDung;
       case 'huy':
-        return ProductStatus.huy;
+        return IngredientStatus.huy;
       default:
-        return ProductStatus.conDung;
+        return IngredientStatus.conDung;
     }
   }
 
-  static String _statusToString(ProductStatus status) {
+  static String _statusToString(IngredientStatus status) {
     switch (status) {
-      case ProductStatus.conDung:
+      case IngredientStatus.conDung:
         return 'con_dung';
-      case ProductStatus.hetHan:
+      case IngredientStatus.hetHan:
         return 'het_han';
-      case ProductStatus.daDung:
+      case IngredientStatus.daDung:
         return 'da_dung';
-      case ProductStatus.huy:
+      case IngredientStatus.huy:
         return 'huy';
     }
   }
 
   @override
   List<Object?> get props => [
-    id,
-    storageId,
-    name,
-    categoryId,
-    quantity,
-    unit,
-    importDate,
-    expireDate,
-    note,
-    status,
-    imagePath,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        storageId,
+        name,
+        categoryId,
+        quantity,
+        unit,
+        importDate,
+        expireDate,
+        note,
+        status,
+        imagePath,
+        createdAt,
+        updatedAt,
+      ];
 }

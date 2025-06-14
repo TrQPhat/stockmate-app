@@ -4,7 +4,7 @@ import 'package:stock_mate/features/splash/views/splash_screen.dart';
 import 'package:stock_mate/features/user/views/user_management_page.dart';
 import '../../features/auth/views/login_page.dart';
 import '../../features/auth/views/register_page.dart';
-import '../../features/products/views/products_page.dart';
+import '../../features/ingredient/views/ingredients_page.dart';
 import '../../features/storage/views/storage_page.dart';
 import '../../features/shopping/views/shopping_page.dart';
 import '../../features/statistics/views/statistics_page.dart';

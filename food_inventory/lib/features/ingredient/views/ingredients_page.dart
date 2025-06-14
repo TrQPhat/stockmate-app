@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../bloc/products_bloc.dart';
-import '../models/product.dart';
+import '../bloc/ingredients_bloc.dart';
+import '../models/ingredient.dart';
 import '../models/category.dart';
 
 class ProductsPage extends StatefulWidget {
@@ -21,7 +21,7 @@ class _ProductsPageState extends State<ProductsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProductsBloc>().add(const LoadProducts());
+    context.read<ProductsBloc>().add(const LoadIngredients());
     context.read<ProductsBloc>().add(LoadCategories());
   }
 
@@ -45,13 +45,13 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
         ],
       ),
-      body: BlocBuilder<ProductsBloc, ProductsState>(
+      body: BlocBuilder<ProductsBloc, IngredientsState>(
         builder: (context, state) {
-          if (state is ProductsLoading) {
+          if (state is IngredientsLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          
-          if (state is ProductsError) {
+
+          if (state is IngredientssError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +59,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   Text(state.message),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<ProductsBloc>().add(const LoadProducts());
+                      context.read<ProductsBloc>().add(const LoadIngredients());
                     },
                     child: const Text('Thử lại'),
                   ),
@@ -67,8 +67,8 @@ class _ProductsPageState extends State<ProductsPage> {
               ),
             );
           }
-          
-          if (state is ProductsLoaded) {
+
+          if (state is IngredientsLoaded) {
             return Padding(
               padding: EdgeInsets.all(16.w),
               child: Column(
@@ -80,21 +80,23 @@ class _ProductsPageState extends State<ProductsPage> {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          _buildCategoryChip('Tất cả', selectedCategoryId == null),
+                          _buildCategoryChip(
+                              'Tất cả', selectedCategoryId == null),
                           SizedBox(width: 8.w),
-                          ...state.categories!.map((category) => 
-                            Padding(
+                          ...state.categories!.map(
+                            (category) => Padding(
                               padding: EdgeInsets.only(right: 8.w),
                               child: _buildCategoryChip(
-                                category.name, 
+                                category.name,
                                 selectedCategoryId == category.id,
                                 onTap: () {
                                   setState(() {
                                     selectedCategoryId = category.id;
                                   });
                                   context.read<ProductsBloc>().add(
-                                    FilterProductsByCategory(category.id),
-                                  );
+                                        FilterIngredientsByCategory(
+                                            category.id),
+                                      );
                                 },
                               ),
                             ),
@@ -104,15 +106,16 @@ class _ProductsPageState extends State<ProductsPage> {
                     ),
                     SizedBox(height: 16.h),
                   ],
-                  
+
                   // Products list
                   Expanded(
-                    child: state.products.isEmpty
+                    child: state.ingredients.isEmpty
                         ? const Center(child: Text('Chưa có sản phẩm nào'))
                         : ListView.builder(
-                            itemCount: state.products.length,
+                            itemCount: state.ingredients.length,
                             itemBuilder: (context, index) {
-                              return _buildProductCard(state.products[index]);
+                              return _buildProductCard(
+                                  state.ingredients[index]);
                             },
                           ),
                   ),
@@ -120,7 +123,7 @@ class _ProductsPageState extends State<ProductsPage> {
               ),
             );
           }
-          
+
           return const Center(child: Text('Không có dữ liệu'));
         },
       ),
@@ -134,14 +137,18 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  Widget _buildCategoryChip(String label, bool isSelected, {VoidCallback? onTap}) {
+  Widget _buildCategoryChip(String label, bool isSelected,
+      {VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: onTap ?? () {
-        setState(() {
-          selectedCategoryId = null;
-        });
-        context.read<ProductsBloc>().add(const FilterProductsByCategory(null));
-      },
+      onTap: onTap ??
+          () {
+            setState(() {
+              selectedCategoryId = null;
+            });
+            context
+                .read<ProductsBloc>()
+                .add(const FilterIngredientsByCategory(null));
+          },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
@@ -160,7 +167,7 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  Widget _buildProductCard(Product product) {
+  Widget _buildProductCard(Ingredient product) {
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(16.w),
@@ -208,7 +215,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   ),
           ),
           SizedBox(width: 12.w),
-          
+
           // Product info
           Expanded(
             child: Column(
@@ -252,7 +259,7 @@ class _ProductsPageState extends State<ProductsPage> {
               ],
             ),
           ),
-          
+
           // Actions
           PopupMenuButton(
             icon: Icon(Icons.more_vert, size: 20.w),
@@ -282,7 +289,7 @@ class _ProductsPageState extends State<ProductsPage> {
   Color _getExpireColor(DateTime expireDate) {
     final now = DateTime.now();
     final difference = expireDate.difference(now).inDays;
-    
+
     if (difference < 0) {
       return Colors.red; // Đã hết hạn
     } else if (difference <= 7) {
@@ -298,7 +305,7 @@ class _ProductsPageState extends State<ProductsPage> {
 
   void _showSearchDialog(BuildContext context) {
     final searchController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -319,8 +326,8 @@ class _ProductsPageState extends State<ProductsPage> {
             onPressed: () {
               if (searchController.text.isNotEmpty) {
                 context.read<ProductsBloc>().add(
-                  SearchProducts(searchController.text),
-                );
+                      SearchIngredients(searchController.text),
+                    );
               }
               Navigator.pop(context);
             },
@@ -334,18 +341,20 @@ class _ProductsPageState extends State<ProductsPage> {
   void _showAddProductDialog(BuildContext context) {
     // TODO: Implement add product dialog
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chức năng thêm sản phẩm đang được phát triển')),
+      const SnackBar(
+          content: Text('Chức năng thêm sản phẩm đang được phát triển')),
     );
   }
 
-  void _showEditProductDialog(BuildContext context, Product product) {
+  void _showEditProductDialog(BuildContext context, Ingredient product) {
     // TODO: Implement edit product dialog
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chức năng chỉnh sửa sản phẩm đang được phát triển')),
+      const SnackBar(
+          content: Text('Chức năng chỉnh sửa sản phẩm đang được phát triển')),
     );
   }
 
-  void _showDeleteConfirmDialog(BuildContext context, Product product) {
+  void _showDeleteConfirmDialog(BuildContext context, Ingredient product) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -358,7 +367,7 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<ProductsBloc>().add(DeleteProduct(product.id));
+              context.read<ProductsBloc>().add(DeleteIngredient(product.id));
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

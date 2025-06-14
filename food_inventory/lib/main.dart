@@ -10,7 +10,7 @@ import 'package:stock_mate/services/refresh_token_service.dart';
 import 'core/di/injection_container.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/products/bloc/products_bloc.dart';
+import 'features/ingredient/bloc/ingredients_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -38,6 +38,7 @@ class AuthRepository {
           AppConfig.codeStorageKey, response.data['storage_key'] ?? "");
       await prefs.setString(
           AppConfig.currentStorageKey, response.data['storage_id'] ?? "");
+
       await prefs.setString(AppConfig.userKey, user.toJson().toString());
       await prefs.setString(AppConfig.userIdKey, user.userId);
       if (rememberMe) {

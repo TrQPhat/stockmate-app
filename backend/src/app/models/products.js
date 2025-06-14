@@ -16,7 +16,6 @@ const Product = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    category: DataTypes.TEXT,
     category_id: {
       type: DataTypes.CHAR(36),
       allowNull: true,

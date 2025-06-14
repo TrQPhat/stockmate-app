@@ -35,6 +35,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       currentStorageId = prefs.getString(AppConfig.currentStorageKey);
     });
+
+    print("Current Storage: $currentStorageId");
   }
 
   @override

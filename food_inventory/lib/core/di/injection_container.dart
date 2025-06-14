@@ -12,8 +12,8 @@ import '../config/app_config.dart';
 import '../network/dio_client.dart';
 import '../../features/auth/repositories/auth_repository.dart';
 
-import '../../features/products/repositories/products_repository.dart';
-import '../../features/products/bloc/products_bloc.dart';
+import '../../features/ingredient/repositories/ingredients_repository.dart';
+import '../../features/ingredient/bloc/ingredients_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -27,7 +27,7 @@ Future<void> initializeDependencies() async {
 
   // Dio Client
   getIt.registerSingleton<DioClient>(
-    DioClient(getIt<Dio>(), baseUrl: AppConfig.fullApiUrl),
+    DioClient(getIt<Dio>(), baseUrl: AppConfig.baseUrl),
   );
 
   // Repositories
