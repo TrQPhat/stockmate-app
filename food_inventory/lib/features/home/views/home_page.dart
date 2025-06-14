@@ -563,18 +563,18 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (codeController.text.trim().isNotEmpty) {
-                // TODO: Implement storage joining
-                // For now, just simulate storage joining
-                final prefs = getIt<SharedPreferences>();
-                prefs.setString(
-                    AppConfig.currentStorageKey, 'joined_storage_id');
-                setState(() {
-                  currentStorageId = 'joined_storage_id';
-                  storageName = 'Kho đã tham gia';
-                });
-                Navigator.pop(context);
-              }
+              // if (codeController.text.trim().isNotEmpty) {
+              //   // TODO: Implement storage joining
+              //   // For now, just simulate storage joining
+              //   final prefs = getIt<SharedPreferences>();
+              //   prefs.setString(
+              //       AppConfig.currentStorageKey, 'joined_storage_id');
+              //   setState(() {
+              //     currentStorageId = 'joined_storage_id';
+              //     storageName = 'Kho đã tham gia';
+              //   });
+              //   Navigator.pop(context);
+              // }
             },
             child: const Text('Tham gia'),
           ),

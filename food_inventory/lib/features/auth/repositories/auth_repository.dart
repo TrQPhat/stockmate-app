@@ -43,6 +43,8 @@ class AuthRepository {
       if (rememberMe) {
         await prefs.setString(
             AppConfig.lastLoginTimeKey, DateTime.now().toIso8601String());
+        await prefs.setString(AppConfig.currentStorageKey,
+            response.data['storage_id'].toString());
       }
 
       return user;
