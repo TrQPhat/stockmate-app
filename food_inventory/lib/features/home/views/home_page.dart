@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
-import 'package:stock_mate/features/storage/models/storage.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../storage/bloc/storage_bloc.dart';
@@ -35,6 +34,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       currentStorageId = prefs.getString(AppConfig.currentStorageKey);
     });
+
+    print("Current Storage: $currentStorageId");
   }
 
   @override
@@ -385,6 +386,11 @@ class _HomePageState extends State<HomePage> {
                   title: 'Thống kê',
                   onTap: () => context.push('/statistics'),
                 ),
+                _buildActionCard(
+                  icon: Icons.menu_book,
+                  title: 'Sổ tay công thức',
+                  onTap: () => context.push('/recipes'),
+                ),
               ],
             ),
           ),
@@ -563,18 +569,18 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (codeController.text.trim().isNotEmpty) {
-                // TODO: Implement storage joining
-                // For now, just simulate storage joining
-                final prefs = getIt<SharedPreferences>();
-                prefs.setString(
-                    AppConfig.currentStorageKey, 'joined_storage_id');
-                setState(() {
-                  currentStorageId = 'joined_storage_id';
-                  storageName = 'Kho đã tham gia';
-                });
-                Navigator.pop(context);
-              }
+              // if (codeController.text.trim().isNotEmpty) {
+              //   // TODO: Implement storage joining
+              //   // For now, just simulate storage joining
+              //   final prefs = getIt<SharedPreferences>();
+              //   prefs.setString(
+              //       AppConfig.currentStorageKey, 'joined_storage_id');
+              //   setState(() {
+              //     currentStorageId = 'joined_storage_id';
+              //     storageName = 'Kho đã tham gia';
+              //   });
+              //   Navigator.pop(context);
+              // }
             },
             child: const Text('Tham gia'),
           ),

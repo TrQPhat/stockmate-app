@@ -21,7 +21,7 @@ const ShoppingList = sequelize.define(
       allowNull: true,
     },
     total_cost: {
-      type: DataTypes.DECIMAL(15, 2),
+      type: DataTypes.TEXT,
       defaultValue: 0.00,
     },
     created_at: {

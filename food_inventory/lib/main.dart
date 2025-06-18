@@ -10,7 +10,9 @@ import 'package:stock_mate/services/refresh_token_service.dart';
 import 'core/di/injection_container.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/products/bloc/products_bloc.dart';
+import 'features/ingredient/bloc/ingredients_bloc.dart';
+import 'features/recipes/bloc/recipe_bloc.dart';
+import 'features/shopping/bloc/shopping_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,7 @@ void main() async {
 
   // Initialize dependencies
   await initializeDependencies();
-
+  final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
   final tokenRefreshService = TokenRefreshService();
   tokenRefreshService.startAutoRefresh();
 
@@ -43,6 +45,8 @@ class StockMateApp extends StatelessWidget {
             BlocProvider(create: (_) => getIt<ProductsBloc>()),
             BlocProvider(create: (_) => getIt<StorageBloc>()),
             BlocProvider(create: (_) => getIt<UserManagementBloc>()),
+            BlocProvider(create: (_) => getIt<ShoppingBloc>()),
+            BlocProvider(create: (_) => getIt<RecipeBloc>()),
           ],
           child: MaterialApp.router(
             title: 'Stock Mate',

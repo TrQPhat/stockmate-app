@@ -30,7 +30,7 @@ const ShoppingListItem = sequelize.define(
     },
 
     price: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.TEXT,
       defaultValue: 0.00,
     },
     is_purchased: {
@@ -38,8 +38,8 @@ const ShoppingListItem = sequelize.define(
       defaultValue: false,
     },
     created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     }
   },
   {

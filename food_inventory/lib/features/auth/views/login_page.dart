@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:stock_mate/core/theme/app_theme.dart';
 import 'package:stock_mate/features/auth/bloc/auth_bloc.dart';
 import 'package:stock_mate/features/auth/widgets/auth_text_field.dart';
-
-import 'package:stock_mate/core/theme/app_theme.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -60,7 +59,8 @@ class _LoginPageState extends State<LoginPage> {
                           width: 100.w,
                           height: 100.w,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen.withOpacity(0.2),
+                            color: const Color(
+                                0x332E7D32), // 0x33 là khoảng 20% của 0xFF
                             shape: BoxShape.circle,
                           ),
                           child: Icon(

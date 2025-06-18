@@ -19,6 +19,14 @@ class StorageSuccess extends StorageState {
   List<Object> get props => [storageId];
 }
 
+class StorageLoaded extends StorageState {
+  final List<Storage> storages;
+  const StorageLoaded({required this.storages});
+
+  @override
+  List<Object> get props => [storages];
+}
+
 class StorageError extends StorageState {
   final String message;
 

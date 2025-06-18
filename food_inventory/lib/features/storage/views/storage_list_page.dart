@@ -6,9 +6,9 @@ import 'package:stock_mate/features/home/widgets/error_widget.dart';
 import 'package:stock_mate/features/home/widgets/loading_widget.dart';
 import 'package:stock_mate/features/storage/bloc/storage_bloc.dart';
 
-import '../widgets/storage_card.dart';
 import '../widgets/create_storage_dialog.dart';
 import '../widgets/join_storage_dialog.dart';
+import '../widgets/storage_card.dart';
 
 class StorageListPage extends StatefulWidget {
   const StorageListPage({super.key});
@@ -49,7 +49,7 @@ class _StorageListPageState extends State<StorageListPage> {
             );
           }
 
-          if (state is StorageSuccess) {
+          if (state is StorageLoaded) {
             if (state.storages.isEmpty) {
               return Center(
                 child: Column(
