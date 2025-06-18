@@ -14,6 +14,7 @@ const ShoppingListItem = require("./shopping_list_items");
 const Dish = require("./dishes");
 const DishIngredient = require("./dish_ingredients");
 const CookingHistory = require("./cooking_history");
+const Position = require("./position");
 
 // --- Associations ---
 
@@ -67,6 +68,8 @@ CookingHistory.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
 
 Dish.hasMany(CookingHistory, { foreignKey: "dish_id" });
 CookingHistory.belongsTo(Dish, { foreignKey: "dish_id" });
+Product.belongsTo(Position, { foreignKey: "position_id" });
+Position.hasMany(Product, { foreignKey: "position_id" });
 
 // Export các model cùng sequelize instance
 module.exports = {
@@ -83,4 +86,5 @@ module.exports = {
   Dish,
   DishIngredient,
   CookingHistory,
+  Position,
 };

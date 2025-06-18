@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:stock_mate/core/di/injection_container.dart';
-import 'package:stock_mate/features/auth/repositories/auth_repository.dart';
+import 'package:stock_mate/repositories/auth_repository.dart';
 
 class TokenRefreshService {
   Timer? _refreshTimer;

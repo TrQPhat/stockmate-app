@@ -34,6 +34,7 @@ const Product = sequelize.define(
       allowNull: false,
       defaultValue: "con_dung",
     },
+    position_id: { type: DataTypes.INTEGER, allowNull: true },
     image_path: DataTypes.TEXT,
     created_at: {
       type: DataTypes.DATE,

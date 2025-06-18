@@ -1,13 +1,13 @@
 import 'package:go_router/go_router.dart';
-import 'package:stock_mate/features/home/views/home_page.dart';
-import 'package:stock_mate/features/splash/views/splash_screen.dart';
-import 'package:stock_mate/features/user/views/user_management_page.dart';
-import '../../features/auth/views/login_page.dart';
-import '../../features/auth/views/register_page.dart';
-import '../../features/ingredient/views/ingredients_page.dart';
-import '../../features/storage/views/storage_page.dart';
-import '../../features/shopping/views/shopping_page.dart';
-import '../../features/statistics/views/statistics_page.dart';
+import 'package:stock_mate/views/home/views/home_page.dart';
+import 'package:stock_mate/views/splash/views/splash_screen.dart';
+import 'package:stock_mate/views/user/views/user_management_page.dart';
+import '../../views/auth/views/login_page.dart';
+import '../../views/auth/views/register_page.dart';
+import '../../views/ingredient/views/ingredients_page.dart';
+import '../../views/storage/views/storage_page.dart';
+import '../../views/shopping/views/shopping_page.dart';
+import '../../views/statistics/views/statistics_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(

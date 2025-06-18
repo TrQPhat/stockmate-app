@@ -8,9 +8,7 @@ const storageRouter = require("./storageRouters");
 const storageMemberRouter = require("./storageMemberRouters");
 const productLogRouter = require("./productLogRouters");
 const cookingHistoryRouter = require("./cookingHistoryRouters");
-
-router.use("/users", userRouter);
-router.use("/products", productRouter);
+const positionRouter = require("./positionRouter");
 const categoryRouter = require("./categoryRouters");
 const shoppingListRouter = require("./shoppingListRouters");
 const dishRouter = require("./dishRouters");
@@ -25,4 +23,5 @@ router.use("/product-logs", productLogRouter);
 router.use("/shopping-lists", shoppingListRouter);
 router.use("/dishes", dishRouter);
 router.use("/cooking-history", cookingHistoryRouter);
+router.use("/positions", positionRouter);
 module.exports = router;
