@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
+<<<<<<< HEAD
 -- Thời gian đã tạo: Th6 18, 2025 lúc 05:17 PM
+=======
+-- Thời gian đã tạo: Th6 14, 2025 lúc 05:27 AM
+>>>>>>> 6f48dfe87b4d306836832c6755b94c816a8d7f22
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -65,6 +69,61 @@ CREATE TABLE `cooking_history` (
 
 INSERT INTO `cooking_history` (`id`, `dish_id`, `user_id`, `cooked_at`, `notes`) VALUES
 ('ch-b-01', 'dish-b-01', 'user-uuid-002', '2025-06-14 19:30:00', 'Chồng khen ngon.');
+<<<<<<< HEAD
+=======
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `dishes`
+--
+
+CREATE TABLE `dishes` (
+  `id` char(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `instructions` text NOT NULL COMMENT 'Các bước thực hiện, công thức',
+  `image_url` text DEFAULT NULL COMMENT 'Đường dẫn đến hình ảnh món ăn',
+  `cook_time_minutes` int(11) DEFAULT NULL COMMENT 'Thời gian nấu (phút)',
+  `serving_size` int(11) DEFAULT NULL COMMENT 'Số người ăn',
+  `created_by_user_id` char(36) NOT NULL COMMENT 'Người dùng tạo công thức',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `dishes`
+--
+
+INSERT INTO `dishes` (`id`, `name`, `description`, `instructions`, `image_url`, `cook_time_minutes`, `serving_size`, `created_by_user_id`, `created_at`, `updated_at`) VALUES
+('dish-b-01', 'Thịt ba chỉ xào cải thìa', 'Món xào đơn giản, nhanh gọn cho bữa cơm gia đình.', '1. Luộc sơ cải thìa. 2. Thái thịt ba chỉ, xào cháy cạnh. 3. Phi thơm tỏi, cho cải và thịt vào xào chung, nêm dầu hào.', NULL, 15, 2, 'user-uuid-002', '2025-06-14 09:39:53', '2025-06-14 09:39:53'),
+('dish-d-01', 'Mì Ý chay tỏi và ớt', 'Spaghetti Aglio e Olio - món mì Ý kinh điển, siêu tốc và đầy hương vị.', '1. Luộc mì. 2. Phi thơm thật nhiều tỏi và ớt khô trong dầu olive. 3. Vớt mì đã luộc vào chảo, đảo đều. Nêm muối, tiêu và thêm lá oregano.', NULL, 12, 1, 'user-uuid-003', '2025-06-14 09:39:53', '2025-06-14 09:39:53');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `dish_ingredients`
+--
+
+CREATE TABLE `dish_ingredients` (
+  `id` char(36) NOT NULL,
+  `dish_id` char(36) NOT NULL,
+  `product_id` char(36) NOT NULL,
+  `quantity` decimal(10,2) NOT NULL COMMENT 'Số lượng cần dùng',
+  `unit` varchar(50) NOT NULL COMMENT 'Đơn vị tính (vd: gram, ml, muỗng canh)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+>>>>>>> 6f48dfe87b4d306836832c6755b94c816a8d7f22
+
+--
+-- Đang đổ dữ liệu cho bảng `dish_ingredients`
+--
+
+INSERT INTO `dish_ingredients` (`id`, `dish_id`, `product_id`, `quantity`, `unit`) VALUES
+('di-b-01', 'dish-b-01', 'prod-b-001', 300.00, 'gram'),
+('di-b-02', 'dish-b-01', 'prod-b-002', 1.00, 'bó'),
+('di-b-03', 'dish-b-01', 'prod-b-003', 50.00, 'gram'),
+('di-d-01', 'dish-d-01', 'prod-d-001', 150.00, 'gram'),
+('di-d-02', 'dish-d-01', 'prod-d-002', 1.00, 'muỗng cà phê');
 
 -- --------------------------------------------------------
 
@@ -112,10 +171,17 @@ CREATE TABLE `ingredients` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+<<<<<<< HEAD
 -- Đang đổ dữ liệu cho bảng `ingredients`
 --
 
 INSERT INTO `ingredients` (`id`, `storage_id`, `name`, `category_id`, `quantity`, `unit`, `import_date`, `expire_date`, `note`, `status`, `image_path`, `created_at`, `updated_at`) VALUES
+=======
+-- Đang đổ dữ liệu cho bảng `products`
+--
+
+INSERT INTO `products` (`id`, `storage_id`, `name`, `category_id`, `quantity`, `unit`, `import_date`, `expire_date`, `note`, `status`, `image_path`, `created_at`, `updated_at`) VALUES
+>>>>>>> 6f48dfe87b4d306836832c6755b94c816a8d7f22
 ('prod-b-001', 'storage-b-01', 'Thịt ba chỉ heo', 'cat-uuid-001', 500, 'gram', NULL, '2025-06-20', NULL, 'con_dung', NULL, '2025-06-14 09:39:53', '2025-06-14 09:39:53'),
 ('prod-b-002', 'storage-b-01', 'Cải thìa', 'cat-uuid-003', 1, 'bó', NULL, '2025-06-18', NULL, 'con_dung', NULL, '2025-06-14 09:39:53', '2025-06-14 09:39:53'),
 ('prod-b-003', 'storage-b-02', 'Tỏi', 'cat-uuid-003', 100, 'gram', NULL, '2025-08-14', NULL, 'con_dung', NULL, '2025-06-14 09:39:53', '2025-06-14 09:39:53'),
@@ -138,6 +204,7 @@ CREATE TABLE `ingredient_logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+<<<<<<< HEAD
 -- Đang đổ dữ liệu cho bảng `ingredient_logs`
 --
 
@@ -197,6 +264,15 @@ INSERT INTO `recipe_ingredients` (`id`, `dish_id`, `product_id`, `quantity`, `un
 ('di-d-01', 'dish-d-01', 'prod-d-001', 150.00, 'gram'),
 ('di-d-02', 'dish-d-01', 'prod-d-002', 1.00, 'muỗng cà phê');
 
+=======
+-- Đang đổ dữ liệu cho bảng `product_logs`
+--
+
+INSERT INTO `product_logs` (`id`, `product_id`, `action`, `quantity`, `note`, `created_at`) VALUES
+('pl-b-01', 'prod-b-001', 'da_dung', 300, 'Dùng cho món thịt xào cải thìa', '2025-06-14 09:39:53'),
+('pl-d-01', 'prod-d-001', 'cap_nhat', 1, 'Mới mua thêm 1 hộp', '2025-06-14 09:39:53');
+
+>>>>>>> 6f48dfe87b4d306836832c6755b94c816a8d7f22
 -- --------------------------------------------------------
 
 --
@@ -218,11 +294,18 @@ CREATE TABLE `shopping_lists` (
 --
 
 INSERT INTO `shopping_lists` (`id`, `user_id`, `name`, `created_at`, `updated_at`, `purchase_date`, `total_cost`) VALUES
+<<<<<<< HEAD
 ('3ef954d1-9298-4c7e-a580-fdbd62c8bac3', 'user-uuid-002', 'Danh sách test của tôi', '2025-06-14 02:59:10', '2025-06-14 07:31:54', '2025-06-14', '440000'),
 ('c139a49f-3629-4040-977d-02b17bf19e31', 'user-uuid-002', 'Mua do an vat', '2025-06-14 07:07:22', '2025-06-14 07:08:01', '2025-06-14', '30000'),
 ('sl-b-01', 'user-uuid-002', 'Mua đồ cuối tuần', '2025-06-14 09:39:53', '2025-06-15 18:28:22', '2025-06-18', '120000'),
 ('sl-d-01', 'user-uuid-003', 'Mua đồ làm bánh', '2025-06-14 09:39:53', '2025-06-14 09:39:53', '2025-06-16', '0.00'),
 ('sl-tet-uuid', 'user-uuid-002', 'Đi chợ Tết - Đã cập nhat', '2025-06-14 02:47:56', '2025-06-15 18:26:57', '2025-01-25', '0');
+=======
+('3ef954d1-9298-4c7e-a580-fdbd62c8bac3', 'user-uuid-002', 'Danh sách test của tôi', '2025-06-14 02:59:10', '2025-06-14 02:59:10', '2025-06-14', 0.00),
+('sl-b-01', 'user-uuid-002', 'Mua đồ cuối tuần', '2025-06-14 09:39:53', '2025-06-14 09:39:53', '2025-06-15', 120000.00),
+('sl-d-01', 'user-uuid-003', 'Mua đồ làm bánh', '2025-06-14 09:39:53', '2025-06-14 09:39:53', '2025-06-16', 0.00),
+('sl-tet-uuid', 'user-uuid-002', 'Đi chợ Tết - Đã cập nhật', '2025-06-14 02:47:56', '2025-06-14 03:03:30', '2025-01-25', 0.00);
+>>>>>>> 6f48dfe87b4d306836832c6755b94c816a8d7f22
 
 -- --------------------------------------------------------
 
@@ -247,6 +330,7 @@ CREATE TABLE `shopping_list_items` (
 --
 
 INSERT INTO `shopping_list_items` (`id`, `shopping_list_id`, `product_id`, `item_name`, `quantity`, `unit`, `is_purchased`, `created_at`, `price`) VALUES
+<<<<<<< HEAD
 ('2b2d3126-524b-4be1-9fc3-2e603cd1ba42', 'sl-b-01', NULL, 'thit heo', 2, 'kg', 0, '2025-06-14 05:34:59', '180000'),
 ('5606ae7e-033d-432b-8131-417800468838', 'c139a49f-3629-4040-977d-02b17bf19e31', NULL, 'banh trang', 3, 'goi', 1, '2025-06-14 07:07:55', '10000'),
 ('6a6b591d-8ee0-447b-9d48-5aa3e1b16a18', 'sl-tet-uuid', NULL, 'Bánh chưng', 2, 'cái', 0, '2025-06-14 02:53:15', '80000'),
@@ -256,6 +340,13 @@ INSERT INTO `shopping_list_items` (`id`, `shopping_list_id`, `product_id`, `item
 ('sli-b-02', 'sl-b-01', NULL, 'Cá lóc', 1, 'con', 1, '2025-06-14 09:39:53', '95000.00'),
 ('sli-d-01', 'sl-d-01', NULL, 'Bột mì số 13', 1, 'kg', 0, '2025-06-14 09:39:53', '50000.00'),
 ('sli-d-02', 'sl-d-01', NULL, 'Men nở khô', 1, 'hộp', 0, '2025-06-14 09:39:53', '30000.00');
+=======
+('6a6b591d-8ee0-447b-9d48-5aa3e1b16a18', 'sl-tet-uuid', NULL, 'Bánh chưng', 2, 'cái', 0, '2025-06-14 02:53:15', 80000.00),
+('sli-b-01', 'sl-b-01', NULL, 'Dầu hào', 1, 'chai', 1, '2025-06-14 09:39:53', 25000.00),
+('sli-b-02', 'sl-b-01', NULL, 'Cá lóc', 1, 'con', 1, '2025-06-14 09:39:53', 95000.00),
+('sli-d-01', 'sl-d-01', NULL, 'Bột mì số 13', 1, 'kg', 0, '2025-06-14 09:39:53', 50000.00),
+('sli-d-02', 'sl-d-01', NULL, 'Men nở khô', 1, 'hộp', 0, '2025-06-14 09:39:53', 30000.00);
+>>>>>>> 6f48dfe87b4d306836832c6755b94c816a8d7f22
 
 -- --------------------------------------------------------
 
