@@ -8,7 +8,7 @@ class UserMemberRepository {
   UserMemberRepository(this._dioClient);
 
   // Lấy danh sách thành viên trong kho
-  Future<List<UserMember>> getStorageMembers(String storageId) async {
+  Future<List<UserMember>> getStorageMembers(int storageId) async {
     try {
       final response = await _dioClient.get('/storages/$storageId/members');
 
@@ -21,7 +21,7 @@ class UserMemberRepository {
 
   // Thêm thành viên vào kho
   Future<UserMember> inviteUserToStorage(
-      String storageId, String email, MemberRole role) async {
+      int storageId, String email, MemberRole role) async {
     try {
       final response =
           await _dioClient.post('/storages/$storageId/members/invite', data: {
@@ -37,7 +37,7 @@ class UserMemberRepository {
 
   // Thay đổi quyền của thành viên
   Future<UserMember> updateMemberRole(
-      String storageId, String memberId, MemberRole role) async {
+      int storageId, String memberId, MemberRole role) async {
     try {
       final response =
           await _dioClient.put('/storages/$storageId/members/$memberId', data: {
@@ -51,8 +51,7 @@ class UserMemberRepository {
   }
 
   // Xóa thành viên khỏi kho
-  Future<void> removeMemberFromStorage(
-      String storageId, String memberId) async {
+  Future<void> removeMemberFromStorage(int storageId, String memberId) async {
     try {
       await _dioClient.delete('/storages/$storageId/members/$memberId');
     } catch (e) {
@@ -61,7 +60,7 @@ class UserMemberRepository {
   }
 
   // Lấy mã mời của kho
-  Future<String> getStorageInviteCode(String storageId) async {
+  Future<String> getStorageInviteCode(int storageId) async {
     try {
       final response = await _dioClient.get('/storages/$storageId/invite-code');
       return response.data['invite_code'] ?? '';
@@ -71,7 +70,7 @@ class UserMemberRepository {
   }
 
   // Tạo mã mời mới
-  Future<String> generateNewInviteCode(String storageId) async {
+  Future<String> generateNewInviteCode(int storageId) async {
     try {
       final response =
           await _dioClient.post('/storages/$storageId/invite-code');

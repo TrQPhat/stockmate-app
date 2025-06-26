@@ -4,7 +4,7 @@ enum MemberRole { owner, editor, viewer }
 
 class StorageMember extends Equatable {
   final String id;
-  final String storageId;
+  final int storageId;
   final String userId;
   final MemberRole role;
   final DateTime joinedAt;
@@ -24,7 +24,8 @@ class StorageMember extends Equatable {
       storageId: json['storage_id'] ?? '',
       userId: json['user_id'] ?? '',
       role: _parseRole(json['role']),
-      joinedAt: DateTime.parse(json['joined_at'] ?? DateTime.now().toIso8601String()),
+      joinedAt:
+          DateTime.parse(json['joined_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 

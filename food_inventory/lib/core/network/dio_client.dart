@@ -60,6 +60,17 @@ class DioClient {
         data: data, queryParameters: queryParameters, options: options);
   }
 
+  // PUT request
+  Future<Response> path(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.patch(path,
+        data: data, queryParameters: queryParameters, options: options);
+  }
+
   // DELETE request
   Future<Response> delete(
     String path, {

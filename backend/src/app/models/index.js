@@ -1,90 +1,90 @@
 const sequelize = require("../../config/db");
 
-// Import các model
+// Import models
 const User = require("./users");
 const FcmToken = require("./fcm_tokens");
 const Storage = require("./storages");
 const StorageMember = require("./storage_members");
-const Product = require("./products");
-const ProductLog = require("./product_log");
-
+const Grocery = require("./groceries");
+const Ingredient = require("./ingredients");
 const Category = require("./categories");
-const ShoppingList = require("./shopping_lists");
-const ShoppingListItem = require("./shopping_list_items");
+const Position = require("./positions");
 const Dish = require("./dishes");
-const DishIngredient = require("./dish_ingredients");
-const CookingHistory = require("./cooking_history");
-const Position = require("./position");
+const Note = require("./notes");
+const Favorite = require("./favorites");
+const Reminder = require("./reminders");
+const ShoppingList = require("./shopping_lists");
+const ShoppingItem = require("./shopping_items");
+const Notification = require("./notifications");
 
 // --- Associations ---
 
-User.hasMany(FcmToken, { foreignKey: "user_id", sourceKey: "user_id" });
-FcmToken.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
+// User
+User.hasMany(FcmToken, { foreignKey: "user_id" });
+FcmToken.belongsTo(User, { foreignKey: "user_id" });
 
-User.hasMany(Storage, { foreignKey: "owner_id", sourceKey: "user_id" });
-Storage.belongsTo(User, { foreignKey: "owner_id", targetKey: "user_id" });
+User.hasMany(Storage, { foreignKey: "owner_id" });
+Storage.belongsTo(User, { foreignKey: "owner_id" });
 
+User.hasMany(StorageMember, { foreignKey: "user_id" });
+StorageMember.belongsTo(User, { foreignKey: "user_id" });
+
+User.hasMany(Favorite, { foreignKey: "user_id" });
+Favorite.belongsTo(User, { foreignKey: "user_id" });
+
+User.hasMany(Reminder, { foreignKey: "user_id" });
+Reminder.belongsTo(User, { foreignKey: "user_id" });
+
+// Storage
 Storage.hasMany(StorageMember, { foreignKey: "storage_id" });
 StorageMember.belongsTo(Storage, { foreignKey: "storage_id" });
 
-User.hasMany(StorageMember, { foreignKey: "user_id", sourceKey: "user_id" });
-StorageMember.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
+Storage.hasMany(Grocery, { foreignKey: "storage_id" });
+Grocery.belongsTo(Storage, { foreignKey: "storage_id" });
 
-Storage.hasMany(Product, { foreignKey: "storage_id" });
-Product.belongsTo(Storage, { foreignKey: "storage_id" });
+Storage.hasMany(Dish, { foreignKey: "storage_id" });
+Dish.belongsTo(Storage, { foreignKey: "storage_id" });
 
-Product.hasMany(ProductLog, { foreignKey: "product_id" });
-ProductLog.belongsTo(Product, { foreignKey: "product_id" });
+Storage.hasMany(ShoppingList, { foreignKey: "storage_id" });
+ShoppingList.belongsTo(Storage, { foreignKey: "storage_id" });
 
-Category.hasMany(Product, { foreignKey: "category_id" });
-Product.belongsTo(Category, { foreignKey: "category_id" });
+// Grocery
+Grocery.hasMany(Ingredient, { foreignKey: "grocery_id" });
+Ingredient.belongsTo(Grocery, { foreignKey: "grocery_id" });
 
-User.hasMany(ShoppingList, { foreignKey: "user_id", sourceKey: "user_id" });
-ShoppingList.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
+Grocery.belongsTo(Category, { foreignKey: "category_id" });
+Category.hasMany(Grocery, { foreignKey: "category_id" });
 
-ShoppingList.hasMany(ShoppingListItem, {
-  foreignKey: "shopping_list_id",
-  onDelete: "CASCADE",
-});
-ShoppingListItem.belongsTo(ShoppingList, { foreignKey: "shopping_list_id" });
+Grocery.belongsTo(Position, { foreignKey: "position_id" });
+Position.hasMany(Grocery, { foreignKey: "position_id" });
 
-Product.hasMany(ShoppingListItem, { foreignKey: "product_id" });
-ShoppingListItem.belongsTo(Product, { foreignKey: "product_id" });
+// Dish
+Dish.hasMany(Note, { foreignKey: "dish_id" });
+Note.belongsTo(Dish, { foreignKey: "dish_id" });
 
-User.hasMany(Dish, { foreignKey: "created_by_user_id", sourceKey: "user_id" });
-Dish.belongsTo(User, {
-  foreignKey: "created_by_user_id",
-  targetKey: "user_id",
-});
+Dish.hasMany(Favorite, { foreignKey: "dish_id" });
+Favorite.belongsTo(Dish, { foreignKey: "dish_id" });
 
-Dish.hasMany(DishIngredient, { foreignKey: "dish_id", onDelete: "CASCADE" });
-DishIngredient.belongsTo(Dish, { foreignKey: "dish_id" });
+// Shopping List
+ShoppingList.hasMany(ShoppingItem, { foreignKey: "list_id", as: "items" });
+ShoppingItem.belongsTo(ShoppingList, { foreignKey: "list_id" });
 
-Product.hasMany(DishIngredient, { foreignKey: "product_id" });
-DishIngredient.belongsTo(Product, { foreignKey: "product_id" });
-
-User.hasMany(CookingHistory, { foreignKey: "user_id", sourceKey: "user_id" });
-CookingHistory.belongsTo(User, { foreignKey: "user_id", targetKey: "user_id" });
-
-Dish.hasMany(CookingHistory, { foreignKey: "dish_id" });
-CookingHistory.belongsTo(Dish, { foreignKey: "dish_id" });
-Product.belongsTo(Position, { foreignKey: "position_id" });
-Position.hasMany(Product, { foreignKey: "position_id" });
-
-// Export các model cùng sequelize instance
+// --- Export all models and sequelize instance ---
 module.exports = {
   sequelize,
   User,
   FcmToken,
   Storage,
   StorageMember,
-  Product,
-  ProductLog,
+  Grocery,
+  Ingredient,
   Category,
-  ShoppingList,
-  ShoppingListItem,
-  Dish,
-  DishIngredient,
-  CookingHistory,
   Position,
+  Dish,
+  Note,
+  Favorite,
+  Reminder,
+  ShoppingList,
+  ShoppingItem,
+  Notification,
 };

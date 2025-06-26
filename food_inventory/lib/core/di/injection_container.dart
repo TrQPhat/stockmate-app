@@ -1,24 +1,25 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
-import 'package:stock_mate/bloc/tag/position_bloc.dart';
+import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
+import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
+import 'package:stock_mate/bloc/positon/position_bloc.dart';
+import 'package:stock_mate/core/config/app_config.dart';
+import 'package:stock_mate/core/network/dio_client.dart';
+import 'package:stock_mate/repositories/auth_repository.dart';
 import 'package:stock_mate/repositories/categories_repository.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
+import 'package:stock_mate/repositories/groceries_repository.dart';
 import 'package:stock_mate/repositories/position_repository.dart';
+import 'package:stock_mate/repositories/shopping_item_repository.dart';
 import 'package:stock_mate/repositories/storage_repository.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/repositories/user_management_repository.dart';
 import 'package:stock_mate/repositories/user_repository.dart';
-
-import '../config/app_config.dart';
-import '../network/dio_client.dart';
-import '../../repositories/auth_repository.dart';
-
-import '../../repositories/ingredients_repository.dart';
-import '../../bloc/ingredient/ingredients_bloc.dart';
+import 'package:stock_mate/bloc/shopping-list/shopping_list_bloc.dart';
+import 'package:stock_mate/repositories/shopping_list_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -39,9 +40,7 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepository(getIt<DioClient>()),
   );
-  getIt.registerLazySingleton<IngredientsRepository>(
-    () => IngredientsRepository(getIt<DioClient>()),
-  );
+
   getIt.registerLazySingleton<StorageRepository>(
     () => StorageRepository(getIt<DioClient>()),
   );
@@ -54,12 +53,26 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<PositionRepository>(
     () => PositionRepository(getIt<DioClient>()),
   );
+  getIt.registerLazySingleton<ShoppingListRepository>(
+    () => ShoppingListRepository(getIt<DioClient>()),
+  );
+  getIt.registerLazySingleton<GroceriesRepository>(
+    () => GroceriesRepository(getIt<DioClient>()),
+  );
+  getIt.registerLazySingleton<ShoppingItemRepository>(
+    () => ShoppingItemRepository(getIt<DioClient>()),
+  );
 
   // BLoCs
   getIt.registerFactory(() => AuthBloc(getIt<AuthRepository>()));
-  getIt.registerFactory(() => IngredientsBloc(getIt<IngredientsRepository>()));
+  getIt.registerFactory(() => GroceriesBloc(getIt<GroceriesRepository>()));
   getIt.registerFactory(() => StorageBloc(getIt<StorageRepository>()));
-  getIt.registerFactory(() => UserBloc(getIt<UserMemberRepository>()));
+  getIt
+      .registerFactory(() => UserManagementBloc(getIt<UserMemberRepository>()));
+  getIt
+      .registerFactory(() => ShoppingListBloc(getIt<ShoppingListRepository>()));
   getIt.registerFactory(() => CategoriesBloc(getIt<CategoriesRepository>()));
   getIt.registerFactory(() => PositionBloc(getIt<PositionRepository>()));
+  getIt
+      .registerFactory(() => ShoppingItemBloc(getIt<ShoppingItemRepository>()));
 }

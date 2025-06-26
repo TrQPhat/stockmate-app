@@ -20,7 +20,7 @@ class UserManagementPage extends StatefulWidget {
 class _UserManagementPageState extends State<UserManagementPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String? currentStorageId;
+  int? currentStorageId;
   bool isOwner = false;
 
   @override
@@ -33,11 +33,13 @@ class _UserManagementPageState extends State<UserManagementPage>
   void _loadStorageId() async {
     final prefs = getIt<SharedPreferences>();
     setState(() {
-      currentStorageId = prefs.getString(AppConfig.currentStorageKey);
+      currentStorageId = prefs.getInt(AppConfig.currentStorageKey);
     });
 
     if (currentStorageId != null) {
-      context.read<UserBloc>().add(LoadStorageMembers(currentStorageId!));
+      context
+          .read<UserManagementBloc>()
+          .add(LoadStorageMembers(currentStorageId!));
     }
 
     // TODO: Check if current user is owner
@@ -88,7 +90,7 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   Widget _buildMembersTab() {
-    return BlocConsumer<UserBloc, UserState>(
+    return BlocConsumer<UserManagementBloc, UserState>(
       listener: (context, state) {
         if (state is UserManagementError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -143,7 +145,7 @@ class _UserManagementPageState extends State<UserManagementPage>
                 onPressed: () {
                   if (currentStorageId != null) {
                     context
-                        .read<UserBloc>()
+                        .read<UserManagementBloc>()
                         .add(LoadStorageMembers(currentStorageId!));
                   }
                 },
@@ -157,7 +159,7 @@ class _UserManagementPageState extends State<UserManagementPage>
   }
 
   Widget _buildInviteCodeTab() {
-    return BlocConsumer<UserBloc, UserState>(
+    return BlocConsumer<UserManagementBloc, UserState>(
       listener: (context, state) {
         if (state is UserManagementError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -258,7 +260,7 @@ class _UserManagementPageState extends State<UserManagementPage>
                           ? null
                           : () {
                               if (currentStorageId != null) {
-                                context.read<UserBloc>().add(
+                                context.read<UserManagementBloc>().add(
                                       GetStorageInviteCode(currentStorageId!),
                                     );
                               }
@@ -274,7 +276,7 @@ class _UserManagementPageState extends State<UserManagementPage>
                           ? null
                           : () {
                               if (currentStorageId != null) {
-                                context.read<UserBloc>().add(
+                                context.read<UserManagementBloc>().add(
                                       GenerateNewInviteCode(currentStorageId!),
                                     );
                               }
@@ -580,7 +582,7 @@ class _UserManagementPageState extends State<UserManagementPage>
                 onPressed: () {
                   if (emailController.text.trim().isNotEmpty &&
                       currentStorageId != null) {
-                    context.read<UserBloc>().add(
+                    context.read<UserManagementBloc>().add(
                           InviteUserToStorage(
                             storageId: currentStorageId!,
                             email: emailController.text.trim(),
@@ -657,7 +659,7 @@ class _UserManagementPageState extends State<UserManagementPage>
               ElevatedButton(
                 onPressed: () {
                   if (currentStorageId != null) {
-                    context.read<UserBloc>().add(
+                    context.read<UserManagementBloc>().add(
                           UpdateMemberRole(
                             storageId: currentStorageId!,
                             memberId: member.id,
@@ -692,7 +694,7 @@ class _UserManagementPageState extends State<UserManagementPage>
           ElevatedButton(
             onPressed: () {
               if (currentStorageId != null) {
-                context.read<UserBloc>().add(
+                context.read<UserManagementBloc>().add(
                       RemoveMemberFromStorage(
                         storageId: currentStorageId!,
                         memberId: member.id,

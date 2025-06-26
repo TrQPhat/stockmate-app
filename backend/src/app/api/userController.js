@@ -1,9 +1,9 @@
-const { User, StorageMember } = require("../models");
+const { User, StorageMember, Storage } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
 
 class UserController {
-  // Lấy danh sách tất cả người dùng
   async getAll(req, res) {
     try {
       const users = await User.findAll();
@@ -13,45 +13,29 @@ class UserController {
     }
   }
 
-  // Lấy thông tin người dùng theo user_id (UUID)
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const user = await User.findOne({ where: { user_id: id } });
-
+      const user = await User.findByPk(id);
       if (!user) {
         return res.status(404).json({ error: "Người dùng không tồn tại" });
       }
-
       res.status(200).json(user);
     } catch (error) {
       res.status(500).json({ error: "Lỗi khi lấy thông tin người dùng" });
     }
   }
 
-  // Đăng ký người dùng mới
   async register(req, res) {
     try {
-      const {
-        user_id,
-        email,
-        phone,
-        full_name,
-        password_hash,
-        avatar_url,
-        gender,
-      } = req.body;
-      console.log(email);
-      // Kiểm tra email đã tồn tại chưa
+      const { email, phone, full_name, password, avatar_url, gender } =
+        req.body;
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         return res.status(400).json({ error: "Email đã được sử dụng" });
       }
-
-      const hashedPassword = await bcrypt.hash(password_hash, 10);
-
+      const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await User.create({
-        user_id,
         email,
         phone,
         full_name,
@@ -59,7 +43,6 @@ class UserController {
         avatar_url,
         gender,
       });
-
       res.status(201).json(newUser);
     } catch (error) {
       console.log(error);
@@ -67,7 +50,6 @@ class UserController {
     }
   }
 
-  // Đăng nhập người dùng
   async login(req, res) {
     const { email, password } = req.body;
     try {
@@ -78,7 +60,6 @@ class UserController {
           response: false,
         });
       }
-
       const isMatch = await bcrypt.compare(password, user.password_hash);
       if (!isMatch) {
         return res.status(401).json({
@@ -86,55 +67,42 @@ class UserController {
           response: false,
         });
       }
-
-      // 🔹 Tạo Access Token (hết hạn sau 1 giờ)
       const accessToken = jwt.sign(
-        {
-          id: user.id,
-          user_id: user.user_id,
-          email: user.email,
-          role: user.role,
-        },
+        { id: user.id, email: user.email },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
-
-      // 🔹 Tạo Refresh Token (hết hạn sau 7 ngày)
       const refreshToken = jwt.sign(
         { id: user.id },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: "7d" }
       );
-
-      // 🏷️ Lưu các thông tin vào cookie
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Lax",
         path: "/",
       };
-
       res.cookie("refreshToken", refreshToken, cookieOptions);
       res.cookie("accessToken", accessToken, cookieOptions);
+      const membership = await StorageMember.findOne({
+        where: { user_id: user.id },
+        attributes: ["storage_id"],
+      });
 
-      // ✅ Thêm userRole và userName vào cookie
-      res.cookie("userRole", user.role, { ...cookieOptions, httpOnly: false });
-      res.cookie("userName", user.name, { ...cookieOptions, httpOnly: false });
+      let storage = null;
 
-      const storage_id = (
-        await StorageMember.findOne({
-          where: { user_id: user.user_id },
-          attributes: ["storage_id"],
-        })
-      )?.storage_id;
+      if (membership?.storage_id) {
+        storage = await Storage.findByPk(membership.storage_id);
+      }
+
       res.status(200).json({
         message: "Đăng nhập thành công",
         response: true,
         accessToken,
         refreshToken,
         user,
-        ...(storage_id != null && { storage_id }),
-        user: user,
+        ...(storage && { storage: storage.toJSON() }),
       });
     } catch (error) {
       console.error("Error:", error);
@@ -144,19 +112,12 @@ class UserController {
 
   async logout(req, res) {
     try {
-      // Xóa các cookie đã lưu khi đăng nhập
       res.clearCookie("accessToken", { path: "/" });
       res.clearCookie("refreshToken", { path: "/" });
-      res.clearCookie("userRole", { path: "/" });
-      res.clearCookie("userName", { path: "/" });
-
-      return res.status(200).json({
-        message: "Đăng xuất thành công",
-        response: true,
-      });
+      res.status(200).json({ message: "Đăng xuất thành công", response: true });
     } catch (error) {
       console.error("Logout Error:", error);
-      return res.status(500).json({
+      res.status(500).json({
         message: "Đã xảy ra lỗi khi đăng xuất: " + error.message,
         response: false,
       });
@@ -166,13 +127,11 @@ class UserController {
   async refreshToken(req, res) {
     try {
       const { refresh_token: refreshToken } = req.body;
-
       if (!refreshToken) {
         return res
           .status(401)
           .json({ message: "Không có refresh token", response: false });
       }
-
       jwt.verify(
         refreshToken,
         process.env.JWT_REFRESH_SECRET,
@@ -182,28 +141,23 @@ class UserController {
               .status(403)
               .json({ message: "Refresh token không hợp lệ", response: false });
           }
-
           const user = await User.findByPk(decoded.id);
           if (!user) {
             return res
               .status(404)
               .json({ message: "Người dùng không tồn tại", response: false });
           }
-
-          // 🔹 Tạo Access Token mới (hết hạn sau 1 giờ)
           const newAccessToken = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
+            { id: user.id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
           );
-
           res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "Lax",
             path: "/",
           });
-
           return res.status(200).json({
             message: "Refresh token thành công",
             response: true,
@@ -217,44 +171,39 @@ class UserController {
     }
   }
 
-  // Cập nhật người dùng theo user_id
   async update(req, res) {
     try {
       const { id } = req.params;
-      const user = await User.findOne({ where: { user_id: id } });
-
+      const user = await User.findByPk(id);
       if (!user) {
         return res.status(404).json({ error: "Người dùng không tồn tại" });
       }
-
-      const { email, phone, full_name, password_hash, avatar_url, gender } =
+      const { email, phone, full_name, password, avatar_url, gender } =
         req.body;
-
-      await user.update({
+      const updateData = {
         email: email ?? user.email,
         phone: phone ?? user.phone,
         full_name: full_name ?? user.full_name,
-        password_hash: password_hash ?? user.password_hash,
         avatar_url: avatar_url ?? user.avatar_url,
         gender: gender ?? user.gender,
-      });
-
+      };
+      if (password) {
+        updateData.password_hash = await bcrypt.hash(password, 10);
+      }
+      await user.update(updateData);
       res.status(200).json(user);
     } catch (error) {
       res.status(500).json({ error: "Lỗi khi cập nhật người dùng" });
     }
   }
 
-  // Xóa người dùng theo user_id
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const user = await User.findOne({ where: { user_id: id } });
-
+      const user = await User.findByPk(id);
       if (!user) {
         return res.status(404).json({ error: "Người dùng không tồn tại" });
       }
-
       await user.destroy();
       res.status(200).json({ message: "Xóa người dùng thành công" });
     } catch (error) {

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stock_mate/views/home/widgets/custom_app_bar.dart';
 
 class StorageDetailPage extends StatelessWidget {
-  final String storageId;
+  final int storageId;
 
   const StorageDetailPage({
     super.key,
@@ -146,7 +146,7 @@ class StorageDetailPage extends StatelessWidget {
                     'Xem sản phẩm',
                     Icons.list,
                     Colors.blue,
-                    () => context.go('/storage/$storageId/products'),
+                    () => context.go('/storage/$storageId/grocery'),
                   ),
                   _buildActionCard(
                     context,

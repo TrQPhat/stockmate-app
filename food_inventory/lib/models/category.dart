@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class Category extends Equatable {
-  final String id;
+  final int id;
   final String name;
   final String? description;
   final DateTime createdAt;
@@ -16,10 +16,11 @@ class Category extends Equatable {
   // Factory constructor từ JSON
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      id: json['id'] ?? '',
+      id: json['id'] ?? -1,
       name: json['name'] ?? '',
       description: json['description'],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 

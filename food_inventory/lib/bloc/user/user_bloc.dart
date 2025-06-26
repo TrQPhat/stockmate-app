@@ -6,10 +6,10 @@ import 'package:stock_mate/repositories/user_management_repository.dart';
 part 'user_event.dart';
 part 'user_state.dart';
 
-class UserBloc extends Bloc<UserEvent, UserState> {
+class UserManagementBloc extends Bloc<UserEvent, UserState> {
   final UserMemberRepository _repository;
 
-  UserBloc(this._repository) : super(UserManagementInitial()) {
+  UserManagementBloc(this._repository) : super(UserManagementInitial()) {
     on<LoadStorageMembers>(_onLoadStorageMembers);
     on<InviteUserToStorage>(_onInviteUserToStorage);
     on<UpdateMemberRole>(_onUpdateMemberRole);

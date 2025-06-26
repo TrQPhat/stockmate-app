@@ -54,7 +54,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
         name: event.name,
       );
 
-      emit(StorageSuccess(storageId: newStorage.id));
+      emit(StorageSuccess(storage: newStorage));
     } catch (e) {
       emit(StorageError(e.toString()));
     }
@@ -66,9 +66,11 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
   ) async {
     emit(StorageLoading());
     try {
-      await Future.delayed(const Duration(seconds: 1));
-      // Join storage logic here
-      add(StorageLoadRequested());
+      final storage = await _storageRepository.joinStorageByKey(
+        key: event.inviteCode,
+      );
+
+      emit(StorageSuccess(storage: storage));
     } catch (e) {
       emit(StorageError(e.toString()));
     }

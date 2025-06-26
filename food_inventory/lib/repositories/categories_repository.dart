@@ -7,7 +7,7 @@ class CategoriesRepository {
 
   CategoriesRepository(this._dioClient);
 
-  final baseUrl = "${AppConfig.baseUrl}/products";
+  final baseUrl = "${AppConfig.baseUrl}/grocery";
 
   // Lấy danh sách danh mục
   Future<List<Category>> getCategories() async {

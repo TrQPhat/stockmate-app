@@ -8,7 +8,7 @@ abstract class UserEvent extends Equatable {
 }
 
 class LoadStorageMembers extends UserEvent {
-  final String storageId;
+  final int storageId;
 
   const LoadStorageMembers(this.storageId);
 
@@ -17,7 +17,7 @@ class LoadStorageMembers extends UserEvent {
 }
 
 class InviteUserToStorage extends UserEvent {
-  final String storageId;
+  final int storageId;
   final String email;
   final MemberRole role;
 
@@ -32,7 +32,7 @@ class InviteUserToStorage extends UserEvent {
 }
 
 class UpdateMemberRole extends UserEvent {
-  final String storageId;
+  final int storageId;
   final String memberId;
   final MemberRole role;
 
@@ -47,7 +47,7 @@ class UpdateMemberRole extends UserEvent {
 }
 
 class RemoveMemberFromStorage extends UserEvent {
-  final String storageId;
+  final int storageId;
   final String memberId;
 
   const RemoveMemberFromStorage({
@@ -60,7 +60,7 @@ class RemoveMemberFromStorage extends UserEvent {
 }
 
 class GetStorageInviteCode extends UserEvent {
-  final String storageId;
+  final int storageId;
 
   const GetStorageInviteCode(this.storageId);
 
@@ -69,7 +69,7 @@ class GetStorageInviteCode extends UserEvent {
 }
 
 class GenerateNewInviteCode extends UserEvent {
-  final String storageId;
+  final int storageId;
 
   const GenerateNewInviteCode(this.storageId);
 

@@ -5,15 +5,16 @@ const Storage = sequelize.define(
   "Storage",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true, // ✅ ID tự tăng
     },
     name: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
     owner_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER, // ✅ đổi từ CHAR(36) sang INTEGER
       allowNull: false,
     },
     key: {
@@ -28,6 +29,7 @@ const Storage = sequelize.define(
   {
     tableName: "storages",
     timestamps: false,
+    underscored: true,
   }
 );
 

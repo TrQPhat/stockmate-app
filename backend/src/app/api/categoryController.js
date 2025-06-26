@@ -1,5 +1,4 @@
 const { Category } = require("../models");
-const { v4: uuidv4 } = require("uuid");
 
 class CategoryController {
   // Lấy danh sách tất cả danh mục
@@ -12,7 +11,7 @@ class CategoryController {
     }
   }
 
-  // Lấy thông tin danh mục theo id
+  // Lấy thông tin danh mục theo ID
   async getCategoryById(req, res) {
     try {
       const { id } = req.params;
@@ -30,18 +29,24 @@ class CategoryController {
   async createCategory(req, res) {
     try {
       const { name, description } = req.body;
+
+      if (!name || name.trim() === "") {
+        return res.status(400).json({ error: "Tên danh mục là bắt buộc" });
+      }
+
       const newCategory = await Category.create({
-        id: uuidv4(), // Tự động tạo UUID
         name,
         description,
+        created_at: new Date(),
       });
+
       res.status(201).json(newCategory);
     } catch (error) {
       res.status(500).json({ error: "Lỗi khi tạo danh mục" });
     }
   }
 
-  // Cập nhật danh mục theo id
+  // Cập nhật danh mục theo ID
   async updateCategory(req, res) {
     try {
       const { id } = req.params;
@@ -51,6 +56,7 @@ class CategoryController {
       }
 
       const { name, description } = req.body;
+
       category.name = name ?? category.name;
       category.description = description ?? category.description;
 
@@ -61,7 +67,7 @@ class CategoryController {
     }
   }
 
-  // Xóa danh mục theo id
+  // Xóa danh mục theo ID
   async deleteCategory(req, res) {
     try {
       const { id } = req.params;

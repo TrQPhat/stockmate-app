@@ -1,10 +1,11 @@
 import 'package:go_router/go_router.dart';
+import 'package:stock_mate/views/groceries/views/groceries_page.dart';
 import 'package:stock_mate/views/home/views/home_page.dart';
+import 'package:stock_mate/views/shopping/views/shopping_detail_page.dart';
 import 'package:stock_mate/views/splash/views/splash_screen.dart';
 import 'package:stock_mate/views/user/views/user_management_page.dart';
 import '../../views/auth/views/login_page.dart';
 import '../../views/auth/views/register_page.dart';
-import '../../views/ingredient/views/ingredients_page.dart';
 import '../../views/storage/views/storage_page.dart';
 import '../../views/shopping/views/shopping_page.dart';
 import '../../views/statistics/views/statistics_page.dart';
@@ -34,8 +35,8 @@ class AppRouter {
         builder: (context, state) => const HomePage(),
       ),
       GoRoute(
-        path: '/products',
-        builder: (context, state) => const ProductsPage(),
+        path: '/grocery',
+        builder: (context, state) => const GroceriesPage(),
       ),
       GoRoute(
         path: '/storage',
@@ -44,6 +45,15 @@ class AppRouter {
       GoRoute(
         path: '/shopping',
         builder: (context, state) => const ShoppingPage(),
+        routes: [
+          GoRoute(
+            path: ':listId',
+            builder: (context, state) {
+              final listId = int.parse(state.pathParameters['listId']!);
+              return ShoppingDetailPage(listId: listId);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/statistics',
@@ -53,6 +63,23 @@ class AppRouter {
         path: '/user',
         builder: (context, state) => const UserManagementPage(),
       ),
+      // GoRoute(
+      //   path: '/recipes',
+      //   builder: (context, state) => const RecipeListPage(),
+      //   routes: [
+      //     GoRoute(
+      //       path: 'add', // Sửa thành đường dẫn con
+      //       builder: (context, state) => const AddEditRecipePage(),
+      //     ),
+      //     GoRoute(
+      //       path: ':recipeId', // Sửa thành tham số
+      //       builder: (context, state) {
+      //         final recipeId = state.pathParameters['recipeId']!;
+      //         return RecipeDetailPage(recipeId: recipeId);
+      //       },
+      //     ),
+      //   ],
+      // ),
     ],
   );
 }

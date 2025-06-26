@@ -5,7 +5,8 @@ const Category = sequelize.define(
   "Category",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     name: {
@@ -18,7 +19,7 @@ const Category = sequelize.define(
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: null,
     },
   },
   {

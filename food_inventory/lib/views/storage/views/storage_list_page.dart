@@ -6,9 +6,9 @@ import 'package:stock_mate/views/home/widgets/error_widget.dart';
 import 'package:stock_mate/views/home/widgets/loading_widget.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
 
-import '../widgets/storage_card.dart';
 import '../widgets/create_storage_dialog.dart';
 import '../widgets/join_storage_dialog.dart';
+import '../widgets/storage_card.dart';
 
 class StorageListPage extends StatefulWidget {
   const StorageListPage({super.key});

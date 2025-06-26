@@ -5,20 +5,27 @@ const FcmToken = sequelize.define(
   "FcmToken",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     user_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     token: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    device_name: DataTypes.TEXT,
-    platform: DataTypes.ENUM("android", "ios", "web"),
-    created_at: {
+    device_name: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    platform: {
+      type: DataTypes.ENUM("android", "ios", "web"),
+      allowNull: true,
+    },
+    updated_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },

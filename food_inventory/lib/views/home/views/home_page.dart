@@ -6,8 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
-import 'package:stock_mate/models/storage.dart';
-
 import '../../../core/theme/app_theme.dart';
 import '../../../bloc/storage/storage_bloc.dart';
 
@@ -19,7 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String? currentStorageId;
+  int? currentStorageId;
   String? storageName =
       "Kho của tôi"; // Default name until we load the actual storage
 
@@ -27,16 +25,29 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Kiểm tra storage hiện tại khi vào trang
-    checkCurrentStorage();
+    _loadStorageData();
   }
 
-  void checkCurrentStorage() async {
-    final prefs = getIt<SharedPreferences>();
-    setState(() {
-      currentStorageId = prefs.getString(AppConfig.currentStorageKey);
-    });
+  Future<void> _loadStorageData() async {
+    try {
+      final prefs = getIt<SharedPreferences>();
 
-    print("Current Storage: $currentStorageId");
+      final currentStorage = prefs.getInt(AppConfig.currentStorageKey) ?? -1;
+      final nameStorage = prefs.getString(AppConfig.nameStorageKey) ?? '';
+
+      if (!mounted) return;
+
+      setState(() {
+        currentStorageId = currentStorage != -1 ? currentStorage : null;
+        storageName = nameStorage.isNotEmpty ? nameStorage : null;
+      });
+    } catch (e) {
+      debugPrint('Error loading storage: $e');
+      setState(() {
+        currentStorageId = null;
+        storageName = null;
+      });
+    }
   }
 
   @override
@@ -99,10 +110,16 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: currentStorageId == "" ? _buildNoStorageView() : _buildMainView(),
+      body: (currentStorageId == null ||
+              currentStorageId == -1 ||
+              currentStorageId! <= 0)
+          ? _buildNoStorageView()
+          : _buildMainView(),
 
       // Thêm floating action button
-      floatingActionButton: currentStorageId == ""
+      floatingActionButton: (currentStorageId == null ||
+              currentStorageId == -1 ||
+              currentStorageId! <= 0)
           ? FloatingActionButton(
               onPressed: () {
                 // Hiển thị bottom sheet với 2 nút
@@ -370,7 +387,7 @@ class _HomePageState extends State<HomePage> {
                 _buildActionCard(
                   icon: Icons.add_box,
                   title: 'Thêm sản phẩm',
-                  onTap: () => context.push('/products'),
+                  onTap: () => context.push('/grocery'),
                 ),
                 _buildActionCard(
                   icon: Icons.shopping_cart,
@@ -386,6 +403,11 @@ class _HomePageState extends State<HomePage> {
                   icon: Icons.analytics,
                   title: 'Thống kê',
                   onTap: () => context.push('/statistics'),
+                ),
+                _buildActionCard(
+                  icon: Icons.menu_book,
+                  title: 'Sổ tay công thức',
+                  onTap: () => context.push('/recipes'),
                 ),
               ],
             ),
@@ -503,23 +525,13 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
-          // ElevatedButton(
-          //   onPressed: () {
-          //     if (nameController.text.trim().isNotEmpty) {
-          //       setState(() {
-          //         currentStorageId = 'temp_storage_id';
-          //         storageName = nameController.text.trim();
-          //       });
-          //       Navigator.pop(context);
-          //     }
-          //   },
-          //   child: const Text('Tạo'),
-          // ),
           BlocListener<StorageBloc, StorageState>(
             listener: (context, state) {
               if (state is StorageSuccess) {
+                final storage = state.storage;
                 setState(() {
-                  currentStorageId = state.storageId;
+                  currentStorageId = storage.id;
+                  storageName = storage.name;
                 });
 
                 Navigator.pop(context); // Đóng dialog sau khi tạo xong
@@ -563,23 +575,35 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              // if (codeController.text.trim().isNotEmpty) {
-              //   // TODO: Implement storage joining
-              //   // For now, just simulate storage joining
-              //   final prefs = getIt<SharedPreferences>();
-              //   prefs.setString(
-              //       AppConfig.currentStorageKey, 'joined_storage_id');
-              //   setState(() {
-              //     currentStorageId = 'joined_storage_id';
-              //     storageName = 'Kho đã tham gia';
-              //   });
-              //   Navigator.pop(context);
-              // }
+          BlocListener<StorageBloc, StorageState>(
+            listener: (context, state) {
+              if (state is StorageSuccess) {
+                final storage = state.storage;
+                setState(() {
+                  currentStorageId = storage.id;
+                  storageName = storage.name;
+                });
+
+                Navigator.pop(context); // Đóng dialog sau khi tạo xong
+              } else if (state is StorageError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
+              }
             },
-            child: const Text('Tham gia'),
-          ),
+            child: ElevatedButton(
+              onPressed: () {
+                if (codeController.text.trim().isNotEmpty) {
+                  context
+                      .read<StorageBloc>()
+                      .add(StorageJoinRequested(codeController.text.trim()));
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Tham gia'),
+            ),
+          )
         ],
       ),
     );

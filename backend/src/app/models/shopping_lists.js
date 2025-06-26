@@ -5,33 +5,31 @@ const ShoppingList = sequelize.define(
   "ShoppingList",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
-    user_id: {
-      type: DataTypes.CHAR(36),
+    storage_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     name: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    purpose: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     purchase_date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: () => {
+        const now = new Date();
+        now.setDate(now.getDate() + 1); // Cộng thêm 1 ngày
+        return now;
+      },
     },
-    total_cost: {
-      type: DataTypes.DECIMAL(15, 2),
-      defaultValue: 0.00,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    }
   },
   {
     tableName: "shopping_lists",

@@ -18,7 +18,7 @@ class UserRepository {
   }) async {
     try {
       final prefs = getIt<SharedPreferences>();
-      final userId = prefs.getString(AppConfig.userIdKey);
+      final userId = prefs.getInt(AppConfig.userIdKey);
       final response = await _dioClient.post(
         baseUrl,
         data: {

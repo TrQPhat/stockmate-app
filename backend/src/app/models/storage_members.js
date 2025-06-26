@@ -5,20 +5,20 @@ const StorageMember = sequelize.define(
   "StorageMember",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     storage_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     user_id: {
-      unique: true,
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("owner", "editor", "viewer"),
+      type: DataTypes.ENUM("owner", "member"),
       allowNull: false,
     },
     joined_at: {
@@ -29,6 +29,7 @@ const StorageMember = sequelize.define(
   {
     tableName: "storage_members",
     timestamps: false,
+    underscored: true,
   }
 );
 

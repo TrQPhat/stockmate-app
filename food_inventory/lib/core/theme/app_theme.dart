@@ -8,10 +8,52 @@ class AppTheme {
   static const Color darkGreen = Color(0xFF1B5E20);
   static const Color accentGreen = Color(0xFF81C784);
 
-  static const Color backgroundColor = Color(0xFFF5F5F5);
+  static const Color backgroundColor = Color(0xFFFFFBF5);
   static const Color surfaceColor = Colors.white;
   static const Color errorColor = Color(0xFFD32F2F);
   static const Color warningColor = Color(0xFFFF9800);
+
+  // Primary Colors - Food themed
+  static const Color primaryOrange = Color(0xFFFF6B35); // Carrot orange
+  static const Color accentYellow = Color(0xFFFFC107); // Corn yellow
+
+  // Background Colors
+  static const Color backgroundLight = Color(0xFFFFFBF5); // Cream white
+  static const Color backgroundDark = Color(0xFF2E2E2E);
+
+  // Text Colors
+  static const Color textPrimary = Color(0xFF2D2D2D);
+  static const Color textSecondary = Color(0xFF757575);
+  static const Color textLight = Color(0xFFBDBDBD);
+
+  // Status Colors
+  static const Color successGreen = Color(0xFF4CAF50);
+  static const Color errorRed = Color(0xFFE53E3E);
+  static const Color warningOrange = Color(0xFFFF9800);
+
+  // Card Colors
+  static const Color cardBackground = Colors.white;
+  static const Color cardShadow = Color(0x1A000000);
+
+  // Food Category Colors
+  static const Map<String, Color> categoryColors = {
+    'vegetables': Color(0xFF4CAF50),
+    'fruits': Color(0xFFFF5722),
+    'meat': Color(0xFF795548),
+    'dairy': Color(0xFF2196F3),
+    'grains': Color(0xFFFFC107),
+    'snacks': Color(0xFF9C27B0),
+  };
+
+  // Food Category Icons
+  static const Map<String, IconData> categoryIcons = {
+    'vegetables': Icons.eco,
+    'fruits': Icons.apple,
+    'meat': Icons.restaurant,
+    'dairy': Icons.local_drink,
+    'grains': Icons.grain,
+    'snacks': Icons.cookie,
+  };
 
   static ThemeData get lightTheme {
     return ThemeData(

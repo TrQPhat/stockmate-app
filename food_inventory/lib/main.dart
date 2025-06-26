@@ -4,15 +4,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
+import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
-import 'package:stock_mate/bloc/tag/position_bloc.dart';
+import 'package:stock_mate/bloc/positon/position_bloc.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/services/refresh_token_service.dart';
 
 import 'core/di/injection_container.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'bloc/ingredient/ingredients_bloc.dart';
+import 'bloc/grocery/groceries_bloc.dart';
+import 'bloc/shopping-list/shopping_list_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +24,6 @@ void main() async {
 
   // Initialize dependencies
   await initializeDependencies();
-
   final tokenRefreshService = TokenRefreshService();
   tokenRefreshService.startAutoRefresh();
 
@@ -42,11 +43,13 @@ class StockMateApp extends StatelessWidget {
         return MultiBlocProvider(
           providers: [
             BlocProvider(create: (_) => getIt<AuthBloc>()),
-            BlocProvider(create: (_) => getIt<IngredientsBloc>()),
+            BlocProvider(create: (_) => getIt<GroceriesBloc>()),
             BlocProvider(create: (_) => getIt<StorageBloc>()),
-            BlocProvider(create: (_) => getIt<UserBloc>()),
             BlocProvider(create: (_) => getIt<CategoriesBloc>()),
             BlocProvider(create: (_) => getIt<PositionBloc>()),
+            BlocProvider(create: (_) => getIt<UserManagementBloc>()),
+            BlocProvider(create: (_) => getIt<ShoppingListBloc>()),
+            BlocProvider(create: (_) => getIt<ShoppingItemBloc>()),
           ],
           child: MaterialApp.router(
             title: 'Stock Mate',

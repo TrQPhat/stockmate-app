@@ -1,7 +1,7 @@
 class Storage {
-  final String id;
+  final int id;
   final String name;
-  final String ownerId;
+  final int ownerId; // 👈 Đổi từ String sang int
   final String key;
   final DateTime createdAt;
 
@@ -13,19 +13,18 @@ class Storage {
     required this.createdAt,
   });
 
-  // Factory constructor từ JSON
   factory Storage.fromJson(Map<String, dynamic> json) {
     return Storage(
-      id: json['id'] ?? '',
+      id: json['id'] ?? -1,
       name: json['name'] ?? '',
-      ownerId: json['owner_id'] ?? '',
+      ownerId: json['owner_id'] ?? -1, // 👈 vẫn là int
       key: json['key'] ?? '',
       createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String()),
+        json['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 
-  // Chuyển object về JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
