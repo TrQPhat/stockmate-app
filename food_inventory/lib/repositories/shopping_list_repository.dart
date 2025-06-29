@@ -12,7 +12,7 @@ class ShoppingListRepository {
 
   Future<List<ShoppingList>> getShoppingLists() async {
     final prefs = getIt<SharedPreferences>();
-    final storageId = prefs.getInt(AppConfig.currentStorageKey);
+    final storageId = prefs.getInt(AppConfig.storageIdKey);
 
     if (storageId == null) {
       throw Exception('Người dùng hiện tại chưa tham gia kho');
@@ -37,7 +37,7 @@ class ShoppingListRepository {
   Future<ShoppingList> createShoppingList(
       String name, String purpose, DateTime purchaseDate) async {
     final prefs = getIt<SharedPreferences>();
-    final storageId = prefs.getInt(AppConfig.currentStorageKey);
+    final storageId = prefs.getInt(AppConfig.storageIdKey);
     if (storageId == null) {
       throw Exception('Người dùng hiện tại chưa tham gia kho');
     }

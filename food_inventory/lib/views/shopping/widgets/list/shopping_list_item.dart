@@ -57,15 +57,15 @@ class ShoppingListItem extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: AppTheme.primaryOrange.withOpacity(0.1),
+        color: AppTheme.lightGreen.withOpacity(0.1),
         shape: BoxShape.circle,
       ),
       child: IconButton(
         onPressed: onComplete,
-        icon: Icon(
+        icon: const Icon(
           Icons.shopping_cart,
           color: AppTheme.primaryOrange,
-          size: 24,
+          size: 35,
         ),
       ),
     );
@@ -80,7 +80,7 @@ class ShoppingListItem extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 18,
-            color: AppTheme.textPrimary,
+            color: AppTheme.primaryGreen,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -106,7 +106,7 @@ class ShoppingListItem extends StatelessWidget {
   Widget _buildDateInfo() {
     return Row(
       children: [
-        Icon(
+        const Icon(
           Icons.schedule,
           size: 16,
           color: AppTheme.textLight,
@@ -129,7 +129,7 @@ class ShoppingListItem extends StatelessWidget {
   }
 
   Widget _buildTrailingIcon() {
-    return Icon(
+    return const Icon(
       Icons.chevron_right,
       color: AppTheme.textLight,
       size: 24,

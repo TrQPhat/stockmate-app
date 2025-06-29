@@ -44,7 +44,7 @@ class _ShoppingDetailPageState extends State<ShoppingDetailPage> {
           );
         } else if (state is ShoppingOperationSuccess) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop(); // ✅ Gọi pop an toàn
+            Navigator.of(context).pop();
           });
         }
 

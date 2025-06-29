@@ -28,6 +28,30 @@ class GroceryController {
     }
   }
 
+  async getExpiringGroceries(req, res) {
+    try {
+      const today = new Date();
+      const threeDaysLater = new Date();
+      threeDaysLater.setDate(today.getDate() + 3);
+
+      const expiringGroceries = await Grocery.findAll({
+        where: {
+          expire_date: {
+            $gte: today,
+            $lte: threeDaysLater,
+          },
+        },
+      });
+
+      res.status(200).json(expiringGroceries);
+    } catch (error) {
+      res.status(500).json({
+        error: "Lỗi khi lấy danh sách thực phẩm sắp hết hạn",
+        detail: error.message,
+      });
+    }
+  }
+
   // Tạo mới sản phẩm
   async createGrocery(req, res) {
     try {

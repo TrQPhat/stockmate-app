@@ -33,7 +33,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: const Row(
         children: [
-          Icon(Icons.add_shopping_cart, color: AppTheme.primaryOrange),
+          Icon(Icons.add_shopping_cart, color: AppTheme.primaryGreen),
           SizedBox(width: 8),
           Text('🥬 Tạo danh sách mới'),
         ],
@@ -60,7 +60,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
         ElevatedButton(
           onPressed: _handleCreate,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryOrange,
+            backgroundColor: AppTheme.primaryGreen,
             foregroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -77,11 +77,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
       decoration: InputDecoration(
         labelText: 'Tên danh sách',
         hintText: 'VD: Mua sắm cuối tuần',
-        prefixIcon: const Icon(Icons.list_alt, color: AppTheme.primaryOrange),
+        prefixIcon: const Icon(Icons.list_alt, color: AppTheme.lightGreen),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.primaryOrange),
+          borderSide: const BorderSide(color: AppTheme.primaryGreen),
         ),
       ),
       validator: (value) {
@@ -145,7 +145,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: AppTheme.primaryOrange,
+                  primary: AppTheme.primaryGreen,
                 ),
           ),
           child: child!,

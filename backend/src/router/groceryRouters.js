@@ -4,6 +4,7 @@ const groceryController = require("../app/api/groceryController");
 const authToken = require("../middleware/authToken");
 
 router.get("/", authToken, groceryController.getAllGroceries);
+router.get("/expiring", authToken, groceryController.getExpiringGroceries);
 router.post("/", authToken, groceryController.createGrocery);
 router.get("/:id", authToken, groceryController.getGroceryById);
 router.put("/:id", authToken, groceryController.updateGrocery);

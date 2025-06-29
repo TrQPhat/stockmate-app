@@ -32,14 +32,14 @@ class _HomePageState extends State<HomePage> {
     try {
       final prefs = getIt<SharedPreferences>();
 
-      final currentStorage = prefs.getInt(AppConfig.currentStorageKey) ?? -1;
+      final currentStorage = prefs.getInt(AppConfig.storageIdKey) ?? -1;
       final nameStorage = prefs.getString(AppConfig.nameStorageKey) ?? '';
 
       if (!mounted) return;
 
       setState(() {
         currentStorageId = currentStorage != -1 ? currentStorage : null;
-        storageName = nameStorage.isNotEmpty ? nameStorage : null;
+        storageName = nameStorage.isNotEmpty ? nameStorage : "Kho của tôi";
       });
     } catch (e) {
       debugPrint('Error loading storage: $e');
@@ -52,12 +52,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Đảm bảo ScreenUtil được khởi tạo nếu chưa
+    // ScreenUtil.init(context, designSize: const Size(360, 690)); // Chỉ cần gọi 1 lần ở MaterialApp
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stock Mate'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(
+                Icons.notifications_none_outlined), // Icon notifications mới
             onPressed: () {
               // TODO: Handle notifications
             },
@@ -78,7 +82,8 @@ class _HomePageState extends State<HomePage> {
                 value: 'profile',
                 child: Row(
                   children: [
-                    const Icon(Icons.person, color: AppTheme.primaryGreen),
+                    const Icon(Icons.person,
+                        color: AppTheme.primaryGreen), // Sử dụng AppTheme
                     SizedBox(width: 8.w),
                     const Text('Hồ sơ cá nhân'),
                   ],
@@ -88,7 +93,8 @@ class _HomePageState extends State<HomePage> {
                 value: 'settings',
                 child: Row(
                   children: [
-                    const Icon(Icons.settings, color: AppTheme.primaryGreen),
+                    const Icon(Icons.settings,
+                        color: AppTheme.primaryGreen), // Sử dụng AppTheme
                     SizedBox(width: 8.w),
                     const Text('Cài đặt'),
                   ],
@@ -99,10 +105,12 @@ class _HomePageState extends State<HomePage> {
                 value: 'logout',
                 child: Row(
                   children: [
-                    const Icon(Icons.logout, color: Colors.red),
+                    const Icon(Icons.logout,
+                        color: AppTheme.errorRed), // Sử dụng AppTheme
                     SizedBox(width: 8.w),
                     const Text('Đăng xuất',
-                        style: TextStyle(color: Colors.red)),
+                        style: TextStyle(
+                            color: AppTheme.errorRed)), // Sử dụng AppTheme
                   ],
                 ),
               ),
@@ -115,63 +123,89 @@ class _HomePageState extends State<HomePage> {
               currentStorageId! <= 0)
           ? _buildNoStorageView()
           : _buildMainView(),
-
-      // Thêm floating action button
       floatingActionButton: (currentStorageId == null ||
               currentStorageId == -1 ||
               currentStorageId! <= 0)
           ? FloatingActionButton(
               onPressed: () {
-                // Hiển thị bottom sheet với 2 nút
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: Colors.transparent,
                   isScrollControlled: true,
                   builder: (context) => Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context)
+                          .cardColor, // Sử dụng màu card từ theme
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(16.r)),
                     ),
-                    padding: EdgeInsets.all(16.w),
+                    padding: EdgeInsets.fromLTRB(
+                        16.w, 24.h, 16.w, 16.h), // Tăng padding trên
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Create storage button
+                        Text(
+                          'Chọn hành động',
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: AppTheme.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        SizedBox(height: 20.h),
                         SizedBox(
                           width: double.infinity,
-                          height: 48.h,
+                          height: 50.h, // Tăng chiều cao nút
                           child: ElevatedButton.icon(
                             onPressed: () {
                               Navigator.pop(context); // Đóng bottom sheet
                               _showCreateStorageDialog();
                             },
-                            icon: const Icon(Icons.add),
+                            icon: const Icon(
+                                Icons.add_circle_outline), // Icon mới
                             label: Text(
                               'Tạo kho mới',
-                              style: TextStyle(fontSize: 16.sp),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                             ),
                           ),
                         ),
                         SizedBox(height: 16.h),
-                        // Join storage button
                         SizedBox(
                           width: double.infinity,
-                          height: 48.h,
+                          height: 50.h, // Tăng chiều cao nút
                           child: OutlinedButton.icon(
                             onPressed: () {
                               Navigator.pop(context); // Đóng bottom sheet
                               _showJoinStorageDialog();
                             },
-                            icon: const Icon(Icons.group_add),
+                            icon: const Icon(
+                                Icons.group_add_outlined), // Icon mới
                             label: Text(
                               'Tham gia kho',
-                              style: TextStyle(fontSize: 16.sp),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color: AppTheme.primaryGreen,
+                                  ),
                             ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppTheme.primaryGreen,
                               side: const BorderSide(
                                   color: AppTheme.primaryGreen),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                             ),
                           ),
                         ),
@@ -183,7 +217,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
               backgroundColor: AppTheme.primaryGreen,
-              child: const Icon(Icons.more_horiz),
+              child: const Icon(Icons.add_rounded), // Đổi icon thành dấu cộng
             )
           : const SizedBox.shrink(),
     );
@@ -199,7 +233,8 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Hủy',
+                style: TextStyle(color: AppTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -211,7 +246,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.errorRed, // Sử dụng màu từ theme
               foregroundColor: Colors.white,
             ),
             child: const Text('Đăng xuất'),
@@ -222,55 +257,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNoStorageView() {
-    return Padding(
-      padding: EdgeInsets.all(24.w),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Icon
-          Container(
-            width: 120.w,
-            height: 120.w,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryGreen.withOpacity(0.1),
-              shape: BoxShape.circle,
+    return Center(
+      // Đặt Center để căn giữa nội dung
+      child: SingleChildScrollView(
+        // Thêm SingleChildScrollView để tránh overflow khi bàn phím hiện lên
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon
+            Container(
+              width: 120.w,
+              height: 120.w,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryGreen.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.inventory_2_outlined, // Icon mới, hiện đại hơn
+                size: 60.w,
+                color: AppTheme.primaryGreen,
+              ),
             ),
-            child: Icon(
-              Icons.storage,
-              size: 60.w,
-              color: AppTheme.primaryGreen,
-            ),
-          ),
-          SizedBox(height: 32.h),
+            SizedBox(height: 32.h),
 
-          // Title
-          Text(
-            'Chưa có kho nào',
-            style: TextStyle(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.primaryGreen,
+            // Title
+            Text(
+              'Chưa có kho nào',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: AppTheme.primaryGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-          ),
-          SizedBox(height: 12.h),
+            SizedBox(height: 12.h),
 
-          // Description
-          Text(
-            'Bạn cần tạo mới hoặc tham gia một kho để bắt đầu quản lý nguyên liệu',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: Colors.grey[600],
+            // Description
+            Text(
+              'Bạn cần tạo mới hoặc tham gia một kho để bắt đầu quản lý nguyên liệu',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
             ),
-          ),
-          SizedBox(height: 48.h),
-        ],
+            SizedBox(height: 48.h),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildMainView() {
-    return Padding(
+    return SingleChildScrollView(
+      // Thêm SingleChildScrollView cho phép cuộn nội dung
       padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,6 +324,15 @@ class _HomePageState extends State<HomePage> {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                // Thêm shadow cho card
+                BoxShadow(
+                  color: AppTheme.primaryGreen.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,28 +345,34 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Text(
                             'Kho hiện tại',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
                           ),
                           SizedBox(height: 4.h),
                           Text(
                             storageName ?? "Kho của tôi",
-                            style: TextStyle(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                           ),
                         ],
                       ),
                     ),
                     IconButton(
-                      onPressed: () => context.push('/user'),
+                      onPressed: () => context.push(
+                          '/user'), // Thay đổi thành đường dẫn user nếu có
                       icon: const Icon(
-                        Icons.settings,
+                        Icons.settings_outlined, // Icon settings mới
                         color: Colors.white,
+                        size: 28.0,
                       ),
                     ),
                   ],
@@ -327,10 +380,9 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: 8.h),
                 Text(
                   'Quản lý nguyên liệu một cách hiệu quả',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
                 ),
               ],
             ),
@@ -340,17 +392,17 @@ class _HomePageState extends State<HomePage> {
           // Quick stats
           Text(
             'Thống kê nhanh',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
           ),
           SizedBox(height: 12.h),
           Row(
             children: [
               Expanded(
                 child: _buildStatCard(
-                  icon: Icons.inventory,
+                  icon: Icons.inventory_2_outlined, // Icon mới
                   title: 'Tổng sản phẩm',
                   value: '156',
                   color: AppTheme.primaryGreen,
@@ -359,10 +411,11 @@ class _HomePageState extends State<HomePage> {
               SizedBox(width: 12.w),
               Expanded(
                 child: _buildStatCard(
-                  icon: Icons.warning,
+                  icon: Icons.warning_amber_rounded, // Icon mới
                   title: 'Sắp hết hạn',
                   value: '12',
-                  color: AppTheme.warningColor,
+                  color: AppTheme
+                      .accentYellow, // Sử dụng accentYellow cho cảnh báo
                 ),
               ),
             ],
@@ -372,42 +425,68 @@ class _HomePageState extends State<HomePage> {
           // Quick actions
           Text(
             'Thao tác nhanh',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
           ),
           SizedBox(height: 12.h),
-          Expanded(
+          // Bọc GridView trong Container với BoxDecoration để tạo khung
+          Container(
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: AppTheme.cardBackground,
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
             child: GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12.w,
-              mainAxisSpacing: 12.h,
+              physics:
+                  const NeverScrollableScrollPhysics(), // Vô hiệu hóa cuộn GridView
+              shrinkWrap:
+                  true, // Cho phép GridView chỉ chiếm không gian cần thiết
+              crossAxisCount: 3, // 3 cột để bố cục đẹp hơn
+              crossAxisSpacing: 16.w, // Tăng khoảng cách ngang
+              mainAxisSpacing: 16.h, // Tăng khoảng cách dọc
+              childAspectRatio: 0.9, // Tỷ lệ khung hình cho mỗi item
               children: [
                 _buildActionCard(
-                  icon: Icons.add_box,
+                  icon: Icons.add_box_outlined, // Icon mới
                   title: 'Thêm sản phẩm',
                   onTap: () => context.push('/grocery'),
                 ),
                 _buildActionCard(
-                  icon: Icons.shopping_cart,
+                  icon: Icons.shopping_cart_outlined, // Icon mới
                   title: 'Danh sách mua sắm',
                   onTap: () => context.push('/shopping'),
                 ),
                 _buildActionCard(
-                  icon: Icons.storage,
+                  icon: Icons.warehouse_outlined, // Icon mới
                   title: 'Quản lý kho',
                   onTap: () => context.push('/storage'),
                 ),
                 _buildActionCard(
-                  icon: Icons.analytics,
+                  icon: Icons.analytics_outlined, // Icon mới
                   title: 'Thống kê',
                   onTap: () => context.push('/statistics'),
                 ),
                 _buildActionCard(
-                  icon: Icons.menu_book,
+                  icon: Icons.menu_book_outlined, // Icon mới
                   title: 'Sổ tay công thức',
-                  onTap: () => context.push('/recipes'),
+                  onTap: () => context.push('/dish'),
+                ),
+                _buildActionCard(
+                  icon: Icons.group_outlined, // Icon mới cho quản lý thành viên
+                  title: 'Thành viên',
+                  onTap: () {
+                    // TODO: Navigate to member management page
+                  },
                 ),
               ],
             ),
@@ -426,8 +505,8 @@ class _HomePageState extends State<HomePage> {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16.r), // Tăng bo tròn cho card
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -440,22 +519,20 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24.w),
+          Icon(icon, color: color, size: 32.w), // Tăng kích thước icon
           SizedBox(height: 8.h),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
           ),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
           ),
         ],
       ),
@@ -469,38 +546,43 @@ class _HomePageState extends State<HomePage> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
+      child: Card(
+        // Sử dụng Card từ theme
+        elevation:
+            0, // Đặt elevation về 0 vì đã có shadow ở Container bọc ngoài
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 48.w,
-              color: AppTheme.primaryGreen,
+        color: Colors
+            .transparent, // Đặt màu nền trong suốt để shadow từ Container bọc ngoài hiển thị
+        child: InkWell(
+          // Sử dụng InkWell để có hiệu ứng splash
+          borderRadius: BorderRadius.circular(12.r),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(8.w), // Giảm padding nội bộ để fit 3 cột
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 40.w, // Giảm kích thước icon một chút
+                  color: AppTheme.primaryGreen,
+                ),
+                SizedBox(height: 8.h), // Giảm khoảng cách
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textPrimary,
+                      ),
+                  maxLines: 2, // Giới hạn 2 dòng để tránh overflow
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            SizedBox(height: 12.h),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -523,7 +605,8 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Hủy',
+                style: TextStyle(color: AppTheme.textSecondary)),
           ),
           BlocListener<StorageBloc, StorageState>(
             listener: (context, state) {
@@ -535,6 +618,10 @@ class _HomePageState extends State<HomePage> {
                 });
 
                 Navigator.pop(context); // Đóng dialog sau khi tạo xong
+                ScaffoldMessenger.of(context).showSnackBar(
+                  // Thông báo thành công
+                  const SnackBar(content: Text('Tạo kho thành công!')),
+                );
               } else if (state is StorageError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -546,6 +633,11 @@ class _HomePageState extends State<HomePage> {
                 final name = nameController.text.trim();
                 if (name.isNotEmpty) {
                   context.read<StorageBloc>().add(StorageCreateRequested(name));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Tên kho không được để trống!')),
+                  );
                 }
               },
               child: const Text('Tạo'),
@@ -573,7 +665,8 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Hủy',
+                style: TextStyle(color: AppTheme.textSecondary)),
           ),
           BlocListener<StorageBloc, StorageState>(
             listener: (context, state) {
@@ -584,7 +677,11 @@ class _HomePageState extends State<HomePage> {
                   storageName = storage.name;
                 });
 
-                Navigator.pop(context); // Đóng dialog sau khi tạo xong
+                Navigator.pop(context); // Đóng dialog sau khi tham gia xong
+                ScaffoldMessenger.of(context).showSnackBar(
+                  // Thông báo thành công
+                  const SnackBar(content: Text('Tham gia kho thành công!')),
+                );
               } else if (state is StorageError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -598,7 +695,10 @@ class _HomePageState extends State<HomePage> {
                       .read<StorageBloc>()
                       .add(StorageJoinRequested(codeController.text.trim()));
                 } else {
-                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Mã kho không được để trống!')),
+                  );
                 }
               },
               child: const Text('Tham gia'),

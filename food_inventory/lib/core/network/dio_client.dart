@@ -17,11 +17,16 @@ class DioClient {
       ..interceptors.add(LogInterceptor(requestBody: true, responseBody: true))
       ..interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final prefs = getIt<SharedPreferences>();
-          final token = prefs.getString(AppConfig.accessTokenKey);
+          // Mặc định attachAuthToken là true nếu không được set
+          final shouldAttachToken = options.extra['attachAuthToken'] ?? true;
 
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          if (shouldAttachToken) {
+            final prefs = getIt<SharedPreferences>();
+            final token = prefs.getString(AppConfig.accessTokenKey);
+
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
 
           return handler.next(options);

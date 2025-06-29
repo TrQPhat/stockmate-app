@@ -1,5 +1,8 @@
 import 'package:go_router/go_router.dart';
+import 'package:stock_mate/models/grocery.dart';
+import 'package:stock_mate/views/dishes/screen/dishes_screen.dart';
 import 'package:stock_mate/views/groceries/views/groceries_page.dart';
+import 'package:stock_mate/views/groceries/views/grocery_detail.dart';
 import 'package:stock_mate/views/home/views/home_page.dart';
 import 'package:stock_mate/views/shopping/views/shopping_detail_page.dart';
 import 'package:stock_mate/views/splash/views/splash_screen.dart';
@@ -39,6 +42,13 @@ class AppRouter {
         builder: (context, state) => const GroceriesPage(),
       ),
       GoRoute(
+        path: '/grocery-detail',
+        builder: (context, state) {
+          final grocery = state.extra as Grocery;
+          return GroceryDetailPage(grocery: grocery);
+        },
+      ),
+      GoRoute(
         path: '/storage',
         builder: (context, state) => const StoragePage(),
       ),
@@ -63,23 +73,10 @@ class AppRouter {
         path: '/user',
         builder: (context, state) => const UserManagementPage(),
       ),
-      // GoRoute(
-      //   path: '/recipes',
-      //   builder: (context, state) => const RecipeListPage(),
-      //   routes: [
-      //     GoRoute(
-      //       path: 'add', // Sửa thành đường dẫn con
-      //       builder: (context, state) => const AddEditRecipePage(),
-      //     ),
-      //     GoRoute(
-      //       path: ':recipeId', // Sửa thành tham số
-      //       builder: (context, state) {
-      //         final recipeId = state.pathParameters['recipeId']!;
-      //         return RecipeDetailPage(recipeId: recipeId);
-      //       },
-      //     ),
-      //   ],
-      // ),
+      GoRoute(
+        path: '/dish',
+        builder: (context, state) => const DishesScreen(),
+      ),
     ],
   );
 }

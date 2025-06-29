@@ -667,7 +667,7 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
 
     try {
       final prefs = getIt<SharedPreferences>();
-      final storageId = prefs.getInt(AppConfig.currentStorageKey);
+      final storageId = prefs.getInt(AppConfig.storageIdKey);
 
       if (storageId == null) {
         throw Exception('Không tìm thấy kho hiện tại');

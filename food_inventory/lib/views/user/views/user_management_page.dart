@@ -33,7 +33,7 @@ class _UserManagementPageState extends State<UserManagementPage>
   void _loadStorageId() async {
     final prefs = getIt<SharedPreferences>();
     setState(() {
-      currentStorageId = prefs.getInt(AppConfig.currentStorageKey);
+      currentStorageId = prefs.getInt(AppConfig.storageIdKey);
     });
 
     if (currentStorageId != null) {

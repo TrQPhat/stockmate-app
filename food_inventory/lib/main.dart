@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
+import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
 import 'package:stock_mate/bloc/positon/position_bloc.dart';
@@ -50,6 +51,7 @@ class StockMateApp extends StatelessWidget {
             BlocProvider(create: (_) => getIt<UserManagementBloc>()),
             BlocProvider(create: (_) => getIt<ShoppingListBloc>()),
             BlocProvider(create: (_) => getIt<ShoppingItemBloc>()),
+            BlocProvider(create: (_) => getIt<DishBloc>()),
           ],
           child: MaterialApp.router(
             title: 'Stock Mate',

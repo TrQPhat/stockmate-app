@@ -34,6 +34,7 @@ class AppTheme {
   // Card Colors
   static const Color cardBackground = Colors.white;
   static const Color cardShadow = Color(0x1A000000);
+  static const Color shadowColor = Color(0x1A000000);
 
   // Food Category Colors
   static const Map<String, Color> categoryColors = {

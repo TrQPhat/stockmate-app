@@ -27,7 +27,7 @@ class UserRepository {
         },
       );
       await prefs.setString(
-          AppConfig.currentStorageKey, response.data['id'] ?? "error");
+          AppConfig.storageIdKey, response.data['id'] ?? "error");
       await prefs.setString(
           AppConfig.codeStorageKey, response.data['key'] ?? "error");
       return Storage.fromJson(response.data); // Trả về storage vừa tạo

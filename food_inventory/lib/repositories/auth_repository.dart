@@ -77,7 +77,7 @@ class AuthRepository {
       if (reponseData['storage'] != null) {
         final storageData = reponseData['storage'];
         if (storageData['id'] != null) {
-          await prefs.setInt(AppConfig.currentStorageKey, storageData['id']);
+          await prefs.setInt(AppConfig.storageIdKey, storageData['id']);
         }
 
         if (storageData['key'] != null) {
@@ -119,7 +119,7 @@ class AuthRepository {
       'gender': prefs.getString(AppConfig.genderKey),
       'avatarUrl': prefs.getString(AppConfig.avatarUrlKey),
       'userJson': prefs.getString(AppConfig.userKey),
-      'storageId': prefs.getInt(AppConfig.currentStorageKey),
+      'storageId': prefs.getInt(AppConfig.storageIdKey),
       'storageKey': prefs.getString(AppConfig.codeStorageKey),
       'storageName': prefs.getString(AppConfig.nameStorageKey),
       'lastLoginTime': prefs.getString(AppConfig.lastLoginTimeKey),
@@ -223,7 +223,7 @@ class AuthRepository {
         prefs.remove(AppConfig.userKey),
 
         // Storage info
-        prefs.remove(AppConfig.currentStorageKey),
+        prefs.remove(AppConfig.storageIdKey),
         prefs.remove(AppConfig.codeStorageKey),
         prefs.remove(AppConfig.nameStorageKey),
 

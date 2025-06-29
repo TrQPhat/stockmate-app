@@ -15,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
+    on<RefreshToken>(_onRefreshToken);
   }
 
   Future<void> _onLoginRequested(
@@ -74,6 +75,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     } else {
       emit(AuthInitial());
+    }
+  }
+
+  Future<void> _onRefreshToken(
+    RefreshToken event,
+    Emitter<AuthState> emit,
+  ) async {
+    final success = await _authRepository.refreshToken();
+
+    if (success) {
+      emit(AuthSuccess(User(
+        id: 0,
+        userId: "jadsaskhjalsdlka",
+        email: '',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      )));
+    } else {
+      emit(const AuthFailure("Không thành công"));
     }
   }
 }

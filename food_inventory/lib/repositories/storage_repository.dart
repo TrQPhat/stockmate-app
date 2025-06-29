@@ -30,7 +30,7 @@ class StorageRepository {
       final data = response.data;
 
       if (data['id'] != null) {
-        await prefs.setInt(AppConfig.currentStorageKey, data['id']);
+        await prefs.setInt(AppConfig.storageIdKey, data['id']);
       }
 
       if (data['key'] != null) {
@@ -70,7 +70,7 @@ class StorageRepository {
 
       final data = response.data['storage'];
       if (data['id'] != null) {
-        await prefs.setInt(AppConfig.currentStorageKey, data['id']);
+        await prefs.setInt(AppConfig.storageIdKey, data['id']);
       }
 
       if (data['key'] != null) {

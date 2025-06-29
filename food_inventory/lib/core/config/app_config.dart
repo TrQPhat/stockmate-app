@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppConfig {
   static const String baseUrl = 'http://10.0.2.2:3000/api';
 
@@ -12,11 +14,18 @@ class AppConfig {
   static const String genderKey = 'gender';
   static const String avatarUrlKey = 'avatar_url';
   static const String lastLoginTimeKey = 'last_login_time';
-  static const String currentStorageKey = 'current_storage'; //mã kho
+  static const String storageIdKey = 'current_storage'; //mã kho
   static const String codeStorageKey = 'storage_key'; //mã tham gia
   static const String nameStorageKey = 'storage_name'; //tên kho
 
   // App constants
   static const int requestTimeout = 30000;
   static const int maxImageSize = 5 * 1024 * 1024; // 5MB
+
+  //getter
+  static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
+
+  //default value
+  static const String geminiApiEndpoint =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"; //geminiApiEndpoint
 }

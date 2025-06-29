@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
+import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/positon/position_bloc.dart';
@@ -11,6 +13,7 @@ import 'package:stock_mate/core/network/dio_client.dart';
 import 'package:stock_mate/repositories/auth_repository.dart';
 import 'package:stock_mate/repositories/categories_repository.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
+import 'package:stock_mate/repositories/dish_repository.dart';
 import 'package:stock_mate/repositories/groceries_repository.dart';
 import 'package:stock_mate/repositories/position_repository.dart';
 import 'package:stock_mate/repositories/shopping_item_repository.dart';
@@ -35,6 +38,9 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton<DioClient>(
     DioClient(getIt<Dio>(), baseUrl: AppConfig.baseUrl),
   );
+
+  //env
+  await dotenv.load(fileName: ".env");
 
   // Repositories
   getIt.registerLazySingleton<AuthRepository>(
@@ -62,6 +68,9 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<ShoppingItemRepository>(
     () => ShoppingItemRepository(getIt<DioClient>()),
   );
+  getIt.registerLazySingleton<DishesRepository>(
+    () => DishesRepository(getIt<DioClient>()),
+  );
 
   // BLoCs
   getIt.registerFactory(() => AuthBloc(getIt<AuthRepository>()));
@@ -75,4 +84,5 @@ Future<void> initializeDependencies() async {
   getIt.registerFactory(() => PositionBloc(getIt<PositionRepository>()));
   getIt
       .registerFactory(() => ShoppingItemBloc(getIt<ShoppingItemRepository>()));
+  getIt.registerFactory(() => DishBloc(getIt<DishesRepository>()));
 }

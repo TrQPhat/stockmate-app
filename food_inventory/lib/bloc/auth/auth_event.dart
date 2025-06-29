@@ -40,5 +40,6 @@ class RegisterRequested extends AuthEvent {
 
 class LogoutRequested extends AuthEvent {}
 
-// Thêm event mới
 class CheckAuthStatus extends AuthEvent {}
+
+class RefreshToken extends AuthEvent {}
