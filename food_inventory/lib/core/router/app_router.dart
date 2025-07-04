@@ -1,9 +1,10 @@
 import 'package:go_router/go_router.dart';
+import 'package:stock_mate/bottom_navigation.dart';
 import 'package:stock_mate/models/grocery.dart';
+import 'package:stock_mate/bottom_navigation.dart';
 import 'package:stock_mate/views/dishes/screen/dishes_screen.dart';
 import 'package:stock_mate/views/groceries/views/groceries_page.dart';
 import 'package:stock_mate/views/groceries/views/grocery_detail.dart';
-import 'package:stock_mate/views/home/views/home_page.dart';
 import 'package:stock_mate/views/shopping/views/shopping_detail_page.dart';
 import 'package:stock_mate/views/splash/views/splash_screen.dart';
 import 'package:stock_mate/views/user/views/user_management_page.dart';
@@ -11,7 +12,6 @@ import '../../views/auth/views/login_page.dart';
 import '../../views/auth/views/register_page.dart';
 import '../../views/storage/views/storage_page.dart';
 import '../../views/shopping/views/shopping_page.dart';
-import '../../views/statistics/views/statistics_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -34,8 +34,8 @@ class AppRouter {
 
       // Main app routes
       GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomePage(),
+        path: '/navigation',
+        builder: (context, state) => const BottomNavigationScreen(),
       ),
       GoRoute(
         path: '/grocery',
@@ -64,10 +64,6 @@ class AppRouter {
             },
           ),
         ],
-      ),
-      GoRoute(
-        path: '/statistics',
-        builder: (context, state) => const StatisticsPage(),
       ),
       GoRoute(
         path: '/user',

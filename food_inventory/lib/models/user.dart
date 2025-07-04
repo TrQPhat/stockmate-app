@@ -41,7 +41,7 @@ class User extends Equatable {
   // Chuyển object về JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': id.toString(),
       'user_id': userId,
       'email': email,
       'phone': phone,

@@ -58,14 +58,14 @@ class _DishesScreenState extends State<DishesScreen>
 
   void _toggleFavorite(String dishId) {
     setState(() {
-      final toggleFavorite = (List<Dish> dishes) {
+      toggleFavorite(List<Dish> dishes) {
         for (final dish in dishes) {
           if (dish.id == dishId) {
             dish.isFavorited = !dish.isFavorited;
             break;
           }
         }
-      };
+      }
 
       toggleFavorite(_aiSuggestedDishes);
       toggleFavorite(_userDishes);

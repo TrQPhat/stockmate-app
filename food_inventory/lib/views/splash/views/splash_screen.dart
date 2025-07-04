@@ -8,7 +8,6 @@ import 'dart:async';
 import 'package:stock_mate/core/theme/constants.dart';
 import 'package:stock_mate/repositories/auth_repository.dart';
 import 'package:stock_mate/views/splash/widgets/food_icons.dart';
-import 'package:stock_mate/services/refresh_token_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -83,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
-          context.go("/home");
+          context.go("/navigation");
         } else if (state is AuthFailure) {
           context.go("/login");
         }

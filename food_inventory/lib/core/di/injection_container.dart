@@ -20,7 +20,6 @@ import 'package:stock_mate/repositories/shopping_item_repository.dart';
 import 'package:stock_mate/repositories/storage_repository.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/repositories/user_management_repository.dart';
-import 'package:stock_mate/repositories/user_repository.dart';
 import 'package:stock_mate/bloc/shopping-list/shopping_list_bloc.dart';
 import 'package:stock_mate/repositories/shopping_list_repository.dart';
 
@@ -49,9 +48,6 @@ Future<void> initializeDependencies() async {
 
   getIt.registerLazySingleton<StorageRepository>(
     () => StorageRepository(getIt<DioClient>()),
-  );
-  getIt.registerLazySingleton<UserRepository>(
-    () => UserRepository(getIt<DioClient>()),
   );
   getIt.registerLazySingleton<CategoriesRepository>(
     () => CategoriesRepository(getIt<DioClient>()),

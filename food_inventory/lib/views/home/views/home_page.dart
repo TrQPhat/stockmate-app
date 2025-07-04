@@ -57,66 +57,10 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stock Mate'),
-        actions: [
-          IconButton(
-            icon: const Icon(
-                Icons.notifications_none_outlined), // Icon notifications mới
-            onPressed: () {
-              // TODO: Handle notifications
-            },
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.account_circle),
-            onSelected: (value) {
-              if (value == 'logout') {
-                _showLogoutConfirmDialog(context);
-              } else if (value == 'profile') {
-                // TODO: Navigate to profile page
-              } else if (value == 'settings') {
-                // TODO: Navigate to settings page
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              PopupMenuItem<String>(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    const Icon(Icons.person,
-                        color: AppTheme.primaryGreen), // Sử dụng AppTheme
-                    SizedBox(width: 8.w),
-                    const Text('Hồ sơ cá nhân'),
-                  ],
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    const Icon(Icons.settings,
-                        color: AppTheme.primaryGreen), // Sử dụng AppTheme
-                    SizedBox(width: 8.w),
-                    const Text('Cài đặt'),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem<String>(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout,
-                        color: AppTheme.errorRed), // Sử dụng AppTheme
-                    SizedBox(width: 8.w),
-                    const Text('Đăng xuất',
-                        style: TextStyle(
-                            color: AppTheme.errorRed)), // Sử dụng AppTheme
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+        title: const Text(
+          'Stock Mate',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: (currentStorageId == null ||
               currentStorageId == -1 ||
@@ -457,32 +401,43 @@ class _HomePageState extends State<HomePage> {
               childAspectRatio: 0.9, // Tỷ lệ khung hình cho mỗi item
               children: [
                 _buildActionCard(
-                  icon: Icons.add_box_outlined, // Icon mới
-                  title: 'Thêm sản phẩm',
+                  icon: Image.asset(
+                    'assets/icons/groceries.png',
+                    width: 32,
+                    height: 32,
+                    color: AppTheme.primaryGreen,
+                  ),
+                  title: 'Thực phẩm',
                   onTap: () => context.push('/grocery'),
                 ),
                 _buildActionCard(
-                  icon: Icons.shopping_cart_outlined, // Icon mới
-                  title: 'Danh sách mua sắm',
+                  icon: Icon(Icons.shopping_cart_outlined,
+                      color: AppTheme.primaryGreen, size: 32.w), // Icon mới
+                  title: 'Mua sắm',
                   onTap: () => context.push('/shopping'),
                 ),
                 _buildActionCard(
-                  icon: Icons.warehouse_outlined, // Icon mới
-                  title: 'Quản lý kho',
+                  icon: Icon(Icons.warehouse_outlined,
+                      color: AppTheme.primaryGreen, size: 32.w), // Icon mới
+                  title: 'Kho',
                   onTap: () => context.push('/storage'),
                 ),
                 _buildActionCard(
-                  icon: Icons.analytics_outlined, // Icon mới
+                  icon: Icon(Icons.analytics_outlined,
+                      color: AppTheme.primaryGreen, size: 32.w), // Icon mới
                   title: 'Thống kê',
                   onTap: () => context.push('/statistics'),
                 ),
                 _buildActionCard(
-                  icon: Icons.menu_book_outlined, // Icon mới
-                  title: 'Sổ tay công thức',
+                  icon: Icon(Icons.flatware_outlined,
+                      color: AppTheme.primaryGreen, size: 32.w), // Icon mới
+                  title: 'Món ăn',
                   onTap: () => context.push('/dish'),
                 ),
                 _buildActionCard(
-                  icon: Icons.group_outlined, // Icon mới cho quản lý thành viên
+                  icon: Icon(Icons.group_outlined,
+                      color: AppTheme.primaryGreen,
+                      size: 32.w), // Icon mới cho quản lý thành viên
                   title: 'Thành viên',
                   onTap: () {
                     // TODO: Navigate to member management page
@@ -540,7 +495,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildActionCard({
-    required IconData icon,
+    required Widget icon,
     required String title,
     required VoidCallback onTap,
   }) {
@@ -564,17 +519,17 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  size: 40.w, // Giảm kích thước icon một chút
-                  color: AppTheme.primaryGreen,
+                SizedBox(
+                  height: 40.w,
+                  width: 40.w,
+                  child: Center(child: icon),
                 ),
                 SizedBox(height: 8.h), // Giảm khoảng cách
                 Text(
                   title,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
                       ),
                   maxLines: 2, // Giới hạn 2 dòng để tránh overflow

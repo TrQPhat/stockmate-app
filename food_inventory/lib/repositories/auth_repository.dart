@@ -49,6 +49,7 @@ class AuthRepository {
         prefs.setString(AppConfig.refreshTokenKey, reponseData['refreshToken']),
       ]);
       //Lưu dữ liệu người dùng
+      await prefs.setString(AppConfig.userKey, jsonEncode(user.toJson()));
       await prefs.setInt(AppConfig.userIdKey, user.id);
       await prefs.setString(AppConfig.userEmailKey, user.email);
 
@@ -67,11 +68,6 @@ class AuthRepository {
       if (user.avatarUrl != null) {
         await prefs.setString(AppConfig.avatarUrlKey, user.avatarUrl!);
       }
-
-      await Future.wait([
-        prefs.setString(AppConfig.userKey, user.toJson().toString()),
-        prefs.setInt(AppConfig.userIdKey, user.id),
-      ]);
 
       //Lưu dữ liệu kho
       if (reponseData['storage'] != null) {
