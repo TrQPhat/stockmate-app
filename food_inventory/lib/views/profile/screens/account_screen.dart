@@ -18,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late final User? _user;
+  User? _user;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
@@ -28,40 +28,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadUserData();
   }
 
+  // Future<void> _loadUserData() async {
+  //   final prefs = getIt<SharedPreferences>();
+  //   final name = prefs.getString(AppConfig.userNameKey);
+  //   final email = prefs.getString(AppConfig.userEmailKey);
+  //   final userJson = prefs.getString(AppConfig.userKey);
+
+  //   if (userJson != null) {
+  //     setState(() {
+  //       _user = User.fromJson(jsonDecode(userJson));
+  //       _nameController.text = _user?.fullName ?? name ?? "Người dùng ẩn danh";
+  //       _emailController.text = _user?.email ?? email ?? "Không xác định";
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _user = null;
+  //       _nameController.text = name ?? "Người dùng ẩn danh";
+  //       _emailController.text = email ?? "Không xác định";
+  //     });
+  //   }
+  // }
+
   Future<void> _loadUserData() async {
     final prefs = getIt<SharedPreferences>();
     final name = prefs.getString(AppConfig.userNameKey);
     final email = prefs.getString(AppConfig.userEmailKey);
     final userJson = prefs.getString(AppConfig.userKey);
+
+    print('----- DEBUG USER DATA -----');
+    print('Name from prefs: $name');
+    print('Email from prefs: $email');
+    print('User JSON from prefs: $userJson');
+
     if (userJson != null) {
-      _user = User.fromJson(jsonDecode(userJson));
+      try {
+        final user = User.fromJson(jsonDecode(userJson));
+        print('Parsed user data:');
+        print('Full name: ${user.fullName}');
+        print('Email: ${user.email}');
+
+        setState(() {
+          _user = user;
+          _nameController.text = user.fullName ?? name ?? "Người dùng ẩn danh";
+          _emailController.text = user.email ?? email ?? "Không xác định";
+        });
+      } catch (e) {
+        print('Error parsing user JSON: $e');
+        setState(() {
+          _user = null;
+          _nameController.text = name ?? "Người dùng ẩn danh";
+          _emailController.text = email ?? "Không xác định";
+        });
+      }
     } else {
-      print("user null");
-      _user = null;
+      print('No user JSON found in SharedPreferences');
+      setState(() {
+        _user = null;
+        _nameController.text = name ?? "Người dùng ẩn danh";
+        _emailController.text = email ?? "Không xác định";
+      });
     }
 
-    setState(() {
-      _nameController.text = name ?? "Người dùng ẩn danh";
-      _emailController.text = email ?? "Không xác định";
-    });
+    print('Final values:');
+    print('_user: $_user');
+    print('_nameController.text: ${_nameController.text}');
+    print('_emailController.text: ${_emailController.text}');
+    print('--------------------------');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('Tài khoản'),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Tài khoản'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            if (_user != null)
+              Stack(
+                children: [
+                  _buildProfileSection(_user!),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            _buildSettingsSection(context),
+          ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildProfileSection(_user!),
-              const SizedBox(height: 20),
-              _buildSettingsSection(context),
-            ],
-          ),
-        ));
+      ),
+    );
   }
 
   Widget _buildProfileSection(User user) {

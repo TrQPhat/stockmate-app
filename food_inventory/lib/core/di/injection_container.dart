@@ -6,6 +6,7 @@ import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
+import 'package:stock_mate/bloc/message/message_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/positon/position_bloc.dart';
 import 'package:stock_mate/core/config/app_config.dart';
@@ -15,6 +16,7 @@ import 'package:stock_mate/repositories/categories_repository.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
 import 'package:stock_mate/repositories/dish_repository.dart';
 import 'package:stock_mate/repositories/groceries_repository.dart';
+import 'package:stock_mate/repositories/message_reporitory.dart';
 import 'package:stock_mate/repositories/position_repository.dart';
 import 'package:stock_mate/repositories/shopping_item_repository.dart';
 import 'package:stock_mate/repositories/storage_repository.dart';
@@ -22,6 +24,8 @@ import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/repositories/user_management_repository.dart';
 import 'package:stock_mate/bloc/shopping-list/shopping_list_bloc.dart';
 import 'package:stock_mate/repositories/shopping_list_repository.dart';
+import 'package:stock_mate/services/supabase_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final getIt = GetIt.instance;
 
@@ -37,6 +41,9 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton<DioClient>(
     DioClient(getIt<Dio>(), baseUrl: AppConfig.baseUrl),
   );
+
+  //Supabase client
+  getIt.registerSingleton<SupabaseClient>(SupabaseService().client);
 
   //env
   await dotenv.load(fileName: ".env");
@@ -67,6 +74,9 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<DishesRepository>(
     () => DishesRepository(getIt<DioClient>()),
   );
+  getIt.registerLazySingleton<MessageRepository>(
+    () => MessageRepository(getIt<DioClient>()),
+  );
 
   // BLoCs
   getIt.registerFactory(() => AuthBloc(getIt<AuthRepository>()));
@@ -81,4 +91,5 @@ Future<void> initializeDependencies() async {
   getIt
       .registerFactory(() => ShoppingItemBloc(getIt<ShoppingItemRepository>()));
   getIt.registerFactory(() => DishBloc(getIt<DishesRepository>()));
+  getIt.registerFactory(() => MessageBloc(getIt<MessageRepository>()));
 }

@@ -26,7 +26,7 @@ class User extends Equatable {
   // Factory constructor từ JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] ?? -1,
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id'] ?? '') ?? -1,
       userId: json['user_id'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_mate/core/theme/app_theme.dart';
+import 'package:stock_mate/views/chat/screens/message_screen.dart';
 import 'package:stock_mate/views/home/views/home_page.dart';
 import 'package:stock_mate/views/notification/screens/notifications_page.dart';
 import 'package:stock_mate/views/profile/screens/account_screen.dart';
@@ -55,6 +56,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
         index: _selectedIndex,
         children: const [
           HomePage(),
+          MessagesScreen(),
           StatisticsPage(),
           NotificationsPage(),
           ProfileScreen(),
@@ -90,22 +92,28 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
                 index: 0,
               ),
               _buildNavItem(
+                icon: Icons.chat_outlined,
+                activeIcon: Icons.chat,
+                label: 'Trò chuyện',
+                index: 1,
+              ),
+              _buildNavItem(
                 icon: Icons.analytics_outlined,
                 activeIcon: Icons.analytics,
                 label: 'Thống kê',
-                index: 1,
+                index: 2,
               ),
               _buildNavItem(
                 icon: Icons.notifications_none_outlined,
                 activeIcon: Icons.notifications,
                 label: 'Thông báo',
-                index: 2,
+                index: 3,
               ),
               _buildNavItem(
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
                 label: 'Tài khoản',
-                index: 3,
+                index: 4,
               ),
             ],
             currentIndex: _selectedIndex,

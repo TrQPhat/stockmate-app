@@ -18,8 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int? currentStorageId;
-  String? storageName =
-      "Kho của tôi"; // Default name until we load the actual storage
+  String? storageName = "Kho của tôi";
 
   @override
   void initState() {
@@ -423,10 +422,10 @@ class _HomePageState extends State<HomePage> {
                   onTap: () => context.push('/storage'),
                 ),
                 _buildActionCard(
-                  icon: Icon(Icons.analytics_outlined,
+                  icon: Icon(Icons.calendar_month,
                       color: AppTheme.primaryGreen, size: 32.w), // Icon mới
-                  title: 'Thống kê',
-                  onTap: () => context.push('/statistics'),
+                  title: 'Nhắc nhở',
+                  onTap: () => context.push('/reminder'),
                 ),
                 _buildActionCard(
                   icon: Icon(Icons.flatware_outlined,

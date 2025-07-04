@@ -5,11 +5,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_bloc.dart';
+import 'package:stock_mate/bloc/message/message_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
 import 'package:stock_mate/bloc/positon/position_bloc.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/services/refresh_token_service.dart';
+import 'package:stock_mate/services/supabase_service.dart';
 
 import 'core/di/injection_container.dart';
 import 'core/router/app_router.dart';
@@ -23,8 +25,12 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
 
+  //Khởi tạo supabase
+  await SupabaseService().initialize();
+
   // Initialize dependencies
   await initializeDependencies();
+
   final tokenRefreshService = TokenRefreshService();
   tokenRefreshService.startAutoRefresh();
 
@@ -52,6 +58,7 @@ class StockMateApp extends StatelessWidget {
             BlocProvider(create: (_) => getIt<ShoppingListBloc>()),
             BlocProvider(create: (_) => getIt<ShoppingItemBloc>()),
             BlocProvider(create: (_) => getIt<DishBloc>()),
+            BlocProvider(create: (_) => getIt<MessageBloc>()),
           ],
           child: MaterialApp.router(
             title: 'Stock Mate',

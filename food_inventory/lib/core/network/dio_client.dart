@@ -86,4 +86,32 @@ class DioClient {
     return await _dio.delete(path,
         data: data, queryParameters: queryParameters, options: options);
   }
+
+  // GraphQL POST request (không dùng access token, dùng API key riêng)
+  Future<Response> graphql({
+    required String query,
+    Map<String, dynamic>? variables,
+  }) async {
+    final data = {
+      'query': query,
+      if (variables != null) 'variables': variables,
+    };
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'apikey': AppConfig.apiKey,
+      'Authorization': 'Bearer ${AppConfig.supabaseServiceRoleKey}',
+    };
+
+    return await _dio.post(
+      "${AppConfig.supabaseProjectUrl}/graphql/v1",
+      data: data,
+      options: Options(
+        headers: headers,
+        extra: {
+          'attachAuthToken': false, // không gắn Bearer token mặc định
+        },
+      ),
+    );
+  }
 }
