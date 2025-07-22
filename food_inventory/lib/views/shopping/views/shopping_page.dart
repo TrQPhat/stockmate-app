@@ -111,7 +111,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) => ShoppingListItem(
           shoppingList: lists[index],
-          onTap: () => context.go('/shopping/${lists[index].id}'),
+          onTap: () => context.push('/shopping/${lists[index].id}'),
           onDelete: () => _handleDelete(lists[index]),
           onComplete: () async {
             final confirmed = await showDialog<bool>(

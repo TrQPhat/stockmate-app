@@ -17,6 +17,10 @@ class AppConfig {
   static const String storageIdKey = 'current_storage'; //mã kho
   static const String codeStorageKey = 'storage_key'; //mã tham gia
   static const String nameStorageKey = 'storage_name'; //tên kho
+  static const lastSuggestedDishKey =
+      'last_suggested_dish'; // Lưu thời gian gợi ý món ăn
+  static const suggestedDishesKey =
+      'suggested_dishes_json'; //Lưu nội dung món ăn gợi ý (json)
 
   //supabase
   ///hay còn gọi là anonKey

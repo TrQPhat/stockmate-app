@@ -1,6 +1,6 @@
 class Note {
-  final String id;
-  final String dishId;
+  final int id;
+  final int dishId;
   final String content;
   final int quantity;
   final String author;
@@ -17,8 +17,8 @@ class Note {
 
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
-      id: json['id'].toString(),
-      dishId: json['dish_id'].toString(),
+      id: json['id'],
+      dishId: json['dish_id'],
       content: json['content'] ?? '',
       quantity: json['quantity']?.toInt() ?? 1,
       author: json['author'] ?? '',

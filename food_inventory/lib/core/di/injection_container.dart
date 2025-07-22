@@ -6,9 +6,11 @@ import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
+import 'package:stock_mate/bloc/home/home_bloc.dart';
 import 'package:stock_mate/bloc/message/message_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/positon/position_bloc.dart';
+import 'package:stock_mate/bloc/waste_stats/waste_stats_bloc.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/network/dio_client.dart';
 import 'package:stock_mate/repositories/auth_repository.dart';
@@ -16,9 +18,11 @@ import 'package:stock_mate/repositories/categories_repository.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
 import 'package:stock_mate/repositories/dish_repository.dart';
 import 'package:stock_mate/repositories/groceries_repository.dart';
+import 'package:stock_mate/repositories/home_repository.dart';
 import 'package:stock_mate/repositories/message_reporitory.dart';
 import 'package:stock_mate/repositories/position_repository.dart';
 import 'package:stock_mate/repositories/shopping_item_repository.dart';
+import 'package:stock_mate/repositories/stats_repository.dart';
 import 'package:stock_mate/repositories/storage_repository.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/repositories/user_management_repository.dart';
@@ -77,6 +81,12 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<MessageRepository>(
     () => MessageRepository(getIt<DioClient>()),
   );
+  getIt.registerLazySingleton<HomeRepository>(
+    () => HomeRepository(getIt<DioClient>()),
+  );
+  getIt.registerLazySingleton<StatsRepository>(
+    () => StatsRepository(getIt<DioClient>()),
+  );
 
   // BLoCs
   getIt.registerFactory(() => AuthBloc(getIt<AuthRepository>()));
@@ -92,4 +102,6 @@ Future<void> initializeDependencies() async {
       .registerFactory(() => ShoppingItemBloc(getIt<ShoppingItemRepository>()));
   getIt.registerFactory(() => DishBloc(getIt<DishesRepository>()));
   getIt.registerFactory(() => MessageBloc(getIt<MessageRepository>()));
+  getIt.registerFactory(() => HomeBloc(getIt<HomeRepository>()));
+  getIt.registerFactory(() => WasteStatsBloc(getIt<StatsRepository>()));
 }

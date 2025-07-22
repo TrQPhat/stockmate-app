@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_mate/bloc/dish/dish_bloc.dart';
+import 'package:stock_mate/bloc/dish/dish_event.dart';
 import 'package:stock_mate/models/dish.dart';
 import 'package:stock_mate/models/mock_data.dart';
 import 'package:stock_mate/models/note.dart';
@@ -30,7 +33,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
 
   void _loadNotes() {
     setState(() {
-      _notes = MockData.getDishNotes(widget.dish.id);
+      _notes = MockData.getDishNotes(widget.dish.id ?? 0);
     });
   }
 
@@ -41,9 +44,20 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
   }
 
   void _toggleFavorite() {
+    context.read<DishBloc>().add(ToggleFavoriteDish(widget.dish.id!));
     setState(() {
       _isFavorited = !_isFavorited;
     });
+  }
+
+  void _handleSaveDish() {
+    context.read<DishBloc>().add(AddDish(widget.dish));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Đã lưu món ăn '${widget.dish.name}' vào danh sách."),
+        backgroundColor: AppTheme.primaryGreen,
+      ),
+    );
   }
 
   @override
@@ -59,7 +73,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                 _buildDishInfo(),
                 _buildInstructions(),
                 NotesSection(
-                  dishId: widget.dish.id,
+                  dishId: widget.dish.id ?? 0,
                   notes: _notes,
                   onAddNote: _addNote,
                 ),
@@ -155,13 +169,50 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
         ),
       ),
       actions: [
-        IconButton(
-          onPressed: _toggleFavorite,
-          icon: Icon(
-            _isFavorited ? Icons.favorite : Icons.favorite_border,
-            color: _isFavorited ? Colors.red : Colors.white,
+        if (widget.dish.isAISuggested)
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: _handleSaveDish,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF56ab2f), // Green lime sáng
+                      Color(0xFFA8E063), // Light green pastel
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.purple.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  'SAVE',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          )
+        else
+          IconButton(
+            onPressed: _toggleFavorite,
+            icon: Icon(
+              _isFavorited ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorited ? Colors.red : Colors.white,
+            ),
           ),
-        ),
       ],
     );
   }

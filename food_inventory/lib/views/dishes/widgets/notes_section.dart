@@ -3,7 +3,7 @@ import 'package:stock_mate/core/theme/app_theme.dart';
 import 'package:stock_mate/models/note.dart';
 
 class NotesSection extends StatefulWidget {
-  final String dishId;
+  final int dishId;
   final List<Note> notes;
   final Function(Note) onAddNote;
 
@@ -278,7 +278,7 @@ class _NotesSectionState extends State<NotesSection> {
     if (_noteController.text.trim().isEmpty) return;
 
     final note = Note(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: DateTime.now().millisecondsSinceEpoch,
       dishId: widget.dishId,
       content: _noteController.text.trim(),
       quantity: _servings,

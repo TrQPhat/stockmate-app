@@ -29,8 +29,10 @@ class _MessagesScreenState extends State<MessagesScreen>
   late Animation<double> _fadeAnimation;
 
   int? _currentStorageId;
+  int? _currentUserId;
   String? _storageName = "Kho của tôi";
   bool _isTyping = false;
+  bool _isScrolling = false;
 
   @override
   void initState() {
@@ -57,8 +59,11 @@ class _MessagesScreenState extends State<MessagesScreen>
     try {
       final prefs = getIt<SharedPreferences>();
       final currentStorage = prefs.getInt(AppConfig.storageIdKey) ?? -1;
+      _currentUserId = prefs.getInt(AppConfig.userIdKey);
       final nameStorage = prefs.getString(AppConfig.nameStorageKey) ?? '';
+
       if (!mounted) return;
+
       setState(() {
         _currentStorageId = currentStorage != -1 ? currentStorage : null;
         _storageName = nameStorage.isNotEmpty ? nameStorage : "Kho của tôi";
@@ -81,17 +86,20 @@ class _MessagesScreenState extends State<MessagesScreen>
         type: PostgresChangeFilterType.eq,
         value: _currentStorageId,
       ),
-      // clientFilters: [
-      //   const ClientFilter(
-      //     column: 'sender_type',
-      //     type: FilterType.in_,
-      //     value: ['contact', 'bot'],
-      //   ),
-      // ],
+      clientFilters: [
+        ClientFilter(
+          column: 'sender_id',
+          type: FilterType.eq,
+          value: '${_currentUserId!}',
+        ),
+      ],
       onInsert: (newRecord) {
         final message = Message.fromJson(newRecord);
         context.read<MessageBloc>().add(MessageRealtimeInserted(message));
-        _scrollToBottom();
+        // Delay scroll để đợi UI update
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _scrollToBottom(animated: true);
+        });
         print('New message received: ${message.content}');
       },
       onUpdate: (oldRecord, newRecord) {
@@ -113,14 +121,31 @@ class _MessagesScreenState extends State<MessagesScreen>
     );
   }
 
-  void _scrollToBottom() {
+  void _scrollToBottom({bool animated = true}) {
+    if (!_scrollController.hasClients || _isScrolling) return;
+
+    _isScrolling = true;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        final maxScroll = _scrollController.position.maxScrollExtent;
+
+        if (animated) {
+          _scrollController
+              .animateTo(
+            maxScroll,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+          )
+              .then((_) {
+            _isScrolling = false;
+          });
+        } else {
+          _scrollController.jumpTo(maxScroll);
+          _isScrolling = false;
+        }
+      } else {
+        _isScrolling = false;
       }
     });
   }
@@ -349,6 +374,71 @@ class _MessagesScreenState extends State<MessagesScreen>
     );
   }
 
+  List<Widget> _buildMessageWidgets(List<Message> messages, int userId) {
+    // Sắp xếp tin nhắn theo thời gian tăng dần (cũ nhất trước)
+    final sortedMessages = List<Message>.from(messages)
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    const timeGap = Duration(hours: 3);
+    List<Widget> widgets = [];
+
+    for (int i = 0; i < sortedMessages.length; i++) {
+      final msg = sortedMessages[i];
+
+      // Thêm timestamp nếu cần
+      if (i == 0 || _shouldShowTimestamp(sortedMessages[i - 1], msg, timeGap)) {
+        widgets.add(_buildTimestamp(msg.createdAt));
+      }
+
+      // Thêm message bubble
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+          child: MessageBubble(
+            message: msg.content!,
+            isMe: msg.senderId == userId,
+            sender: msg.nameSender,
+            date: msg.createdAt,
+          ),
+        ),
+      );
+    }
+
+    return widgets;
+  }
+
+  bool _shouldShowTimestamp(
+      Message prevMsg, Message currentMsg, Duration timeGap) {
+    final timeDiff = currentMsg.createdAt.difference(prevMsg.createdAt).abs();
+    final isDifferentDay = prevMsg.createdAt.day != currentMsg.createdAt.day ||
+        prevMsg.createdAt.month != currentMsg.createdAt.month ||
+        prevMsg.createdAt.year != currentMsg.createdAt.year;
+
+    return timeDiff >= timeGap || isDifferentDay;
+  }
+
+  Widget _buildTimestamp(DateTime dateTime) {
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          AppFormat.formatFriendlyTime(dateTime),
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -364,7 +454,15 @@ class _MessagesScreenState extends State<MessagesScreen>
                       'Tham gia kho để bắt đầu câu chuyện',
                       Icons.inventory_2_outlined,
                     )
-                  : BlocBuilder<MessageBloc, MessageState>(
+                  : BlocConsumer<MessageBloc, MessageState>(
+                      listener: (context, state) {
+                        if (state is MessageLoaded) {
+                          // Cuộn xuống khi load xong tin nhắn
+                          Future.delayed(const Duration(milliseconds: 200), () {
+                            _scrollToBottom(animated: false);
+                          });
+                        }
+                      },
                       builder: (context, state) {
                         if (state is MessageLoading) {
                           return Center(
@@ -401,6 +499,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                               Icons.login_outlined,
                             );
                           }
+
                           final messages = state.messages;
                           if (messages.isEmpty) {
                             return _buildEmptyState(
@@ -409,105 +508,10 @@ class _MessagesScreenState extends State<MessagesScreen>
                             );
                           }
 
-                          const timeGap = Duration(hours: 3);
-                          List<Widget> widgets = [];
-                          for (int i = 0; i < messages.length; i++) {
-                            final msg = messages[i];
-                            widgets.add(
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 2,
-                                ),
-                                child: MessageBubble(
-                                  message: msg.content!,
-                                  isMe: msg.senderId == userId,
-                                  sender: msg.nameSender,
-                                  date: msg.createdAt,
-                                ),
-                              ),
-                            );
-
-                            if (i < messages.length - 1) {
-                              final currentTime = msg.createdAt;
-                              final nextTime = messages[i + 1].createdAt;
-                              final timeDiff =
-                                  nextTime.difference(currentTime).abs();
-                              final isDifferentDay =
-                                  currentTime.day != nextTime.day ||
-                                      currentTime.month != nextTime.month ||
-                                      currentTime.year != nextTime.year;
-                              final shouldShowTime =
-                                  timeDiff >= timeGap || isDifferentDay;
-
-                              if (shouldShowTime) {
-                                final timeLabel =
-                                    AppFormat.formatFriendlyTime(currentTime);
-                                widgets.add(
-                                  Container(
-                                    alignment: Alignment.center,
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        timeLabel,
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey.shade600,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            } else {
-                              final timeLabel =
-                                  AppFormat.formatFriendlyTime(msg.createdAt);
-                              widgets.add(
-                                Container(
-                                  alignment: Alignment.center,
-                                  margin: const EdgeInsets.only(
-                                    top: 12,
-                                    bottom: 20,
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      timeLabel,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey.shade600,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          }
-
                           return ListView(
                             controller: _scrollController,
-                            padding: const EdgeInsets.only(top: 16),
-                            reverse: true,
-                            children: widgets,
+                            padding: const EdgeInsets.only(top: 16, bottom: 16),
+                            children: _buildMessageWidgets(messages, userId),
                           );
                         } else {
                           return const SizedBox();
@@ -524,6 +528,7 @@ class _MessagesScreenState extends State<MessagesScreen>
 
   void _sendMessage() {
     if (_controller.text.trim().isEmpty) return;
+
     final text = _controller.text.trim();
     _controller.clear();
     setState(() {
@@ -533,16 +538,21 @@ class _MessagesScreenState extends State<MessagesScreen>
     final prefs = getIt<SharedPreferences>();
     final userId = prefs.getInt(AppConfig.userIdKey);
     final userName = prefs.getString(AppConfig.userNameKey);
+
     if (userId == null || userName == null) return;
 
     final message = Message(
       conversationId: _currentStorageId!,
       senderId: userId,
       content: text,
-      nameSender: '',
+      nameSender: userName,
     );
 
     context.read<MessageBloc>().add(AddMessage(message));
-    _scrollToBottom();
+
+    // Cuộn xuống ngay sau khi gửi
+    Future.delayed(const Duration(milliseconds: 150), () {
+      _scrollToBottom(animated: true);
+    });
   }
 }

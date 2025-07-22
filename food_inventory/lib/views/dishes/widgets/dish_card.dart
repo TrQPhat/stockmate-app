@@ -244,25 +244,69 @@ class _DishCardState extends State<DishCard>
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildActionButton(
-          icon:
-              widget.dish.isFavorited ? Icons.favorite : Icons.favorite_border,
-          color: widget.dish.isFavorited ? Colors.red : Colors.grey[600]!,
-          onPressed: widget.onToggleFavorite,
-        ),
-        if (widget.canEdit && widget.onDelete != null) ...[
-          const SizedBox(width: 8),
+    if (widget.canEdit) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           _buildActionButton(
-            icon: Icons.delete_outline,
-            color: AppTheme.errorRed,
-            onPressed: () => _showDeleteConfirmation(context),
+            icon: widget.dish.isFavorited
+                ? Icons.favorite
+                : Icons.favorite_border,
+            color: widget.dish.isFavorited ? Colors.red : Colors.grey[600]!,
+            onPressed: widget.onToggleFavorite,
           ),
+          if (widget.onDelete != null) ...[
+            const SizedBox(width: 8),
+            _buildActionButton(
+              icon: Icons.delete_outline,
+              color: AppTheme.errorRed,
+              onPressed: () => _showDeleteConfirmation(context),
+            ),
+          ],
         ],
-      ],
-    );
+      );
+    } else {
+      return GestureDetector(
+        onTap: () {
+          widget.onDelete?.call();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text("Đã lưu món ăn '${widget.dish.name}' vào danh sách."),
+              backgroundColor: AppTheme.primaryGreen,
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF667EEA),
+                Color(0xFF764BA2),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.purple.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Text(
+            'SAVE',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildActionButton({

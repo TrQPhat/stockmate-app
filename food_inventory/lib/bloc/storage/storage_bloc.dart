@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/models/storage.dart';
 import 'package:stock_mate/repositories/storage_repository.dart';
 
@@ -20,27 +19,6 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     Emitter<StorageState> emit,
   ) async {
     emit(StorageLoading());
-    // try {
-    //   // Mock data
-    //   await Future.delayed(const Duration(seconds: 1));
-    //   final storages = [
-    //     Storage(
-    //       id: '1',
-    //       name: 'Kho gia đình',
-    //       ownerId: 'user1',
-    //       createdAt: DateTime.now().subtract(const Duration(days: 30)),
-    //     ),
-    //     Storage(
-    //       id: '2',
-    //       name: 'Kho nhà hàng',
-    //       ownerId: 'user2',
-    //       createdAt: DateTime.now().subtract(const Duration(days: 15)),
-    //     ),
-    //   ];
-    //   emit(StorageLoaded(storages));
-    // } catch (e) {
-    //   emit(StorageError(e.toString()));
-    // }
   }
 
   Future<void> _onStorageCreateRequested(

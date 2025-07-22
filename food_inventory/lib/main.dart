@@ -5,11 +5,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_bloc.dart';
+import 'package:stock_mate/bloc/home/home_bloc.dart';
 import 'package:stock_mate/bloc/message/message_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
 import 'package:stock_mate/bloc/positon/position_bloc.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
+import 'package:stock_mate/bloc/waste_stats/waste_stats_bloc.dart';
 import 'package:stock_mate/services/refresh_token_service.dart';
 import 'package:stock_mate/services/supabase_service.dart';
 
@@ -18,9 +20,11 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'bloc/grocery/groceries_bloc.dart';
 import 'bloc/shopping-list/shopping_list_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('vi_VN', null);
 
   // Initialize Hive
   await Hive.initFlutter();
@@ -59,6 +63,8 @@ class StockMateApp extends StatelessWidget {
             BlocProvider(create: (_) => getIt<ShoppingItemBloc>()),
             BlocProvider(create: (_) => getIt<DishBloc>()),
             BlocProvider(create: (_) => getIt<MessageBloc>()),
+            BlocProvider(create: (_) => getIt<HomeBloc>()),
+            BlocProvider(create: (_) => getIt<WasteStatsBloc>()),
           ],
           child: MaterialApp.router(
             title: 'Stock Mate',

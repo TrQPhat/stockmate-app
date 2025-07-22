@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stock_mate/core/config/app_config.dart';
+import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/core/theme/app_theme.dart';
 import 'package:stock_mate/models/dish.dart';
 
@@ -192,8 +195,15 @@ class _AddDishDialogState extends State<AddDishDialog> {
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
+      final prefs = getIt<SharedPreferences>();
+      final storageId = prefs.getInt(AppConfig.storageIdKey) ?? 0;
+      if (storageId == 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã có lỗi xảy ra, vui lòng thử lại.')),
+        );
+        return;
+      }
       final dish = Dish(
-        id: 'user-${DateTime.now().millisecondsSinceEpoch}',
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         instructions: _instructionsController.text.trim(),
@@ -201,12 +211,10 @@ class _AddDishDialogState extends State<AddDishDialog> {
             ? 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400'
             : _imageUrlController.text.trim(),
         cookTimeMinutes: int.tryParse(_cookTimeController.text) ?? 0,
-        storageId: 1,
-        isAISuggested: false,
+        storageId: storageId,
       );
 
       widget.onAddDish(dish);
-      Navigator.pop(context);
     }
   }
 }

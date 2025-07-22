@@ -152,6 +152,68 @@ class GroceryController {
       res.status(500).json({ error: "Lỗi khi xóa sản phẩm" });
     }
   }
+
+  //Thống kê lãng phí
+  async getWasteStats(req, res) {
+    try {
+      // 1. Tổng số nguyên liệu
+      const total = await Grocery.count();
+
+      // 2. Tổng số nguyên liệu lãng phí (status = het_han hoặc huy)
+      const totalWaste = await Grocery.count({
+        where: {
+          status: { [Op.in]: ["het_han", "huy"] },
+        },
+      });
+
+      // 3. Tính tỉ lệ lãng phí
+      const wasteRate = total === 0 ? 0 : (totalWaste / total) * 100;
+
+      // 4. Chi tiết theo danh mục (group by category_id)
+      const detailByCategory = await Grocery.findAll({
+        attributes: [
+          "category_id",
+          [fn("COUNT", col("id")), "total"],
+          [
+            fn("SUM", literal(`CASE WHEN status IN ('het_han', 'huy') THEN 1 ELSE 0 END`)),
+            "wasted",
+          ],
+        ],
+        group: ["category_id"],
+        raw: true,
+      });
+
+      // 5. Ghép thêm tên danh mục nếu có bảng Category
+      const results = await Promise.all(
+        detailByCategory.map(async (item) => {
+          const category = item.category_id
+            ? await Category.findByPk(item.category_id)
+            : null;
+          return {
+            category_id: item.category_id,
+            category_name: category?.name || "Không xác định",
+            total: parseInt(item.total),
+            wasted: parseInt(item.wasted),
+            wasteRate:
+              item.total == 0 ? 0 : (item.wasted / item.total * 100).toFixed(2),
+          };
+        })
+      );
+
+      // 6. Trả kết quả JSON
+      return res.json({
+        total,
+        totalWaste,
+        wasteRate: +wasteRate.toFixed(2),
+        detailByCategory: results,
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Có lỗi xảy ra khi thống kê." });
+    }
+  }
+  
+
 }
 
 module.exports = new GroceryController();

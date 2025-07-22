@@ -1,5 +1,5 @@
 class Dish {
-  final String id;
+  final int? id;
   final String name;
   final String description;
   final String instructions;
@@ -10,7 +10,7 @@ class Dish {
   bool isFavorited;
 
   Dish({
-    required this.id,
+    this.id,
     required this.name,
     required this.description,
     required this.instructions,
@@ -23,7 +23,7 @@ class Dish {
 
   factory Dish.fromJson(Map<String, dynamic> json) {
     return Dish(
-      id: json['id'].toString(),
+      id: json['id'],
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       instructions: json['instructions'] ?? '',
@@ -44,8 +44,30 @@ class Dish {
       'image_url': imageUrl,
       'cook_time_minutes': cookTimeMinutes,
       'storage_id': storageId,
-      'is_ai_suggested': isAISuggested,
-      'is_favorited': isFavorited,
     };
+  }
+
+  Dish copyWith({
+    int? id,
+    String? name,
+    String? description,
+    String? instructions,
+    String? imageUrl,
+    int? cookTimeMinutes,
+    int? storageId,
+    bool? isAISuggested,
+    bool? isFavorited,
+  }) {
+    return Dish(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      instructions: instructions ?? this.instructions,
+      imageUrl: imageUrl ?? this.imageUrl,
+      cookTimeMinutes: cookTimeMinutes ?? this.cookTimeMinutes,
+      storageId: storageId ?? this.storageId,
+      isAISuggested: isAISuggested ?? this.isAISuggested,
+      isFavorited: isFavorited ?? this.isFavorited,
+    );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/di/injection_container.dart';
@@ -18,10 +17,15 @@ class DishesRepository {
 
   // Lấy danh sách món ăn
   Future<List<Dish>> getDishes() async {
-    final storageId = getIt<SharedPreferences>().getInt(AppConfig.storageIdKey);
-
+    final prefs = getIt<SharedPreferences>();
+    final storageId = prefs.getInt(AppConfig.storageIdKey);
+    final userId = prefs.getInt(AppConfig.userIdKey);
+    if (storageId == null || userId == null) {
+      throw Exception(
+          'Không tìm thấy kho hàng hoặc người dùng. Vui lòng chọn kho hàng.');
+    }
     try {
-      final response = await _dioClient.get("$baseUrl/$storageId");
+      final response = await _dioClient.get("$baseUrl/$storageId/$userId");
 
       if (response.data is! List) {
         throw Exception('Dữ liệu trả về không đúng định dạng danh sách.');
@@ -89,19 +93,34 @@ class DishesRepository {
       // Decode JSON
       final List<dynamic> rawList = json.decode(jsonString);
 
+      final prefs = getIt<SharedPreferences>();
+      final storageId = prefs.getInt(AppConfig.storageIdKey) ?? 0;
+      if (storageId == 0) {
+        throw Exception('Không tìm thấy kho hàng. Vui lòng chọn kho hàng.');
+      }
+
       // Map sang Dish
-      return rawList.map((e) {
+      final dishes = rawList.map((e) {
         return Dish(
-          id: "0",
           name: e['name'] ?? '',
           description: e['description'] ?? '',
           instructions: e['instructions'] ?? '',
           imageUrl: e['image_url'] ?? '',
           cookTimeMinutes: e['cook_time_minutes'] ?? 0,
           isAISuggested: true,
-          storageId: 19,
+          storageId: storageId,
         );
       }).toList();
+
+      // ✅ Lưu danh sách vào SharedPreferences
+      final dishesJson = jsonEncode(dishes.map((d) => d.toJson()).toList());
+      await prefs.setString(AppConfig.suggestedDishesKey, dishesJson);
+
+      // ✅ Lưu thời gian gợi ý gần nhất
+      await prefs.setString(
+          AppConfig.lastSuggestedDishKey, DateTime.now().toIso8601String());
+
+      return dishes;
     } catch (e) {
       print('Lỗi khi parse JSON món ăn từ Gemini: $e');
       throw Exception('Không thể phân tích kết quả từ Gemini.');
@@ -109,48 +128,109 @@ class DishesRepository {
   }
 
   Future<List<Dish>> getSuggestedDishes() async {
+    final prefs = getIt<SharedPreferences>();
+
+    final lastSuggestedStr = prefs.getString(AppConfig.lastSuggestedDishKey);
+    final now = DateTime.now();
+
+    if (lastSuggestedStr != null) {
+      try {
+        final lastSuggested = DateTime.parse(lastSuggestedStr);
+
+        // So sánh ngày (bỏ phần giờ)
+        final isSameDay = lastSuggested.year == now.year &&
+            lastSuggested.month == now.month &&
+            lastSuggested.day == now.day;
+
+        if (isSameDay) {
+          // ✅ Đọc danh sách món ăn đã lưu
+          final jsonStr = prefs.getString(AppConfig.suggestedDishesKey);
+          if (jsonStr != null) {
+            final List<dynamic> jsonList = jsonDecode(jsonStr);
+            final dishes = jsonList.map((e) {
+              final dish = Dish.fromJson(e);
+              return dish.copyWith(isAISuggested: true);
+            }).toList();
+            return dishes;
+          }
+        }
+      } catch (e) {
+        print('Lỗi khi đọc dữ liệu local suggested dishes: $e');
+      }
+    }
+
+    // Nếu không có dữ liệu đã lưu hoặc ngày không trùng, gọi API Gemini
     List<Grocery> availableFoods = await getExpiringGroceries();
     print("Danh sách thực phẩm: ${jsonEncode(availableFoods)}");
 
-    // 1. Chuẩn bị dữ liệu đầu vào cho Prompt
-    final List<String> formattedInputLines = [];
-    for (var dish in availableFoods) {
-      final name = dish.name;
-      final quantity = dish.quantity;
-      final unit = dish.unit;
-      formattedInputLines.add('- Tên: $name, Số lượng: $quantity $unit');
-    }
-    final String foodsInputString = formattedInputLines.join('\n');
-    print("TP: $foodsInputString");
+    String prompt;
 
-    // 2. Xây dựng Prompt đầy đủ
-    final String prompt = """
-      Bạn là một đầu bếp AI sáng tạo và hiệu quả.
-      Tôi sẽ cung cấp cho bạn một danh sách các loại thực phẩm tôi đang có.
-      Nhiệm vụ của bạn là đề xuất 7-10 món ăn ngon, dễ làm, sử dụng tối đa các thực phẩm trong danh sách đã cho.
-      Mỗi món ăn được đề xuất phải được trả về dưới dạng một đối tượng JSON.
-      Nếu có nhiều cách kết hợp, hãy ưu tiên các món ăn sử dụng đa dạng và nhiều loại thực phẩm nhất có thể từ danh sách.
-
-      Đối với "image_url", hãy cung cấp một URL hình ảnh giả định (placeholder) phù hợp với món ăn.
-
-      Đây là cấu trúc JSON cho MỖI món ăn được đề xuất:
-      ```json
-      {
-          "name": "",
-          "description": "",
-          "instructions": "",
-          "cook_time_minutes": 0,
-          "image_url": ""
+    if (availableFoods.isNotEmpty) {
+      // 1. Chuẩn bị dữ liệu đầu vào cho Prompt
+      final List<String> formattedInputLines = [];
+      for (var dish in availableFoods) {
+        final name = dish.name;
+        final quantity = dish.quantity;
+        final unit = dish.unit;
+        formattedInputLines.add('- Tên: $name, Số lượng: $quantity $unit');
       }
-      Và đây là định dạng của MẢNG JSON bạn cần trả về. Đảm bảo toàn bộ phản hồi là JSON hợp lệ và không có văn bản thừa bên ngoài khối JSON:
-      [
-        {{ ... }},
-        {{ ... }},
-        // ... (tối đa 10 món)
-      ]
-      Dưới đây là danh sách các thực phẩm tôi đang có (Chỉ quan tâm Tên và Số lượng):
-      $foodsInputString
+      final String foodsInputString = formattedInputLines.join('\n');
+      print("TP: $foodsInputString");
+
+      // 2. Prompt khi có nguyên liệu
+      prompt = """
+        Bạn là một đầu bếp AI sáng tạo và hiệu quả.
+        Tôi sẽ cung cấp cho bạn một danh sách các loại thực phẩm tôi đang có.
+        Nhiệm vụ của bạn là đề xuất 7-10 món ăn ngon, dễ làm, sử dụng tối đa các thực phẩm trong danh sách đã cho.
+        Mỗi món ăn được đề xuất phải được trả về dưới dạng một đối tượng JSON.
+        Nếu có nhiều cách kết hợp, hãy ưu tiên các món ăn sử dụng đa dạng và nhiều loại thực phẩm nhất có thể từ danh sách.
+
+        Đối với "image_url", hãy cung cấp một URL hình ảnh giả định (placeholder) phù hợp với món ăn.
+
+        Đây là cấu trúc JSON cho MỖI món ăn được đề xuất:
+        ```json
+        {
+            "name": "",
+            "description": "",
+            "instructions": "",
+            "cook_time_minutes": 0,
+            "image_url": ""
+        }
+        Và đây là định dạng của MẢNG JSON bạn cần trả về. Đảm bảo toàn bộ phản hồi là JSON hợp lệ và không có văn bản thừa bên ngoài khối JSON:
+        [
+          {{ ... }},
+          {{ ... }},
+          // ... (tối đa 10 món)
+        ]
+        Dưới đây là danh sách các thực phẩm tôi đang có (Chỉ quan tâm Tên và Số lượng):
+        $foodsInputString
       """;
+    } else {
+      // 3. Prompt fallback khi không có thực phẩm
+      prompt = """
+      Bạn là một đầu bếp AI tài năng.
+      Nhiệm vụ của bạn là đề xuất 7-10 món ăn ngon, dễ làm và phù hợp với thời tiết hiện tại.
+      Mỗi món ăn bạn đề xuất phải được trả về dưới dạng một đối tượng JSON. Các món ăn nên sử dụng đa dạng và nhiều loại thực phẩm nhất có thể từ danh sách các nguyên liệu phổ biến, dễ tìm.
+      Định dạng JSON cho mỗi món ăn phải như sau:
+
+        ```json
+        {
+            "name": "",
+            "description": "",
+            "instructions": "",
+            "cook_time_minutes": 0,
+            "image_url": ""
+        }
+        Và toàn bộ phản hồi phải là một MẢNG JSON chứa 7-10 món ăn, ví dụ:
+        [
+          {{ ... }},
+          {{ ... }},
+          ...
+        ]
+        Không có văn bản thừa bên ngoài JSON. Chỉ trả về mảng JSON.
+      """;
+    }
+
     final Map<String, dynamic> requestBody = {
       "contents": [
         {
@@ -209,6 +289,84 @@ class DishesRepository {
       return await _parseGeminiDishResponse(responseData);
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<Dish> updateDish(Dish dish) async {
+    try {
+      final response = await _dioClient.put(
+        "$baseUrl/${dish.id}",
+        data: dish.toJson(),
+      );
+
+      return Dish.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Vui lòng kiểm tra lại kết nối');
+      } else {
+        throw Exception('Lỗi kết nối đến máy chủ, thử lại sau');
+      }
+    } catch (e) {
+      throw Exception('Đã có lỗi xảy ra khi cập nhật món ăn');
+    }
+  }
+
+  Future<void> deleteDish(int dishId) async {
+    try {
+      await _dioClient.delete("$baseUrl/$dishId");
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Vui lòng kiểm tra lại kết nối');
+      } else {
+        throw Exception('Lỗi kết nối đến máy chủ, thử lại sau');
+      }
+    } catch (e) {
+      throw Exception('Đã có lỗi xảy ra khi xoá món ăn');
+    }
+  }
+
+  Future<Dish> createDish(Dish dish) async {
+    try {
+      final response = await _dioClient.post(
+        baseUrl,
+        data: dish.toJson(),
+      );
+
+      return Dish.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Vui lòng kiểm tra lại kết nối');
+      } else {
+        throw Exception('Lỗi kết nối đến máy chủ, thử lại sau');
+      }
+    } catch (e) {
+      throw Exception('Đã có lỗi xảy ra khi thêm món ăn');
+    }
+  }
+
+  Future<bool> toggleFavoriteDish({
+    required int userId,
+    required int dishId,
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        '$baseUrl/favorite',
+        data: {
+          'user_id': userId,
+          'dish_id': dishId,
+        },
+      );
+
+      // Trả về kết quả is_favorited từ server
+      return response.data['is_favorited'] as bool;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Vui lòng kiểm tra lại kết nối');
+      } else {
+        throw Exception('Lỗi kết nối đến máy chủ, thử lại sau');
+      }
+    } catch (e) {
+      throw Exception('Đã có lỗi xảy ra khi xử lý yêu thích món ăn');
     }
   }
 }

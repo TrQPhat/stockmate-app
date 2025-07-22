@@ -4,21 +4,38 @@ class DishController {
   // Lấy tất cả món ăn
   async getAllDishes(req, res) {
     try {
-      const { storage_id } = req.params;
+      const { storage_id, user_id  } = req.params;
 
       const whereClause = {};
-      if (storage_id) {
-        whereClause.storage_id = storage_id;
-      }
-
-      const dishes = await Dish.findAll({ where: whereClause });
-
-      res.status(200).json(dishes);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách món ăn:", error);
-      res.status(500).json({ error: "Lỗi khi lấy danh sách món ăn" });
+    if (storage_id) {
+      whereClause.storage_id = storage_id;
     }
+
+    // Lấy danh sách món ăn
+    const dishes = await Dish.findAll({ where: whereClause });
+
+    // Nếu có user_id, kiểm tra favorite
+    let favoriteDishIds = [];
+    if (user_id) {
+      const favorites = await Favorite.findAll({
+        where: { user_id },
+        attributes: ['dish_id']
+      });
+      favoriteDishIds = favorites.map(fav => fav.dish_id);
+    }
+
+    // Gắn thêm trường is_favorited cho mỗi dish
+    const result = dishes.map(dish => ({
+      ...dish.toJSON(),
+      is_favorited: favoriteDishIds.includes(dish.id)
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách món ăn:", error);
+    res.status(500).json({ error: "Lỗi khi lấy danh sách món ăn" });
   }
+}
 
   // Lấy món ăn theo ID
   async getDishById(req, res) {
@@ -117,6 +134,34 @@ class DishController {
       res.status(500).json({ error: "Lỗi khi xóa món ăn" });
     }
   }
+
+  async  toggleFavoriteDish(req, res) {
+  try {
+    const { user_id, dish_id } = req.body;
+
+    if (!user_id || !dish_id) {
+      return res.status(400).json({ error: "user_id và dish_id là bắt buộc" });
+    }
+
+    // Kiểm tra xem đã tồn tại Favorite chưa
+    const existing = await Favorite.findOne({
+      where: { user_id, dish_id },
+    });
+
+    if (existing) {
+      // Nếu đã tồn tại, xoá (tức là toggle thành false)
+      await existing.destroy();
+      return res.status(200).json({ is_favorited: false });
+    } else {
+      // Nếu chưa tồn tại, tạo mới (tức là toggle thành true)
+      await Favorite.create({ user_id, dish_id });
+      return res.status(200).json({ is_favorited: true });
+    }
+  } catch (error) {
+    console.error("Lỗi khi toggle yêu thích món ăn:", error);
+    res.status(500).json({ error: "Đã xảy ra lỗi" });
+  }
+}
 }
 
 module.exports = new DishController();

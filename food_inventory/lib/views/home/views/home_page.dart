@@ -8,6 +8,9 @@ import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/bloc/auth/auth_bloc.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../bloc/storage/storage_bloc.dart';
+import 'package:stock_mate/bloc/home/home_event.dart';
+import 'package:stock_mate/bloc/home/home_bloc.dart';
+import 'package:stock_mate/bloc/home/home_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,6 +28,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // Kiểm tra storage hiện tại khi vào trang
     _loadStorageData();
+    context.read<HomeBloc>().add(LoadHomeStats());
   }
 
   Future<void> _loadStorageData() async {
@@ -166,39 +170,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Hiển thị dialog xác nhận đăng xuất
-  void _showLogoutConfirmDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xác nhận đăng xuất'),
-        content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy',
-                style: TextStyle(color: AppTheme.textSecondary)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Gọi event đăng xuất
-              context.read<AuthBloc>().add(LogoutRequested());
-
-              // Điều hướng về trang login
-              context.go('/login');
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.errorRed, // Sử dụng màu từ theme
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Đăng xuất'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildNoStorageView() {
     return Center(
       // Đặt Center để căn giữa nội dung
@@ -309,15 +280,12 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => context.push(
-                          '/user'), // Thay đổi thành đường dẫn user nếu có
-                      icon: const Icon(
-                        Icons.settings_outlined, // Icon settings mới
-                        color: Colors.white,
-                        size: 28.0,
-                      ),
-                    ),
+                    Image.asset(
+                      'assets/images/market.png', // Đường dẫn đến ảnh trong thư mục assets
+                      width: 50.0,
+                      height: 50.0,
+                      fit: BoxFit.contain, // Tùy chỉnh cách ảnh co giãn
+                    )
                   ],
                 ),
                 SizedBox(height: 8.h),
@@ -341,27 +309,43 @@ class _HomePageState extends State<HomePage> {
                 ),
           ),
           SizedBox(height: 12.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.inventory_2_outlined, // Icon mới
-                  title: 'Tổng sản phẩm',
-                  value: '156',
-                  color: AppTheme.primaryGreen,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.warning_amber_rounded, // Icon mới
-                  title: 'Sắp hết hạn',
-                  value: '12',
-                  color: AppTheme
-                      .accentYellow, // Sử dụng accentYellow cho cảnh báo
-                ),
-              ),
-            ],
+          BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const CircularProgressIndicator();
+              }
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.inventory_2_outlined,
+                      title: 'Sản phẩm',
+                      value: state.totalProducts.toString(),
+                      color: AppTheme.primaryGreen,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.warning_amber_rounded,
+                      title: 'Sắp hết hạn',
+                      value: state.nearExpiry.toString(),
+                      color: AppTheme.accentYellow,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.cancel_outlined,
+                      title: 'Đã hết hạn',
+                      value: state.expired.toString(),
+                      color: AppTheme.errorRed, // chọn màu cảnh báo
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           SizedBox(height: 24.h),
 
@@ -416,10 +400,13 @@ class _HomePageState extends State<HomePage> {
                   onTap: () => context.push('/shopping'),
                 ),
                 _buildActionCard(
-                  icon: Icon(Icons.warehouse_outlined,
-                      color: AppTheme.primaryGreen, size: 32.w), // Icon mới
-                  title: 'Kho',
-                  onTap: () => context.push('/storage'),
+                  icon: Icon(Icons.group_outlined,
+                      color: AppTheme.primaryGreen,
+                      size: 32.w), // Icon mới cho quản lý thành viên
+                  title: 'Thành viên',
+                  onTap: () {
+                    // TODO: Navigate to member management page
+                  },
                 ),
                 _buildActionCard(
                   icon: Icon(Icons.calendar_month,
@@ -432,15 +419,6 @@ class _HomePageState extends State<HomePage> {
                       color: AppTheme.primaryGreen, size: 32.w), // Icon mới
                   title: 'Món ăn',
                   onTap: () => context.push('/dish'),
-                ),
-                _buildActionCard(
-                  icon: Icon(Icons.group_outlined,
-                      color: AppTheme.primaryGreen,
-                      size: 32.w), // Icon mới cho quản lý thành viên
-                  title: 'Thành viên',
-                  onTap: () {
-                    // TODO: Navigate to member management page
-                  },
                 ),
               ],
             ),
@@ -485,7 +463,7 @@ class _HomePageState extends State<HomePage> {
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textSecondary,
+                  color: Colors.black,
                 ),
           ),
         ],
