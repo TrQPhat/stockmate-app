@@ -100,7 +100,6 @@ class _MessagesScreenState extends State<MessagesScreen>
         Future.delayed(const Duration(milliseconds: 100), () {
           _scrollToBottom(animated: true);
         });
-        print('New message received: ${message.content}');
       },
       onUpdate: (oldRecord, newRecord) {
         final newMessage = Message.fromJson(newRecord);
@@ -534,15 +533,15 @@ class _MessagesScreenState extends State<MessagesScreen>
     setState(() {
       _isTyping = false;
     });
-
     final prefs = getIt<SharedPreferences>();
+    final currentStorageId = prefs.getInt(AppConfig.storageIdKey);
     final userId = prefs.getInt(AppConfig.userIdKey);
     final userName = prefs.getString(AppConfig.userNameKey);
 
-    if (userId == null || userName == null) return;
+    if (userId == null || userName == null || currentStorageId == null) return;
 
     final message = Message(
-      conversationId: _currentStorageId!,
+      conversationId: currentStorageId,
       senderId: userId,
       content: text,
       nameSender: userName,

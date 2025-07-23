@@ -73,6 +73,7 @@ class AuthRepository {
       if (reponseData['storage'] != null) {
         final storageData = reponseData['storage'];
         if (storageData['id'] != null) {
+          print("Storage ID: ${storageData['id']}");
           await prefs.setInt(AppConfig.storageIdKey, storageData['id']);
         }
 
@@ -154,18 +155,38 @@ class AuthRepository {
     try {
       final response = await _dioClient.post('$baseUrl/register', data: {
         'email': email,
-        'password_hash': password,
+        'password': password,
         'full_name': fullName,
         'phone': phone,
         'gender': gender,
       });
 
       final user = User.fromJson(response.data);
-
       return user;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response?.statusCode;
+        final errorData = e.response?.data;
+
+        if (statusCode == 400) {
+          // Tuỳ vào cấu trúc response trả về từ backend
+          errorData is Map && errorData['error'] != null
+              ? errorData['error'].toString()
+              : 'Email đã tồn tại hoặc thông tin không hợp lệ';
+          throw Exception('Đăng ký thất bại');
+        }
+
+        if (statusCode == 409) {
+          throw Exception('Đăng ký thất bại: Email đã được sử dụng');
+        }
+
+        throw Exception('Đăng ký thất bại.');
+      } else {
+        // Trường hợp không có phản hồi từ server
+        throw Exception('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+      }
     } catch (e) {
-      print(e.toString());
-      throw Exception('Đăng ký thất bại: ${e.toString()}');
+      throw Exception('Đã xảy ra lỗi không xác định.');
     }
   }
 

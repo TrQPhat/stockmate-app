@@ -6,9 +6,9 @@ abstract class ShoppingItemState extends Equatable {
   List<Object?> get props => [];
 }
 
-class ShoppingInitial extends ShoppingItemState {}
+class ShoppingItemInitial extends ShoppingItemState {}
 
-class ShoppingLoading extends ShoppingItemState {}
+class ShoppingItemLoading extends ShoppingItemState {}
 
 class ShoppingListLoaded extends ShoppingItemState {
   final ShoppingList listDetails;
@@ -18,11 +18,11 @@ class ShoppingListLoaded extends ShoppingItemState {
   List<Object?> get props => [listDetails];
 }
 
-class ShoppingError extends ShoppingItemState {
+class ShoppingItemError extends ShoppingItemState {
   final String message;
-  const ShoppingError(this.message);
+  const ShoppingItemError(this.message);
   @override
   List<Object> get props => [message];
 }
 
-class ShoppingOperationSuccess extends ShoppingItemState {}
+class ShoppingItemOperationSuccess extends ShoppingItemState {}

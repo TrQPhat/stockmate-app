@@ -44,6 +44,15 @@ class DeleteGrocery extends GroceriesEvent {
   List<Object> get props => [groceryId];
 }
 
+class DeleteMultipleGroceries extends GroceriesEvent {
+  final List<int> groceryIds;
+
+  const DeleteMultipleGroceries(this.groceryIds);
+
+  @override
+  List<Object> get props => [groceryIds];
+}
+
 class SearchGroceries extends GroceriesEvent {
   final String query;
   final String? storageId;

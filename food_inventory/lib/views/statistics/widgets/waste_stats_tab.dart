@@ -42,12 +42,7 @@ class _WasteStatsTabState extends State<WasteStatsTab>
 
     return BlocProvider.value(
       value: _wasteStatsBloc,
-      child: BlocConsumer<WasteStatsBloc, WasteStatsState>(
-        listener: (context, state) {
-          if (state is WasteStatsError) {
-            _showErrorSnackbar(context, state.message);
-          }
-        },
+      child: BlocBuilder<WasteStatsBloc, WasteStatsState>(
         builder: (context, state) {
           return _buildContent(context, state);
         },

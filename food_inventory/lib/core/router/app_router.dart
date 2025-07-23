@@ -7,6 +7,7 @@ import 'package:stock_mate/views/groceries/views/groceries_page.dart';
 import 'package:stock_mate/views/groceries/views/grocery_detail.dart';
 import 'package:stock_mate/views/shopping/views/shopping_detail_page.dart';
 import 'package:stock_mate/views/splash/views/splash_screen.dart';
+import 'package:stock_mate/views/storage/views/storage_members_screen.dart';
 import 'package:stock_mate/views/user/views/user_management_page.dart';
 import '../../views/auth/views/login_page.dart';
 import '../../views/auth/views/register_page.dart';
@@ -50,7 +51,7 @@ class AppRouter {
       ),
       GoRoute(
         path: '/storage',
-        builder: (context, state) => const StoragePage(),
+        builder: (context, state) => const StorageMembersScreen(),
       ),
       GoRoute(
         path: '/shopping',

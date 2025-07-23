@@ -10,6 +10,8 @@ class User extends Equatable {
   final String? gender;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? role;
+  final DateTime? joinedAt;
 
   const User({
     required this.id,
@@ -21,9 +23,10 @@ class User extends Equatable {
     this.gender,
     required this.createdAt,
     required this.updatedAt,
+    this.role,
+    this.joinedAt,
   });
 
-  // Factory constructor từ JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'] ?? '') ?? -1,
@@ -33,12 +36,15 @@ class User extends Equatable {
       fullName: json['full_name'],
       avatarUrl: json['avatar_url'],
       gender: json['gender'],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now()),
-      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now()),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      role: json['role'],
+      joinedAt: json['joined_at'] != null
+          ? DateTime.tryParse(json['joined_at'])
+          : null,
     );
   }
 
-  // Chuyển object về JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id.toString(),
@@ -50,6 +56,8 @@ class User extends Equatable {
       'gender': gender,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'role': role,
+      'joined_at': joinedAt?.toIso8601String(),
     };
   }
 
@@ -64,5 +72,7 @@ class User extends Equatable {
         gender,
         createdAt,
         updatedAt,
+        role,
+        joinedAt,
       ];
 }

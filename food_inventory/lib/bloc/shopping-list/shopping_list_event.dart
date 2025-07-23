@@ -47,3 +47,14 @@ class CompleteShoppingListEvent extends ShoppingListEvent {
   @override
   List<Object?> get props => [listId];
 }
+
+//tạo thêm một sự kiện cập nhật item trong danh sách mua sắm
+class UpdateShoppingItemEvent extends ShoppingListEvent {
+  final int listId;
+  final ShoppingItem item;
+
+  const UpdateShoppingItemEvent(this.listId, this.item);
+
+  @override
+  List<Object> get props => [listId, item];
+}

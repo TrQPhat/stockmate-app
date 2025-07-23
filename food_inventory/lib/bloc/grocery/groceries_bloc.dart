@@ -17,6 +17,7 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
     on<DeleteGrocery>(_onDeleteGrocery);
     on<SearchGroceries>(_onSearchGroceries);
     on<FilterGroceriesByCategory>(_onFilterGroceriesByCategory);
+    on<DeleteMultipleGroceries>(_onDeleteMultipleGroceries);
   }
 
   Future<void> _onLoadGroceries(
@@ -91,6 +92,19 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
       }
     } catch (e) {
       emit(GroceriesError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteMultipleGroceries(
+    DeleteMultipleGroceries event,
+    Emitter<GroceriesState> emit,
+  ) async {
+    try {
+      await _repository.deleteMultipleGroceries(event.groceryIds);
+
+      add(const LoadGroceries());
+    } catch (e) {
+      emit(GroceriesError('Không thể xóa sản phẩm: ${e.toString()}'));
     }
   }
 

@@ -172,59 +172,8 @@ class _StatisticsPageState extends State<StatisticsPage>
     );
   }
 
-  // Widget _buildWasteTab() {
-  //   final totalWaste = wasteData.values.reduce((a, b) => a + b);
-  //   const wastePercentage = 23.5; // Mock percentage
-
-  //   return SingleChildScrollView(
-  //     padding: const EdgeInsets.all(16),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         // Summary Cards
-  //         Row(
-  //           children: [
-  //             Expanded(
-  //               child: _buildStatCard(
-  //                 title: 'Tổng lãng phí',
-  //                 value: '$totalWaste',
-  //                 subtitle: 'nguyên liệu',
-  //                 color: AppTheme.errorRed,
-  //                 icon: Icons.delete_outline,
-  //               ),
-  //             ),
-  //             const SizedBox(width: 12),
-  //             Expanded(
-  //               child: _buildStatCard(
-  //                 title: 'Tỉ lệ lãng phí',
-  //                 value: '${wastePercentage.toStringAsFixed(1)}%',
-  //                 subtitle: 'tổng nguyên liệu',
-  //                 color: AppTheme.warningOrange,
-  //                 icon: Icons.pie_chart,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 20),
-
-  //         // Waste by Category Chart
-  //         _buildSectionTitle('Lãng phí theo danh mục'),
-  //         const SizedBox(height: 12),
-  //         _buildWastePieChart(),
-  //         const SizedBox(height: 20),
-
-  //         // Waste List
-  //         _buildSectionTitle('Chi tiết lãng phí'),
-  //         const SizedBox(height: 12),
-  //         ...wasteData.entries
-  //             .map((entry) => _buildWasteItem(entry.key, entry.value)),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildEfficiencyTab() {
-    final totalUsed = 247; // Mock data
+    const totalUsed = 247; // Mock data
     final averageEfficiency =
         usageEfficiency.values.reduce((a, b) => a + b) / usageEfficiency.length;
 

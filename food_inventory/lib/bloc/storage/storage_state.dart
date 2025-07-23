@@ -35,3 +35,12 @@ class StorageError extends StorageState {
   @override
   List<Object> get props => [message];
 }
+
+class StorageMembersLoaded extends StorageState {
+  final List<User> members;
+
+  const StorageMembersLoaded({required this.members});
+
+  @override
+  List<Object> get props => [members];
+}

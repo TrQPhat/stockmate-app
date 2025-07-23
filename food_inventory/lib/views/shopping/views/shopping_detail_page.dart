@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
+import 'package:stock_mate/bloc/shopping-list/shopping_list_bloc.dart';
 import 'package:stock_mate/models/category.dart';
 import 'package:stock_mate/models/shopping_list.dart';
 import 'package:stock_mate/models/shopping_item.dart';
@@ -38,11 +39,11 @@ class _ShoppingDetailPageState extends State<ShoppingDetailPage> {
   Widget build(BuildContext context) {
     return BlocListener<ShoppingItemBloc, ShoppingItemState>(
       listener: (context, state) {
-        if (state is ShoppingError) {
+        if (state is ShoppingItemError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
           );
-        } else if (state is ShoppingOperationSuccess) {
+        } else if (state is ShoppingItemOperationSuccess) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pop();
           });
@@ -53,8 +54,8 @@ class _ShoppingDetailPageState extends State<ShoppingDetailPage> {
       child: BlocBuilder<ShoppingItemBloc, ShoppingItemState>(
         builder: (context, state) {
           return switch (state) {
-            ShoppingLoading() => _buildLoadingView(),
-            ShoppingError() => _buildErrorView(state.message),
+            ShoppingItemLoading() => _buildLoadingView(),
+            ShoppingItemError() => _buildErrorView(state.message),
             ShoppingListLoaded() => _buildLoadedView(state.listDetails),
             _ => _buildFallbackView(),
           };
@@ -401,6 +402,13 @@ class _ShoppingDetailPageState extends State<ShoppingDetailPage> {
               if (value != null) {
                 context.read<ShoppingItemBloc>().add(
                       PurchaseStatusChangedEvent(item.id),
+                    );
+
+                context.read<ShoppingListBloc>().add(
+                      UpdateShoppingItemEvent(
+                        widget.listId,
+                        item.copyWith(isPurchased: value),
+                      ),
                     );
               }
 

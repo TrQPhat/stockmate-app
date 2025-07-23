@@ -26,3 +26,10 @@ class StorageJoinRequested extends StorageEvent {
   @override
   List<Object> get props => [inviteCode];
 }
+
+class StorageMembersRequested extends StorageEvent {
+  const StorageMembersRequested();
+
+  @override
+  List<Object> get props => [];
+}

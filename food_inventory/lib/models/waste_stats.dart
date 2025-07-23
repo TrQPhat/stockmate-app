@@ -40,11 +40,12 @@ class CategoryWasteDetail {
 
   factory CategoryWasteDetail.fromJson(Map<String, dynamic> json) {
     return CategoryWasteDetail(
-      categoryId: json['category_id'] as int,
+      //categoryId: json['category_id'] as int,
+      categoryId: json['category_id'] ?? 0,
       categoryName: json['category_name'] as String,
       total: json['total'] as int,
       wasted: json['wasted'] as int,
-      wasteRate: (json['wasteRate'] as num).toDouble(), // 💥 FIX ở đây
+      wasteRate: (json['wasteRate'] as num).toDouble(),
     );
   }
 }

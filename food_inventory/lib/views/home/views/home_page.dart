@@ -404,9 +404,7 @@ class _HomePageState extends State<HomePage> {
                       color: AppTheme.primaryGreen,
                       size: 32.w), // Icon mới cho quản lý thành viên
                   title: 'Thành viên',
-                  onTap: () {
-                    // TODO: Navigate to member management page
-                  },
+                  onTap: () => context.push('/storage'),
                 ),
                 _buildActionCard(
                   icon: Icon(Icons.calendar_month,

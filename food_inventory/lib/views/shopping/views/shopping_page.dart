@@ -7,7 +7,7 @@ import 'package:stock_mate/models/shopping_list.dart';
 import 'package:stock_mate/views/home/widgets/custom_app_bar.dart';
 import 'package:stock_mate/views/home/widgets/error_widget.dart';
 import 'package:stock_mate/views/home/widgets/loading_widget.dart';
-import 'package:stock_mate/views/shopping/widgets/list/shopping_list_item.dart';
+import 'package:stock_mate/views/shopping/widgets/item/shopping_list_item.dart';
 import 'package:stock_mate/views/shopping/widgets/list/create_list_dialog.dart';
 import 'package:stock_mate/views/shopping/widgets/list/empty_state_widget.dart';
 
@@ -114,28 +114,48 @@ class _ShoppingPageState extends State<ShoppingPage> {
           onTap: () => context.push('/shopping/${lists[index].id}'),
           onDelete: () => _handleDelete(lists[index]),
           onComplete: () async {
+            final list = lists[index];
+            // ghi log xem thửu có mấy item hoàn thành
+            print(
+                "Danh sáchaaa '${list.name}' có ${list.items?.length} mặt hàng, ${list.items?.where((item) => item.isPurchased).length} đã hoàn thành.");
             final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Xác nhận hoàn thành'),
-                content: Text(
-                    'Bạn có chắc chắn danh sách "${lists[index].name}" đã hoàn thành?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Hủy'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryGreen,
+                context: context,
+                builder: (context) {
+                  final hasUnpurchased =
+                      list.items?.any((item) => !item.isPurchased) ?? false;
+
+                  return AlertDialog(
+                    title: const Text('Xác nhận hoàn thành'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            'Bạn có chắc chắn danh sách "${list.name}" đã hoàn thành?'),
+                        const SizedBox(height: 8),
+                        if (hasUnpurchased)
+                          const Text(
+                            '⚠️ Vẫn còn mặt hàng chưa được đánh dấu là đã mua.',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                      ],
                     ),
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Xác nhận',
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-            );
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Hủy'),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryGreen,
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Xác nhận',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  );
+                });
 
             if (confirmed == true && mounted) {
               _handleComplete(lists[index]);

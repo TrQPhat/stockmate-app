@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_mate/models/shopping_item.dart';
 import 'package:stock_mate/repositories/shopping_list_repository.dart';
 import 'package:stock_mate/models/shopping_list.dart';
 
@@ -15,12 +18,14 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
     on<DeleteShoppingList>(_onDeleteShoppingList);
     on<UpdateShoppingList>(_onUpdateShoppingList);
     on<CompleteShoppingListEvent>(_onCompleteShoppingList);
+    on<UpdateShoppingItemEvent>(_onUpdateShoppingItem);
   }
 
   Future<void> _onLoadShoppingLists(
       LoadShoppingLists event, Emitter<ShoppingListState> emit) async {
     try {
       final lists = await _repository.getShoppingLists();
+      print("Danh sách mua sắm đã tải: ${jsonEncode(lists)}");
       emit(ShoppingListsLoaded(lists));
     } catch (e) {
       emit(ShoppingError(e.toString()));
@@ -112,6 +117,32 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
       }
     } catch (e) {
       emit(const ShoppingError('Đã có lỗi xảy ra, vui lòng thử lại.'));
+    }
+  }
+
+  Future<void> _onUpdateShoppingItem(
+    UpdateShoppingItemEvent event,
+    Emitter<ShoppingListState> emit,
+  ) async {
+    if (state is ShoppingListsLoaded) {
+      final currentState = state as ShoppingListsLoaded;
+
+      final updatedLists = currentState.lists.map((list) {
+        if (list.id == event.listId) {
+          final updatedItems = list.items?.map((item) {
+            if (item.id == event.item.id) {
+              // Chỉ cập nhật isPurchased
+              return item.copyWith(isPurchased: event.item.isPurchased);
+            }
+            return item;
+          }).toList();
+
+          return list.copyWith(items: updatedItems);
+        }
+        return list;
+      }).toList();
+
+      emit(ShoppingListsLoaded(updatedLists));
     }
   }
 }

@@ -63,6 +63,53 @@ class StorageController {
     }
   }
 
+  // ✅ Lấy thông tin chi tiết của 1 storage
+  async getAllUsersInStorage (req, res) {
+    const storageId = req.params.storage_id;
+
+    try {
+      const members = await StorageMember.findAll({
+        where: { storage_id: storageId },
+        include: [
+          {
+            model: User,
+            attributes: [
+              'id',
+              'email',
+              'phone',
+              'full_name',
+              'avatar_url',
+              'gender',
+              'created_at',
+              'updated_at',
+            ],
+          },
+        ],
+        attributes: ['role', 'joined_at'],
+      });
+
+      if (!members || members.length === 0) {
+        return res.status(404).json({
+          message: `Không tìm thấy thành viên nào trong kho có ID = ${storageId}`,
+        });
+      }
+
+      const result = members.map((member) => ({
+        ...member.User.dataValues,
+        role: member.role,
+        joined_at: member.joined_at,
+      }));
+
+      return res.json({
+        storage_id: storageId,
+        members: result,
+      });
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách thành viên:', error);
+      return res.status(500).json({ message: 'Lỗi server' });
+    }
+  }
+
   // ✅ Tạo mới storage (kèm tạo storage_member role owner)
   async createStorage(req, res) {
     const t = await sequelize.transaction();

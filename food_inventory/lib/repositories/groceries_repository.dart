@@ -68,6 +68,19 @@ class GroceriesRepository {
     }
   }
 
+  Future<void> deleteMultipleGroceries(List<int> ids) async {
+    try {
+      await _dioClient.delete(
+        '$baseUrl/multiple',
+        data: {
+          'ids': ids,
+        },
+      );
+    } catch (e) {
+      throw Exception('Không thể xóa nhiều sản phẩm: ${e.toString()}');
+    }
+  }
+
   // Tìm kiếm sản phẩm
   Future<List<Grocery>> searchGroceries(String query,
       {String? storageId}) async {

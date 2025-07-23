@@ -10,7 +10,7 @@ part 'shopping_item_state.dart';
 class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
   final ShoppingItemRepository _repository;
 
-  ShoppingItemBloc(this._repository) : super(ShoppingInitial()) {
+  ShoppingItemBloc(this._repository) : super(ShoppingItemInitial()) {
     on<LoadShoppingList>(_onLoadShoppingList); //Load danh sách
     on<AddItemEvent>(_onAddItemToList); // Thêm item
     on<UpdateItemEvent>(_onUpdateItemInList); //cập nhật item
@@ -23,13 +23,13 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
 
   Future<void> _onLoadShoppingList(
       LoadShoppingList event, Emitter<ShoppingItemState> emit) async {
-    emit(ShoppingLoading());
+    emit(ShoppingItemLoading());
 
     try {
       final shoppingList = await _repository.getShoppingList(event.listId);
       emit(ShoppingListLoaded(shoppingList));
     } catch (e) {
-      emit(ShoppingError(e.toString()));
+      emit(ShoppingItemError(e.toString()));
     }
   }
 
@@ -62,7 +62,7 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
         emit(ShoppingListLoaded(updatedList));
       }
     } catch (e) {
-      emit(ShoppingError(e.toString()));
+      emit(ShoppingItemError(e.toString()));
     }
   }
 
@@ -72,7 +72,7 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
       await _repository.updateItemInList(event.listId, event.item);
       //add(LoadShoppingListDetails(event.listId));
     } catch (e) {
-      emit(ShoppingError(e.toString()));
+      emit(ShoppingItemError(e.toString()));
     }
   }
 
@@ -103,7 +103,7 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
         // Emit lại state mới
         emit(ShoppingListLoaded(updatedList));
       } catch (e) {
-        emit(ShoppingError(e.toString()));
+        emit(ShoppingItemError(e.toString()));
       }
     }
   }
@@ -124,7 +124,7 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
         emit(ShoppingListLoaded(updatedList));
       }
     } catch (e) {
-      emit(ShoppingError(e.toString()));
+      emit(ShoppingItemError(e.toString()));
     }
   }
 
@@ -138,11 +138,11 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
     }
 
     if (currentList == null) {
-      emit(const ShoppingError('Không có danh sách hiện tại để cập nhật.'));
+      emit(const ShoppingItemError('Không có danh sách hiện tại để cập nhật.'));
       return;
     }
 
-    emit(ShoppingLoading());
+    emit(ShoppingItemLoading());
 
     try {
       await _repository.updateShoppingList(event.listId, {
@@ -162,7 +162,7 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
 
       emit(ShoppingListLoaded(updatedList));
     } catch (e) {
-      emit(ShoppingError('Cập nhật danh sách thất bại: ${e.toString()}'));
+      emit(ShoppingItemError('Cập nhật danh sách thất bại: ${e.toString()}'));
     }
   }
 
@@ -170,14 +170,14 @@ class ShoppingItemBloc extends Bloc<ShoppingItemEvent, ShoppingItemState> {
     DeleteListEvent event,
     Emitter<ShoppingItemState> emit,
   ) async {
-    emit(ShoppingLoading());
+    emit(ShoppingItemLoading());
 
     try {
       await _repository.deleteShoppingList(event.listId);
 
-      emit(ShoppingOperationSuccess());
+      emit(ShoppingItemOperationSuccess());
     } catch (e) {
-      emit(ShoppingError('Xóa danh sách thất bại: ${e.toString()}'));
+      emit(ShoppingItemError('Xóa danh sách thất bại: ${e.toString()}'));
     }
   }
 }

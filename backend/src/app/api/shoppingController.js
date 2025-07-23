@@ -1,27 +1,57 @@
 const { ShoppingList, ShoppingItem, Grocery, sequelize } = require("../models");
 
 class ShoppingController {
+  // async getAllShoppingLists(req, res) {
+  //   try {
+  //     const { storageId } = req.params;
+
+  //     if (!storageId) {
+  //       return res.status(400).json({ error: "Vui lòng cung cấp ID của kho" });
+  //     }
+
+  //     const shoppingLists = await ShoppingList.findAll({
+  //       where: { storage_id: storageId },
+  //       order: [["purchase_date", "ASC"]],
+  //     });
+
+  //     res.json(shoppingLists);
+  //   } catch (error) {
+  //     console.log("Error fetching shopping lists:", error);
+  //     res.status(500).json({
+  //       error: "Quá trình truy vấn đã xảy ra vấn đề, vui lòng thử lại",
+  //     });
+  //   }
+  // }
+
   async getAllShoppingLists(req, res) {
-    try {
-      const { storageId } = req.params;
+  try {
+    const { storageId } = req.params;
 
-      if (!storageId) {
-        return res.status(400).json({ error: "Vui lòng cung cấp ID của kho" });
-      }
-
-      const shoppingLists = await ShoppingList.findAll({
-        where: { storage_id: storageId },
-        order: [["purchase_date", "ASC"]],
-      });
-
-      res.json(shoppingLists);
-    } catch (error) {
-      console.log("Error fetching shopping lists:", error);
-      res.status(500).json({
-        error: "Quá trình truy vấn đã xảy ra vấn đề, vui lòng thử lại",
-      });
+    if (!storageId) {
+      return res.status(400).json({ error: "Vui lòng cung cấp ID của kho" });
     }
+
+    const shoppingLists = await ShoppingList.findAll({
+      where: { storage_id: storageId },
+      order: [["purchase_date", "ASC"]],
+      include: [
+        {
+          model: ShoppingItem,
+          as: "items",
+          order: [["id", "ASC"]],
+        },
+      ],
+    });
+
+    res.json(shoppingLists);
+  } catch (error) {
+    console.log("Error fetching shopping lists:", error);
+    res.status(500).json({
+      error: "Quá trình truy vấn đã xảy ra vấn đề, vui lòng thử lại",
+    });
   }
+}
+
 
   async createList(req, res) {
     try {

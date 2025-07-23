@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/models/storage.dart';
+import 'package:stock_mate/models/user.dart' as appModels;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/network/dio_client.dart';
 import '../core/config/app_config.dart';
@@ -12,6 +14,39 @@ class StorageRepository {
   StorageRepository(this._dioClient);
 
   final baseUrl = "/storages";
+
+  // Future<void> createConversation(int storageId) async {
+
+  Future<void> createConversation(int storageId) async {
+    // Lấy SupabaseClient từ GetIt
+    final supabase = getIt<SupabaseClient>();
+
+    try {
+      final response = await supabase
+          .from('conversations')
+          .insert({
+            'id': storageId,
+            'status': 'active',
+            'created_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .select()
+          .single();
+
+      if (response != null) {
+        print('Tạo conversation thành công cho Storage ID = $storageId');
+      } else {
+        throw Exception(
+            'Lỗi tạo conversation: Phản hồi rỗng hoặc không mong muốn.');
+      }
+    } on PostgrestException catch (e) {
+      print('Lỗi tạo conversation từ Supabase: ${e.message}');
+      throw Exception('Lỗi tạo conversation từ Supabase: ${e.message}');
+    } catch (e) {
+      print('Lỗi tạo conversation không xác định: $e');
+      throw Exception('Lỗi tạo conversation không xác định: $e');
+    }
+  }
 
   Future<Storage> createStorage({
     required String name,
@@ -31,6 +66,7 @@ class StorageRepository {
 
       if (data['id'] != null) {
         await prefs.setInt(AppConfig.storageIdKey, data['id']);
+        await createConversation(data['id']);
       }
 
       if (data['key'] != null) {
@@ -85,6 +121,27 @@ class StorageRepository {
       final errorMessage =
           e.response?.data['error'] ?? 'Lỗi không xác định khi tham gia kho';
       print("Error joining storage: $errorMessage");
+      throw Exception(errorMessage);
+    }
+  }
+
+  Future<List<appModels.User>> getAllUsersInStorage({
+    required int storageId,
+  }) async {
+    try {
+      final response = await _dioClient.get(
+        "$baseUrl/member/$storageId",
+      );
+
+      final List<dynamic> usersJson = response.data['members'];
+      final List<appModels.User> users =
+          usersJson.map((json) => appModels.User.fromJson(json)).toList();
+
+      return users;
+    } on DioException catch (e) {
+      final errorMessage =
+          e.response?.data['message'] ?? 'Không thể tải danh sách thành viên';
+      print("Lỗi khi lấy thành viên kho: $errorMessage");
       throw Exception(errorMessage);
     }
   }

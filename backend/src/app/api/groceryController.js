@@ -212,7 +212,31 @@ class GroceryController {
       return res.status(500).json({ message: "Có lỗi xảy ra khi thống kê." });
     }
   }
+
+  async deleteMultipleGroceries(req, res) {
+  try {
+    const { ids } = req.body; // mong đợi mảng: [1, 2, 3]
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "Danh sách ID không hợp lệ" });
+    }
+
+    const deletedCount = await Grocery.destroy({
+      where: {
+        id: ids
+      }
+    });
+
+    res.status(200).json({
+      message: `Đã xóa ${deletedCount} sản phẩm thành công`,
+    });
+  } catch (error) {
+    console.error("Lỗi khi xóa nhiều sản phẩm:", error);
+    res.status(500).json({ error: "Lỗi khi xóa nhiều sản phẩm" });
+  }
+}
   
+
 
 }
 
