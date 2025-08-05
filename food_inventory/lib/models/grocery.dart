@@ -98,13 +98,46 @@ class Grocery extends Equatable {
     required this.updatedAt,
   });
 
+  // factory Grocery.fromJson(Map<String, dynamic> json) {
+  //   return Grocery(
+  //     id: json['id'] ?? -1,
+  //     storageId: json['storage_id'] ?? -1,
+  //     name: json['name'] ?? '',
+  //     categoryId: json['category_id'],
+  //     quantity: json['quantity'] ?? 0,
+  //     unit: json['unit'],
+  //     importDate: json['import_date'] != null
+  //         ? DateTime.tryParse(json['import_date'])
+  //         : null,
+  //     expireDate: json['expire_date'] != null
+  //         ? DateTime.tryParse(json['expire_date'])
+  //         : null,
+  //     note: json['note'],
+  //     status: GroceryStatusExtension.fromString(json['status']),
+  //     positionId: json['position_id'] != null
+  //         ? int.tryParse(json['position_id'].toString())
+  //         : null,
+  //     imagePath: json['image_path'],
+  //     createdAt: DateTime.parse(
+  //         json['created_at'] ?? DateTime.now().toIso8601String()),
+  //     updatedAt: DateTime.parse(
+  //         json['updated_at'] ?? DateTime.now().toIso8601String()),
+  //   );
+  // }
+
   factory Grocery.fromJson(Map<String, dynamic> json) {
     return Grocery(
       id: json['id'] ?? -1,
-      storageId: json['storage_id'] ?? -1,
+      storageId: json['storage_id'] is int
+          ? json['storage_id']
+          : int.tryParse(json['storage_id'].toString()) ?? -1,
       name: json['name'] ?? '',
-      categoryId: json['category_id'],
-      quantity: json['quantity'] ?? 0,
+      categoryId: json['category_id'] is int
+          ? json['category_id']
+          : int.tryParse(json['category_id'].toString()),
+      quantity: json['quantity'] is int
+          ? json['quantity']
+          : int.tryParse(json['quantity'].toString()) ?? 0,
       unit: json['unit'],
       importDate: json['import_date'] != null
           ? DateTime.tryParse(json['import_date'])
@@ -118,10 +151,8 @@ class Grocery extends Equatable {
           ? int.tryParse(json['position_id'].toString())
           : null,
       imagePath: json['image_path'],
-      createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(
-          json['updated_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     );
   }
 

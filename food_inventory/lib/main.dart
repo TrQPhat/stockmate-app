@@ -7,9 +7,10 @@ import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/home/home_bloc.dart';
 import 'package:stock_mate/bloc/message/message_bloc.dart';
+import 'package:stock_mate/bloc/note/note_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
 import 'package:stock_mate/bloc/storage/storage_bloc.dart';
-import 'package:stock_mate/bloc/positon/position_bloc.dart';
+import 'package:stock_mate/bloc/position/position_bloc.dart';
 import 'package:stock_mate/bloc/user/user_bloc.dart';
 import 'package:stock_mate/bloc/waste_stats/waste_stats_bloc.dart';
 import 'package:stock_mate/services/refresh_token_service.dart';
@@ -62,6 +63,7 @@ class StockMateApp extends StatelessWidget {
             BlocProvider(create: (_) => getIt<ShoppingListBloc>()),
             BlocProvider(create: (_) => getIt<ShoppingItemBloc>()),
             BlocProvider(create: (_) => getIt<DishBloc>()),
+            BlocProvider(create: (_) => getIt<NotesBloc>()),
             BlocProvider(create: (_) => getIt<MessageBloc>()),
             BlocProvider(create: (_) => getIt<HomeBloc>()),
             BlocProvider(create: (_) => getIt<WasteStatsBloc>()),

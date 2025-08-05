@@ -37,12 +37,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
     });
   }
 
-  void _addNote(Note note) {
-    setState(() {
-      _notes.insert(0, note);
-    });
-  }
-
   void _toggleFavorite() {
     context.read<DishBloc>().add(ToggleFavoriteDish(widget.dish.id!));
     setState(() {
@@ -72,11 +66,10 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
               children: [
                 _buildDishInfo(),
                 _buildInstructions(),
-                NotesSection(
-                  dishId: widget.dish.id ?? 0,
-                  notes: _notes,
-                  onAddNote: _addNote,
-                ),
+                if (!widget.dish.isAISuggested)
+                  NotesSection(
+                    dishId: widget.dish.id ?? 0,
+                  ),
               ],
             ),
           ),
@@ -239,12 +232,14 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                 label: '${widget.dish.cookTimeMinutes} phút',
                 color: AppTheme.primaryOrange,
               ),
-              const SizedBox(width: 12),
-              _buildInfoChip(
-                icon: Icons.comment,
-                label: '${_notes.length} bình luận',
-                color: AppTheme.primaryGreen,
-              ),
+              if (!widget.dish.isAISuggested) ...[
+                const SizedBox(width: 12),
+                _buildInfoChip(
+                  icon: Icons.comment,
+                  label: '${_notes.length} bình luận',
+                  color: AppTheme.primaryGreen,
+                ),
+              ]
             ],
           ),
         ],
@@ -306,51 +301,106 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              ...widget.dish.instructions
-                  .split('\n')
-                  .asMap()
-                  .entries
-                  .map((entry) {
-                int index = entry.key;
-                String step = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.primaryOrange,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+              // ...widget.dish.instructions
+              //     .split('.')
+              //     .asMap()
+              //     .entries
+              //     .map((entry) {
+              //   int index = entry.key;
+              //   String step = entry.value;
+              //   return Padding(
+              //     padding: const EdgeInsets.only(bottom: 12),
+              //     child: Row(
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: [
+              //         Container(
+              //           width: 24,
+              //           height: 24,
+              //           decoration: const BoxDecoration(
+              //             color: AppTheme.primaryOrange,
+              //             shape: BoxShape.circle,
+              //           ),
+              //           child: Center(
+              //             child: Text(
+              //               '${index + 1}',
+              //               style: const TextStyle(
+              //                 color: Colors.white,
+              //                 fontSize: 12,
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //         const SizedBox(width: 12),
+              //         Expanded(
+              //           child: Text(
+              //             step.replaceFirst(RegExp(r'^\d+\.\s*'), ''),
+              //             style: const TextStyle(
+              //               fontSize: 16,
+              //               color: AppTheme.textPrimary,
+              //               height: 1.5,
+              //             ),
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   );
+              // }).toList(),
+              ...(() {
+                final indices = RegExp(r'(?=\d+\.\s+)')
+                    .allMatches(widget.dish.instructions)
+                    .map((match) => match.start)
+                    .toList();
+                indices.add(widget.dish.instructions.length);
+                final steps = <String>[];
+                for (int i = 0; i < indices.length - 1; i++) {
+                  final start = indices[i];
+                  final end = indices[i + 1];
+                  steps.add(
+                      widget.dish.instructions.substring(start, end).trim());
+                }
+                return steps.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String step = entry.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryOrange,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          step.replaceFirst(RegExp(r'^\d+\.\s*'), ''),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AppTheme.textPrimary,
-                            height: 1.5,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            step.replaceFirst(RegExp(r'^\d+\.\s*'), ''),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppTheme.textPrimary,
+                              height: 1.5,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                      ],
+                    ),
+                  );
+                }).toList();
+              })()
             ],
           ),
         ),

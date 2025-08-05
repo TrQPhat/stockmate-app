@@ -8,8 +8,9 @@ import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
 import 'package:stock_mate/bloc/home/home_bloc.dart';
 import 'package:stock_mate/bloc/message/message_bloc.dart';
+import 'package:stock_mate/bloc/note/note_bloc.dart';
 import 'package:stock_mate/bloc/shopping-item/shopping_item_bloc.dart';
-import 'package:stock_mate/bloc/positon/position_bloc.dart';
+import 'package:stock_mate/bloc/position/position_bloc.dart';
 import 'package:stock_mate/bloc/waste_stats/waste_stats_bloc.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/network/dio_client.dart';
@@ -20,6 +21,7 @@ import 'package:stock_mate/repositories/dish_repository.dart';
 import 'package:stock_mate/repositories/groceries_repository.dart';
 import 'package:stock_mate/repositories/home_repository.dart';
 import 'package:stock_mate/repositories/message_reporitory.dart';
+import 'package:stock_mate/repositories/note_repository.dart';
 import 'package:stock_mate/repositories/position_repository.dart';
 import 'package:stock_mate/repositories/shopping_item_repository.dart';
 import 'package:stock_mate/repositories/stats_repository.dart';
@@ -78,6 +80,9 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<DishesRepository>(
     () => DishesRepository(getIt<DioClient>()),
   );
+  getIt.registerLazySingleton<NoteRepository>(
+    () => NoteRepository(getIt<DioClient>()),
+  );
   getIt.registerLazySingleton<MessageRepository>(
     () => MessageRepository(getIt<DioClient>()),
   );
@@ -101,6 +106,7 @@ Future<void> initializeDependencies() async {
   getIt
       .registerFactory(() => ShoppingItemBloc(getIt<ShoppingItemRepository>()));
   getIt.registerFactory(() => DishBloc(getIt<DishesRepository>()));
+  getIt.registerFactory(() => NotesBloc(getIt<NoteRepository>()));
   getIt.registerFactory(() => MessageBloc(getIt<MessageRepository>()));
   getIt.registerFactory(() => HomeBloc(getIt<HomeRepository>()));
   getIt.registerFactory(() => WasteStatsBloc(getIt<StatsRepository>()));

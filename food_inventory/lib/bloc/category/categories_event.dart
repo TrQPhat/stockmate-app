@@ -8,3 +8,30 @@ abstract class CategoriesEvent extends Equatable {
 }
 
 class LoadCategories extends CategoriesEvent {}
+
+class AddCategory extends CategoriesEvent {
+  final Category category;
+
+  const AddCategory(this.category);
+
+  @override
+  List<Object> get props => [category];
+}
+
+class UpdateCategory extends CategoriesEvent {
+  final Category category;
+
+  const UpdateCategory(this.category);
+
+  @override
+  List<Object> get props => [category];
+}
+
+class DeleteCategory extends CategoriesEvent {
+  final int categoryId;
+
+  const DeleteCategory(this.categoryId);
+
+  @override
+  List<Object> get props => [categoryId];
+}

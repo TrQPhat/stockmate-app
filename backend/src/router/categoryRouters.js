@@ -7,7 +7,7 @@ const authToken = require("../middleware/authToken");
 router.use(authToken);
 
 // Lấy danh sách tất cả danh mục
-router.get("/", categoryController.getAllCategories);
+router.get("/:storage_id", categoryController.getAllCategories);
 
 // Lấy danh mục theo id
 router.get("/:id", categoryController.getCategoryById);

@@ -50,6 +50,34 @@ class UserController {
     }
   }
 
+  async verifyUser(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Thiếu email để xác thực." });
+    }
+
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({ error: "Người dùng không tồn tại." });
+    }
+
+    if (user.status == 'active') {
+      return res.status(200).json({ message: "Người dùng đã được xác thực trước đó." });
+    }
+
+    user.status = 'active';
+    await user.save();
+
+    res.status(200).json({ message: "Xác thực email thành công.", user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Lỗi khi xác thực người dùng." });
+  }
+}
+
   async login(req, res) {
     const { email, password } = req.body;
     try {
@@ -107,6 +135,64 @@ class UserController {
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: "Đã xảy ra lỗi: " + error.message });
+    }
+  }
+
+  // Thêm hàm mới
+  async googleLogin(req, res) {
+    const { email, full_name } = req.body;
+    try {
+      let user = await User.findOne({ where: { email } });
+
+      // Nếu người dùng chưa tồn tại, tạo mới
+      if (!user) {
+        // Tạo một mật khẩu ngẫu nhiên vì trường password_hash là bắt buộc
+        const randomPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+        user = await User.create({
+          email,
+          full_name,
+          password_hash: hashedPassword,
+          // google_id: google_id, // Nên thêm một cột google_id vào bảng users
+          gender: 'Khác', // Mặc định
+        });
+      }
+
+      // Tạo JWT tokens
+      const accessToken = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+      const refreshToken = jwt.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      // Tìm thông tin kho (nếu có)
+      const membership = await StorageMember.findOne({
+        where: { user_id: user.id },
+        attributes: ["storage_id"],
+      });
+
+      let storage = null;
+      if (membership?.storage_id) {
+        storage = await Storage.findByPk(membership.storage_id);
+      }
+
+      res.status(200).json({
+        message: "Đăng nhập thành công",
+        response: true,
+        accessToken,
+        refreshToken,
+        user,
+        ...(storage && { storage: storage.toJSON() }),
+      });
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      res.status(500).json({ message: "Lỗi đăng nhập bằng Google: " + error.message });
     }
   }
 

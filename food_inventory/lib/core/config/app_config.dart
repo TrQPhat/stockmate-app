@@ -1,7 +1,10 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stock_mate/core/di/injection_container.dart';
 
 class AppConfig {
   static const String baseUrl = 'http://10.0.2.2:3000/api';
+  static const String rootImagePath = 'http://10.0.2.2:3000/uploads';
 
   // Storage keys
   static const String accessTokenKey = 'access_token';
@@ -40,4 +43,10 @@ class AppConfig {
   //default value
   static const String geminiApiEndpoint =
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"; //geminiApiEndpoint
+
+  //storageId
+  static int storageId() {
+    final storageId = getIt<SharedPreferences>().getInt(storageIdKey);
+    return storageId ?? -1;
+  }
 }

@@ -1,6 +1,8 @@
 const { Grocery } = require("../models");
 
 class GroceryController {
+  
+  
   // Lấy danh sách tất cả sản phẩm
   async getAllGroceries(req, res) {
     try {
@@ -52,9 +54,33 @@ class GroceryController {
     }
   }
 
+  // Lấy danh sách thực phẩm đã hết hạn
+  async getExpiredGroceries(req, res) {
+    try {
+      const today = new Date();
+      const expiredGroceries = await Grocery.findAll({
+        where: {
+          expire_date: { $lt: today },
+        },
+      });
+      res.status(200).json(expiredGroceries);
+    } catch (error) {
+      res.status(500).json({
+        error: "Lỗi khi lấy danh sách thực phẩm hết hạn",
+        detail: error.message,
+      });
+    }
+  }
+
   // Tạo mới sản phẩm
   async createGrocery(req, res) {
     try {
+      // Kiểm tra nếu không có file ảnh được tải lên
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ response: false, message: "Vui lòng chọn ảnh sản phẩm!" });
+      }
       const {
         storage_id,
         name,
@@ -66,9 +92,12 @@ class GroceryController {
         note,
         status,
         position_id,
-        image_path,
+        
       } = req.body;
       console.log("Creating product with data:", req.body);
+
+      // Tạo đường dẫn ảnh (lưu file vào thư mục 'uploads/')
+      const image_path = `${req.file.filename}`;
       const newGrocery = await Grocery.create({
         storage_id,
         name,
@@ -127,6 +156,13 @@ class GroceryController {
       grocery.status = status ?? grocery.status;
       grocery.image_path = image_path ?? grocery.image_path;
       grocery.updated_at = new Date();
+
+      // Kiểm tra và cập nhật ảnh (nếu có file được tải lên)
+      if (req.file) {
+        grocery.image_path = req.file.filename; // Đường dẫn ảnh (hoặc xử lý tùy theo server)
+        // Tạo đường dẫn ảnh (lưu file vào thư mục 'uploads/')
+        grocery.image_path = `${req.file.filename}`;
+      } 
 
       await grocery.save();
 

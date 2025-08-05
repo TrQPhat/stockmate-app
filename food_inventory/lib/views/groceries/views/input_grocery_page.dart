@@ -2,16 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_mate/bloc/category/categories_bloc.dart';
+import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
+import 'package:stock_mate/bloc/position/position_bloc.dart';
+import 'package:stock_mate/models/grocery.dart';
+import 'package:stock_mate/models/position.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stock_mate/bloc/category/categories_bloc.dart';
-import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
-import 'package:stock_mate/bloc/positon/position_bloc.dart';
-import 'package:stock_mate/models/grocery.dart';
-import 'package:stock_mate/models/position.dart';
-
 import '../../../core/config/app_config.dart';
 import '../../../core/di/injection_container.dart';
 import '../../../core/theme/app_theme.dart';
@@ -255,7 +254,7 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12.r),
                       child: Image.network(
-                        currentImagePath!,
+                        "${AppConfig.rootImagePath}/$currentImagePath",
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
@@ -351,6 +350,7 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
         List<Category> categories = [];
         if (state is CategoriesLoaded) {
           categories = state.categories;
+          if (categories.isNotEmpty) selectedCategoryId = categories[0].id;
         } else if (state is CategoriesLoaded) {
           categories = state.categories;
         }
@@ -674,8 +674,8 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
       }
 
       String? imagePath = currentImagePath;
-      if (selectedImage != null) {
-        // imagePath = await _uploadImage(selectedImage!);
+      if (selectedImage == null) {
+        return;
       }
 
       final grocery = Grocery(
@@ -698,11 +698,16 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
         createdAt: widget.isEdit ? widget.grocery!.createdAt : DateTime.now(),
         updatedAt: DateTime.now(),
       );
+      print("Thực phẩm cần thêm: ${jsonEncode(grocery)}");
 
       if (widget.isEdit) {
-        context.read<GroceriesBloc>().add(UpdateGrocery(grocery));
+        context
+            .read<GroceriesBloc>()
+            .add(UpdateGrocery(grocery, selectedImage));
       } else {
-        context.read<GroceriesBloc>().add(CreateGrocery(grocery));
+        context
+            .read<GroceriesBloc>()
+            .add(CreateGrocery(grocery, selectedImage));
       }
       selectedCategoryId = null;
       Navigator.of(context).pop();

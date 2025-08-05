@@ -21,6 +21,10 @@ const Category = sequelize.define(
       type: DataTypes.DATE,
       defaultValue: null,
     },
+    storage_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     tableName: "categories",

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -12,6 +14,8 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
 
   GroceriesBloc(this._repository) : super(GroceriesInitial()) {
     on<LoadGroceries>(_onLoadGroceries);
+    on<LoadExpiredGroceries>(_onLoadExpiredGroceries);
+    on<LoadExpiringGroceries>(_onLoadExpiringGroceries);
     on<CreateGrocery>(_onCreateGrocery);
     on<UpdateGrocery>(_onUpdateGrocery);
     on<DeleteGrocery>(_onDeleteGrocery);
@@ -35,12 +39,43 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
     }
   }
 
+  Future<void> _onLoadExpiredGroceries(
+    LoadExpiredGroceries event,
+    Emitter<GroceriesState> emit,
+  ) async {
+    emit(GroceriesLoading());
+
+    try {
+      final groceries =
+          await _repository.getExpiredGroceries(storageId: event.storageId);
+      emit(GroceriesLoaded(groceries));
+    } catch (e) {
+      emit(GroceriesError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadExpiringGroceries(
+    LoadExpiringGroceries event,
+    Emitter<GroceriesState> emit,
+  ) async {
+    emit(GroceriesLoading());
+
+    try {
+      final groceries =
+          await _repository.getExpiringGroceries(storageId: event.storageId);
+      emit(GroceriesLoaded(groceries));
+    } catch (e) {
+      emit(GroceriesError(e.toString()));
+    }
+  }
+
   Future<void> _onCreateGrocery(
     CreateGrocery event,
     Emitter<GroceriesState> emit,
   ) async {
     try {
-      final newGrocery = await _repository.createGrocery(event.grocery);
+      final newGrocery =
+          await _repository.createGrocery(event.grocery, event.imageFile);
 
       if (state is GroceriesLoaded) {
         final currentState = state as GroceriesLoaded;
@@ -60,7 +95,8 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
     Emitter<GroceriesState> emit,
   ) async {
     try {
-      final updatedGrocery = await _repository.updateGrocery(event.grocery);
+      final updatedGrocery =
+          await _repository.updateGrocery(event.grocery, event.imageFile);
 
       if (state is GroceriesLoaded) {
         final currentState = state as GroceriesLoaded;

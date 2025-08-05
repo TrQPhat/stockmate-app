@@ -35,7 +35,19 @@ class RegisterRequested extends AuthEvent {
   });
 
   @override
-  List<Object?> get props => [email, password, fullName, phone];
+  List<Object?> get props => [email, password, fullName, phone, gender];
+}
+
+// Thêm sự kiện mới
+class GoogleLoginRequested extends AuthEvent {}
+
+class GoogleLoginCompleted extends AuthEvent {
+  final User user;
+
+  const GoogleLoginCompleted(this.user);
+
+  @override
+  List<Object?> get props => [user];
 }
 
 class LogoutRequested extends AuthEvent {}

@@ -18,6 +18,10 @@ const Position = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    storage_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     tableName: "positions",

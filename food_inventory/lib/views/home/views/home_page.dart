@@ -319,7 +319,11 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: _buildStatCard(
-                      icon: Icons.inventory_2_outlined,
+                      icon: Image.asset(
+                        'assets/icons/basket.png',
+                        width: 32,
+                        height: 32,
+                      ),
                       title: 'Sản phẩm',
                       value: state.totalProducts.toString(),
                       color: AppTheme.primaryGreen,
@@ -328,7 +332,11 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(width: 12.w),
                   Expanded(
                     child: _buildStatCard(
-                      icon: Icons.warning_amber_rounded,
+                      icon: Image.asset(
+                        'assets/icons/time_noti.png',
+                        width: 32,
+                        height: 32,
+                      ),
                       title: 'Sắp hết hạn',
                       value: state.nearExpiry.toString(),
                       color: AppTheme.accentYellow,
@@ -337,7 +345,11 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(width: 12.w),
                   Expanded(
                     child: _buildStatCard(
-                      icon: Icons.cancel_outlined,
+                      icon: Image.asset(
+                        'assets/icons/expired.png',
+                        width: 32,
+                        height: 32,
+                      ),
                       title: 'Đã hết hạn',
                       value: state.expired.toString(),
                       color: AppTheme.errorRed, // chọn màu cảnh báo
@@ -406,17 +418,27 @@ class _HomePageState extends State<HomePage> {
                   title: 'Thành viên',
                   onTap: () => context.push('/storage'),
                 ),
-                _buildActionCard(
-                  icon: Icon(Icons.calendar_month,
-                      color: AppTheme.primaryGreen, size: 32.w), // Icon mới
-                  title: 'Nhắc nhở',
-                  onTap: () => context.push('/reminder'),
-                ),
+                // _buildActionCard(
+                //   icon: Icon(Icons.calendar_month,
+                //       color: AppTheme.primaryGreen, size: 32.w), // Icon mới
+                //   title: 'Nhắc nhở',
+                //   onTap: () => context.push('/reminder'),
+                // ),
                 _buildActionCard(
                   icon: Icon(Icons.flatware_outlined,
                       color: AppTheme.primaryGreen, size: 32.w), // Icon mới
                   title: 'Món ăn',
                   onTap: () => context.push('/dish'),
+                ),
+                _buildActionCard(
+                  icon: Image.asset(
+                    'assets/icons/classify.png',
+                    width: 32,
+                    height: 32,
+                    color: AppTheme.primaryGreen,
+                  ),
+                  title: 'Phân loại',
+                  onTap: () => context.push('/classify'),
                 ),
               ],
             ),
@@ -427,7 +449,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildStatCard({
-    required IconData icon,
+    required Widget icon,
     required String title,
     required String value,
     required Color color,
@@ -449,7 +471,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 32.w), // Tăng kích thước icon
+          icon,
           SizedBox(height: 8.h),
           Text(
             value,

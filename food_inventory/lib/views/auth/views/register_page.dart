@@ -45,12 +45,20 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthSuccess) {
+          if (state is AuthInitial) {
+            // Thay đổi ở đây
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Đăng ký thành công! Vui lòng kiểm tra email để xác thực.'),
+                backgroundColor: AppTheme.primaryGreen,
+              ),
+            );
             context.go('/login');
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(state.message.replaceFirst('Exception: ', '')),
                 backgroundColor: AppTheme.errorColor,
               ),
             );
@@ -77,6 +85,33 @@ class _RegisterPageState extends State<RegisterPage> {
                       return null;
                     },
                   ),
+                  // AuthTextField(
+                  //   controller: _passwordController,
+                  //   label: 'Mật khẩu',
+                  //   obscureText: true,
+                  //   validator: (value) {
+                  //     if (value?.isEmpty ?? true) {
+                  //       return 'Vui lòng nhập mật khẩu';
+                  //     }
+                  //     if (value!.length < 8) {
+                  //       return 'Mật khẩu phải có ít nhất 8 ký tự';
+                  //     }
+                  //     if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
+                  //       return 'Mật khẩu phải có ít nhất 1 chữ thường';
+                  //     }
+                  //     if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
+                  //       return 'Mật khẩu phải có ít nhất 1 chữ hoa';
+                  //     }
+                  //     if (!RegExp(r'(?=.*\d)').hasMatch(value)) {
+                  //       return 'Mật khẩu phải có ít nhất 1 chữ số';
+                  //     }
+                  //     if (!RegExp(r'(?=.*[\W_])').hasMatch(value)) {
+                  //       // \W là ký tự không phải chữ/số
+                  //       return 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   SizedBox(height: 16.h),
 
                   // Gender field

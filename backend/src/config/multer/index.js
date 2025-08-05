@@ -14,7 +14,17 @@ const storage = multer.diskStorage({
 
 // Bộ lọc chỉ cho phép tải lên file ảnh (JPG, PNG, jpeg)
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "image/webp",
+    "image/gif",
+    "image/bmp",
+    "image/svg+xml",
+    "image/heic",
+  ];
+  console.log("định dạng ảnh: ", file.mimetype);
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {

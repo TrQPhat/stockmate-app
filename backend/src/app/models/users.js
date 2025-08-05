@@ -34,6 +34,11 @@ const User = sequelize.define(
       type: DataTypes.ENUM("Nam", "Nữ", "Khác"), // ✅ đúng theo DB
       allowNull: false,
     },
+    status: {
+      type: DataTypes.ENUM('active', 'inactive', 'pending', 'banned'),
+      allowNull: false,
+      defaultValue: 'pending'
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

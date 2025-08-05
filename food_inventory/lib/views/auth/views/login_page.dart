@@ -227,7 +227,9 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.read<AuthBloc>().add(GoogleLoginRequested());
+                        },
                         icon: Image.asset(
                           'assets/icons/google.png',
                           width: 36.w,

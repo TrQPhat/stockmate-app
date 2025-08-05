@@ -1,8 +1,6 @@
 {
-<<<<<<< HEAD
+
   "java.configuration.updateBuildConfiguration": "automatic",
   "dart.flutterSdkPath": "~/AppData/Local/flutter"
-=======
-  "java.configuration.updateBuildConfiguration": "automatic"
->>>>>>> Vi
+
 }

@@ -9,6 +9,10 @@ const Note = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     dish_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -17,10 +21,12 @@ const Note = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    quantity: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+    
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
+
   },
   {
     tableName: "notes",

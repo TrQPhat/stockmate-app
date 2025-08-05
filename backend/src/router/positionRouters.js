@@ -7,10 +7,10 @@ const authToken = require("../middleware/authToken");
 router.use(authToken);
 
 // Lấy danh sách tất cả vị trí
-router.get("/", positionController.getAll);
+router.get("/:storage_id", positionController.getAll);
 
 // Lấy vị trí theo id
-router.get("/:id", positionController.getById);
+router.get("/id/:id", positionController.getById);
 
 // Tạo mới vị trí
 router.post("/", positionController.create);

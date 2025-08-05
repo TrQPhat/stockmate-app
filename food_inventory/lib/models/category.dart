@@ -4,13 +4,13 @@ class Category extends Equatable {
   final int id;
   final String name;
   final String? description;
-  final DateTime createdAt;
+  final int? storageId;
 
   const Category({
     required this.id,
     required this.name,
     this.description,
-    required this.createdAt,
+    this.storageId,
   });
 
   // Factory constructor từ JSON
@@ -19,8 +19,7 @@ class Category extends Equatable {
       id: json['id'] ?? -1,
       name: json['name'] ?? '',
       description: json['description'],
-      createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String()),
+      storageId: json['storage_id'],
     );
   }
 
@@ -30,10 +29,25 @@ class Category extends Equatable {
       'id': id,
       'name': name,
       'description': description,
-      'created_at': createdAt.toIso8601String(),
+      'storage_id': storageId,
     };
   }
 
+  Category copyWith({
+    int? id,
+    String? name,
+    String? description,
+    DateTime? createdAt,
+    int? storageId,
+  }) {
+    return Category(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      storageId: storageId ?? this.storageId,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, name, description, createdAt];
+  List<Object?> get props => [id, name, description, storageId];
 }

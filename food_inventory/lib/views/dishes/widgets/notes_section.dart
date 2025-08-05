@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:stock_mate/core/theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stock_mate/bloc/note/note_bloc.dart';
+import 'package:stock_mate/bloc/note/note_event.dart';
+import 'package:stock_mate/bloc/note/note_state.dart';
+import 'package:stock_mate/core/config/app_config.dart';
+import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/models/note.dart';
+import 'package:stock_mate/core/theme/app_theme.dart';
 
 class NotesSection extends StatefulWidget {
   final int dishId;
-  final List<Note> notes;
-  final Function(Note) onAddNote;
 
   const NotesSection({
     super.key,
     required this.dishId,
-    required this.notes,
-    required this.onAddNote,
   });
 
   @override
@@ -20,7 +23,17 @@ class NotesSection extends StatefulWidget {
 
 class _NotesSectionState extends State<NotesSection> {
   final _noteController = TextEditingController();
-  int _servings = 4;
+  late final int _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Gửi sự kiện load note khi widget được tạo
+    context.read<NotesBloc>().add(LoadNotes(widget.dishId));
+
+    _currentUserId =
+        getIt<SharedPreferences>().getInt(AppConfig.userIdKey) ?? -1;
+  }
 
   @override
   void dispose() {
@@ -42,7 +55,24 @@ class _NotesSectionState extends State<NotesSection> {
               const SizedBox(height: 16),
               _buildAddNoteSection(),
               const SizedBox(height: 20),
-              _buildNotesList(),
+              BlocBuilder<NotesBloc, NotesState>(
+                builder: (context, state) {
+                  if (state is NotesLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is NotesLoaded) {
+                    return _buildNotesList(state.notes);
+                  } else if (state is NotesError) {
+                    return Center(
+                      child: Text(
+                        state.message,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             ],
           ),
         ),
@@ -51,13 +81,13 @@ class _NotesSectionState extends State<NotesSection> {
   }
 
   Widget _buildHeader() {
-    return Row(
+    return const Row(
       children: [
-        const Icon(Icons.comment, color: AppTheme.primaryGreen),
-        const SizedBox(width: 8),
+        Icon(Icons.comment, color: AppTheme.primaryGreen),
+        SizedBox(width: 8),
         Text(
-          '💬 Ghi Chú & Bình Luận (${widget.notes.length})',
-          style: const TextStyle(
+          '💬 Ghi Chú & Bình Luận',
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
@@ -105,34 +135,6 @@ class _NotesSectionState extends State<NotesSection> {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Text(
-                'Số khẩu phần:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 60,
-                height: 36,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: TextField(
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  controller: TextEditingController(text: _servings.toString()),
-                  onChanged: (value) {
-                    _servings = int.tryParse(value) ?? 4;
-                  },
-                ),
-              ),
               const Spacer(),
               ElevatedButton(
                 onPressed: _addNote,
@@ -151,8 +153,8 @@ class _NotesSectionState extends State<NotesSection> {
     );
   }
 
-  Widget _buildNotesList() {
-    if (widget.notes.isEmpty) {
+  Widget _buildNotesList(List<Note> notes) {
+    if (notes.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(32),
         child: const Column(
@@ -184,10 +186,95 @@ class _NotesSectionState extends State<NotesSection> {
     }
 
     return Column(
-      children: widget.notes.map((note) => _buildNoteItem(note)).toList(),
+      children: notes.map((note) => _buildNoteItem(note)).toList(),
     );
   }
 
+  // Widget _buildNoteItem(Note note) {
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 16),
+  //     padding: const EdgeInsets.all(12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.shade50,
+  //       borderRadius: BorderRadius.circular(8),
+  //       border: Border.all(color: Colors.grey.shade200),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             CircleAvatar(
+  //               radius: 16,
+  //               backgroundColor: AppTheme.primaryOrange.withOpacity(0.1),
+  //               child: Text(
+  //                 note.userId == _currentUserId
+  //                     ? 'U'
+  //                     : note.author.isEmpty
+  //                         ? 'No'
+  //                         : note.author[0].toUpperCase(),
+  //                 style: const TextStyle(
+  //                   color: AppTheme.primaryOrange,
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 14,
+  //                 ),
+  //               ),
+  //             ),
+  //             const SizedBox(width: 8),
+  //             Expanded(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Row(
+  //                     children: [
+  //                       Text(
+  //                         note.userId == _currentUserId
+  //                             ? 'Bạn'
+  //                             : note.author.isEmpty
+  //                                 ? "Không xác định"
+  //                                 : note.author,
+  //                         style: const TextStyle(
+  //                           fontWeight: FontWeight.w600,
+  //                           fontSize: 14,
+  //                           color: AppTheme.textPrimary,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 8),
+  //                       Container(
+  //                         padding: const EdgeInsets.symmetric(
+  //                             horizontal: 6, vertical: 2),
+  //                         decoration: BoxDecoration(
+  //                           color: AppTheme.primaryGreen.withOpacity(0.1),
+  //                           borderRadius: BorderRadius.circular(10),
+  //                         ),
+  //                         child: Text(
+  //                           _formatDate(note.createdAt),
+  //                           style: const TextStyle(
+  //                             fontSize: 12,
+  //                             color: AppTheme.textSecondary,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           note.content,
+  //           style: const TextStyle(
+  //             fontSize: 14,
+  //             color: AppTheme.textPrimary,
+  //             height: 1.4,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildNoteItem(Note note) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -200,64 +287,81 @@ class _NotesSectionState extends State<NotesSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Stack(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: AppTheme.primaryOrange.withOpacity(0.1),
-                child: Text(
-                  note.author.isNotEmpty ? note.author[0].toUpperCase() : 'U',
-                  style: const TextStyle(
-                    color: AppTheme.primaryOrange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppTheme.primaryOrange.withOpacity(0.1),
+                    child: Text(
+                      note.userId == _currentUserId
+                          ? 'U'
+                          : note.author.isEmpty
+                              ? 'No'
+                              : note.author[0].toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryOrange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          note.author,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '${note.quantity} khẩu phần',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppTheme.primaryGreen,
-                              fontWeight: FontWeight.w500,
+                        Row(
+                          children: [
+                            Text(
+                              note.userId == _currentUserId
+                                  ? 'Bạn'
+                                  : note.author.isEmpty
+                                      ? "Không xác định"
+                                      : note.author,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: AppTheme.textPrimary,
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryGreen.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                _formatDate(note.createdAt),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Text(
-                      _formatDate(note.createdAt),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              if (note.userId == _currentUserId)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: () => _onDeleteNote(note), // Hàm xử lý xóa
+                    child: const Icon(
+                      Icons.close,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -276,19 +380,22 @@ class _NotesSectionState extends State<NotesSection> {
 
   void _addNote() {
     if (_noteController.text.trim().isEmpty) return;
-
+    if (_currentUserId == -1) return;
     final note = Note(
       id: DateTime.now().millisecondsSinceEpoch,
       dishId: widget.dishId,
       content: _noteController.text.trim(),
-      quantity: _servings,
+      userId: _currentUserId,
       author: 'Bạn',
       createdAt: DateTime.now(),
     );
 
-    widget.onAddNote(note);
+    context.read<NotesBloc>().add(PostNote(note));
     _noteController.clear();
-    _servings = 4;
+  }
+
+  void _onDeleteNote(Note note) {
+    context.read<NotesBloc>().add(DeleteNote(note.id));
   }
 
   String _formatDate(DateTime date) {

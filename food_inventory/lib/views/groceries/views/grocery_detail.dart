@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
+import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/models/category.dart';
 import 'package:stock_mate/models/grocery.dart';
+import 'package:stock_mate/views/groceries/views/input_grocery_page.dart';
 
 import '../../../core/theme/app_theme.dart';
 
@@ -129,6 +131,18 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
     );
   }
 
+  void _showEditProductDialog(BuildContext context, Grocery grocery) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InputGroceryPage(
+          grocery: grocery,
+          isEdit: true,
+        ),
+      ),
+    );
+  }
+
   Widget _buildEnhancedSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 320.h,
@@ -158,7 +172,7 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
           children: [
             currentGrocery.imagePath != null
                 ? Image.network(
-                    currentGrocery.imagePath!,
+                    "${AppConfig.rootImagePath}/${currentGrocery.imagePath!}",
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return _buildEnhancedImagePlaceholder();
@@ -190,7 +204,7 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: IconButton(
-          icon: Icon(Icons.arrow_back, color: primaryGreen),
+          icon: const Icon(Icons.arrow_back, color: primaryGreen),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -202,7 +216,7 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: primaryGreen),
+            icon: const Icon(Icons.more_vert, color: primaryGreen),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.r),
             ),
@@ -303,7 +317,7 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
       width: double.infinity,
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [lightGreen, mintGreen],
@@ -954,16 +968,9 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FloatingActionButton(
-          heroTag: "update_quantity",
-          onPressed: _updateQuantity,
-          backgroundColor: accentGreen,
-          child: const Icon(Icons.add_circle_outline, color: Colors.white),
-        ),
-        SizedBox(height: 16.h),
         FloatingActionButton.extended(
           heroTag: "quick_edit",
-          onPressed: _editGrocery,
+          onPressed: _updateQuantity,
           backgroundColor: lightGreen,
           icon: const Icon(Icons.edit, color: Colors.white),
           label: const Text('Sửa nhanh', style: TextStyle(color: Colors.white)),
@@ -1055,7 +1062,7 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
 
   // Action methods remain the same but with enhanced dialogs
   void _editGrocery() async {
-    // Implementation remains the same
+    _showEditProductDialog(context, widget.grocery);
   }
 
   void _updateQuantity() {
@@ -1132,7 +1139,7 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
 
                 context
                     .read<GroceriesBloc>()
-                    .add(UpdateGrocery(updatedGrocery));
+                    .add(UpdateGrocery(updatedGrocery, null));
                 Navigator.pop(context);
               }
             },

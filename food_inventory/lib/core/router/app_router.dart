@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stock_mate/bottom_navigation.dart';
 import 'package:stock_mate/models/grocery.dart';
 import 'package:stock_mate/bottom_navigation.dart';
+import 'package:stock_mate/views/classify/screens/management_screen.dart';
 import 'package:stock_mate/views/dishes/screen/dishes_screen.dart';
 import 'package:stock_mate/views/groceries/views/groceries_page.dart';
 import 'package:stock_mate/views/groceries/views/grocery_detail.dart';
@@ -73,6 +74,10 @@ class AppRouter {
       GoRoute(
         path: '/dish',
         builder: (context, state) => const DishesScreen(),
+      ),
+      GoRoute(
+        path: '/classify',
+        builder: (context, state) => const ManagementClassifyScreen(),
       ),
     ],
   );

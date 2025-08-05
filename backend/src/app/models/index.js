@@ -32,6 +32,9 @@ StorageMember.belongsTo(User, { foreignKey: "user_id" });
 User.hasMany(Favorite, { foreignKey: "user_id" });
 Favorite.belongsTo(User, { foreignKey: "user_id" });
 
+User.hasMany(Note, { foreignKey: "user_id" });
+Note.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
 User.hasMany(Reminder, { foreignKey: "user_id" });
 Reminder.belongsTo(User, { foreignKey: "user_id" });
 

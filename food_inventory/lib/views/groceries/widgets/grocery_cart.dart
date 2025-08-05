@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
+import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/models/grocery.dart';
 // ignore: implementation_imports
 import 'package:flutter_screenutil/src/size_extension.dart';
@@ -45,7 +46,7 @@ class GroceryCard extends StatelessWidget {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
                     child: Image.network(
-                      grocery.imagePath!,
+                      "${AppConfig.rootImagePath}/${grocery.imagePath!}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Icon(

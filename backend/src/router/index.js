@@ -9,6 +9,7 @@ const groceryRouter = require("./groceryRouters"); // groceries
 const positionRouter = require("./positionRouters");
 const categoryRouter = require("./categoryRouters");
 const dishRouter = require("./dishRouters"); // recipes/dishes
+const noteRouter = require("./noteRouters"); 
 const shoppingListRouter = require("./shoppingRouters");
 const homeRouter = require("./homeRouters"); // Home statistics
 const statsRouter = require("./statsRouters"); // Waste statistics
@@ -21,6 +22,7 @@ router.use("/groceries", groceryRouter);
 router.use("/positions", positionRouter);
 router.use("/categories", categoryRouter);
 router.use("/dishes", dishRouter);
+router.use("/notes", noteRouter);
 router.use("/shopping", shoppingListRouter);
 router.use("/home", homeRouter); 
 router.use("/stats", statsRouter); 

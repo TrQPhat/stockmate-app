@@ -17,22 +17,44 @@ class LoadGroceries extends GroceriesEvent {
   List<Object?> get props => [storageId, categoryId];
 }
 
-class CreateGrocery extends GroceriesEvent {
-  final Grocery grocery;
+class LoadExpiredGroceries extends GroceriesEvent {
+  final String? storageId;
+  final String? categoryId;
 
-  const CreateGrocery(this.grocery);
+  const LoadExpiredGroceries({this.storageId, this.categoryId});
 
   @override
-  List<Object> get props => [grocery];
+  List<Object?> get props => [storageId, categoryId];
+}
+
+class LoadExpiringGroceries extends GroceriesEvent {
+  final String? storageId;
+  final String? categoryId;
+
+  const LoadExpiringGroceries({this.storageId, this.categoryId});
+
+  @override
+  List<Object?> get props => [storageId, categoryId];
+}
+
+class CreateGrocery extends GroceriesEvent {
+  final Grocery grocery;
+  final File? imageFile;
+
+  const CreateGrocery(this.grocery, this.imageFile);
+
+  @override
+  List<Object?> get props => [grocery, imageFile?.path];
 }
 
 class UpdateGrocery extends GroceriesEvent {
   final Grocery grocery;
+  final File? imageFile;
 
-  const UpdateGrocery(this.grocery);
+  const UpdateGrocery(this.grocery, this.imageFile);
 
   @override
-  List<Object> get props => [grocery];
+  List<Object?> get props => [grocery, imageFile?.path];
 }
 
 class DeleteGrocery extends GroceriesEvent {
