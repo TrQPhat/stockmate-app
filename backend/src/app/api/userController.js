@@ -115,7 +115,7 @@ class UserController {
       res.cookie("accessToken", accessToken, cookieOptions);
       const membership = await StorageMember.findOne({
         where: { user_id: user.id },
-        attributes: ["storage_id"],
+        attributes: ["storage_id", "role"],
       });
 
       let storage = null;
@@ -124,12 +124,17 @@ class UserController {
         storage = await Storage.findByPk(membership.storage_id);
       }
 
+      const userObj = user.toJSON();
+      if (membership && membership.role) {
+        userObj.role = membership.role; 
+      }
+
       res.status(200).json({
         message: "Đăng nhập thành công",
         response: true,
         accessToken,
         refreshToken,
-        user,
+        user: userObj,
         ...(storage && { storage: storage.toJSON() }),
       });
     } catch (error) {

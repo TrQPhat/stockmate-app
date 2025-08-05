@@ -48,28 +48,29 @@ class DishBloc extends Bloc<DishEvent, DishState> {
 
       if (currentState is DishLoaded) {
         final updatedDishes = List<Dish>.from(currentState.dishes)
-          ..add(newDish);
+          ..insert(0, newDish);
         emit(DishLoaded(updatedDishes));
       }
     } catch (e) {
-      //  emit(DishError('Lỗi khi thêm món ăn: $e'));
+      emit(DishError('Lỗi khi thêm món ăn: $e'));
     }
   }
 
   Future<void> _onUpdateDish(UpdateDish event, Emitter<DishState> emit) async {
-    // if (state is DishLoaded) {
-    //   final currentState = state as DishLoaded;
-    //   try {
-    //     final updatedDish =
-    //         await _repository.updateDish(event.id, event.updatedDish);
-    //     final updatedDishes = currentState.dishes.map((dish) {
-    //       return dish.id == event.id ? updatedDish : dish;
-    //     }).toList();
-    //     emit(DishLoaded(updatedDishes));
-    //   } catch (e) {
-    //     emit(DishError('Lỗi khi cập nhật món ăn: $e'));
-    //   }
-    // }
+    final currentState = state;
+    print("trạng thái hiện tại: $currentState");
+    try {
+      final updatedDish = await _repository.updateDish(event.updatedDish);
+      if (currentState is DishLoaded) {
+        final updatedDishes = currentState.dishes.map((dish) {
+          return dish.id == updatedDish.id ? updatedDish : dish;
+        }).toList();
+        emit(DishLoaded(updatedDishes));
+      }
+    } catch (e) {
+      print("Có lỗi xảy ra ${e.toString()}");
+      emit(DishError('Lỗi khi sửa món ăn: $e'));
+    }
   }
 
   Future<void> _onDeleteDish(DeleteDish event, Emitter<DishState> emit) async {

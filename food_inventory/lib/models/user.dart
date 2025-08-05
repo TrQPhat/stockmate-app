@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 class User extends Equatable {
   final int id;
-  final String userId;
   final String email;
   final String? phone;
   final String? fullName;
@@ -15,7 +14,6 @@ class User extends Equatable {
 
   const User({
     required this.id,
-    required this.userId,
     required this.email,
     this.phone,
     this.fullName,
@@ -30,7 +28,6 @@ class User extends Equatable {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'] ?? '') ?? -1,
-      userId: json['user_id'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'],
       fullName: json['full_name'],
@@ -48,7 +45,6 @@ class User extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id.toString(),
-      'user_id': userId,
       'email': email,
       'phone': phone,
       'full_name': fullName,
@@ -61,10 +57,36 @@ class User extends Equatable {
     };
   }
 
+  User copyWith({
+    int? id,
+    String? userId,
+    String? email,
+    String? phone,
+    String? fullName,
+    String? avatarUrl,
+    String? gender,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? role,
+    DateTime? joinedAt,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      fullName: fullName ?? this.fullName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      gender: gender ?? this.gender,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      role: role ?? this.role,
+      joinedAt: joinedAt ?? this.joinedAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,
-        userId,
         email,
         phone,
         fullName,

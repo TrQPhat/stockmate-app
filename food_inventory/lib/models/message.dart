@@ -24,6 +24,9 @@ class Message extends Equatable {
   }) : createdAt = createdAt ?? DateTime.now();
 
   factory Message.fromJson(Map<String, dynamic> json) {
+    final createdAtString = json['created_at'];
+    final createdAtUtc =
+        createdAtString != null ? DateTime.tryParse(createdAtString) : null;
     return Message(
       id: json['id'] as String,
       conversationId: json['conversation_id'] as int,
@@ -33,7 +36,7 @@ class Message extends Equatable {
       content: json['content'] as String?,
       fileUrl: json['file_url'] as String?,
       status: json['status'] as String? ?? 'normal',
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: createdAtUtc ?? DateTime.now(),
     );
   }
 
@@ -47,7 +50,7 @@ class Message extends Equatable {
       if (content != null) 'content': content,
       if (fileUrl != null) 'file_url': fileUrl,
       'status': status,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt.toUtc().toIso8601String(),
     };
   }
 

@@ -31,8 +31,7 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
     emit(GroceriesLoading());
 
     try {
-      final groceries =
-          await _repository.getGroceries(storageId: event.storageId);
+      final groceries = await _repository.getGroceries();
       emit(GroceriesLoaded(groceries));
     } catch (e) {
       emit(GroceriesError(e.toString()));
@@ -46,8 +45,7 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
     emit(GroceriesLoading());
 
     try {
-      final groceries =
-          await _repository.getExpiredGroceries(storageId: event.storageId);
+      final groceries = await _repository.getExpiredGroceries();
       emit(GroceriesLoaded(groceries));
     } catch (e) {
       emit(GroceriesError(e.toString()));
@@ -61,8 +59,7 @@ class GroceriesBloc extends Bloc<GroceriesEvent, GroceriesState> {
     emit(GroceriesLoading());
 
     try {
-      final groceries =
-          await _repository.getExpiringGroceries(storageId: event.storageId);
+      final groceries = await _repository.getExpiringGroceries();
       emit(GroceriesLoaded(groceries));
     } catch (e) {
       emit(GroceriesError(e.toString()));

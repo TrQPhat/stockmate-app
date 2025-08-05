@@ -110,19 +110,22 @@ class _MessageBubbleState extends State<MessageBubble>
   String _formatFullTime(DateTime? dateTime) {
     if (dateTime == null) return '';
 
+    final localDateTime = dateTime.toLocal(); // Luôn đảm bảo là giờ địa phương
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final messageDate =
+        DateTime(localDateTime.year, localDateTime.month, localDateTime.day);
 
     final timeStr =
-        '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+        '${localDateTime.hour}:${localDateTime.minute.toString().padLeft(2, '0')}';
 
     if (messageDate == today) {
       return 'Hôm nay $timeStr';
     } else if (messageDate == today.subtract(const Duration(days: 1))) {
       return 'Hôm qua $timeStr';
     } else {
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year} $timeStr';
+      return '${localDateTime.day}/${localDateTime.month}/${localDateTime.year} $timeStr';
     }
   }
 

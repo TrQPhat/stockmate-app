@@ -185,6 +185,10 @@ class AuthRepository {
       await prefs.setString(AppConfig.avatarUrlKey, user.avatarUrl!);
     }
 
+    if (user.role != null) {
+      await prefs.setString(AppConfig.userRoleKey, user.role!);
+    }
+
     if (responseData['storage'] != null) {
       final storageData = responseData['storage'];
       if (storageData['id'] != null) {
@@ -262,12 +266,14 @@ class AuthRepository {
         prefs.remove(AppConfig.userEmailKey),
         prefs.remove(AppConfig.userPhoneKey),
         prefs.remove(AppConfig.userNameKey),
+        prefs.remove(AppConfig.userRoleKey),
         prefs.remove(AppConfig.genderKey),
         prefs.remove(AppConfig.avatarUrlKey),
         prefs.remove(AppConfig.storageIdKey),
         prefs.remove(AppConfig.codeStorageKey),
         prefs.remove(AppConfig.nameStorageKey),
         prefs.remove(AppConfig.lastLoginTimeKey),
+        prefs.remove(AppConfig.lastSuggestedDishKey),
       ]);
 
       return true;

@@ -33,3 +33,30 @@ class StorageMembersRequested extends StorageEvent {
   @override
   List<Object> get props => [];
 }
+
+class UpdateMemberRole extends StorageEvent {
+  final int userId;
+  final String role;
+  const UpdateMemberRole(this.userId, this.role);
+
+  @override
+  List<Object> get props => [userId, role];
+}
+
+class RemoveMember extends StorageEvent {
+  final int userId;
+  const RemoveMember(this.userId);
+
+  @override
+  List<Object> get props => [userId];
+}
+
+class InviteMember extends StorageEvent {
+  final String email;
+  final String role;
+
+  const InviteMember({required this.email, required this.role});
+
+  @override
+  List<Object> get props => [email, role];
+}

@@ -14,6 +14,7 @@ class AppConfig {
   static const String userEmailKey = 'email';
   static const String userPhoneKey = 'phone';
   static const String userNameKey = 'name';
+  static const String userRoleKey = 'user_role';
   static const String genderKey = 'gender';
   static const String avatarUrlKey = 'avatar_url';
   static const String lastLoginTimeKey = 'last_login_time';

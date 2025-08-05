@@ -35,6 +35,7 @@ class _MessagesScreenState extends State<MessagesScreen>
   bool _isScrolling = false;
 
   @override
+  @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
@@ -45,8 +46,17 @@ class _MessagesScreenState extends State<MessagesScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
-    _loadStorageData();
+    // Gọi hàm load và xử lý logic bên trong nó
+    _initializeChat();
+  }
+
+  Future<void> _initializeChat() async {
+    await _loadStorageData(); // Chờ cho đến khi load xong
+
+    if (!mounted) return; // Kiểm tra lại sau khi await
+
     if (_currentStorageId != null) {
+      // Chỉ gọi BLoC và Realtime khi đã có ID
       context
           .read<MessageBloc>()
           .add(LoadMessages(conversationId: _currentStorageId!));
@@ -86,13 +96,13 @@ class _MessagesScreenState extends State<MessagesScreen>
         type: PostgresChangeFilterType.eq,
         value: _currentStorageId,
       ),
-      clientFilters: [
-        ClientFilter(
-          column: 'sender_id',
-          type: FilterType.eq,
-          value: '${_currentUserId!}',
-        ),
-      ],
+      // clientFilters: [
+      //   ClientFilter(
+      //     column: 'sender_id',
+      //     type: FilterType.eq,
+      //     value: '${_currentUserId!}',
+      //   ),
+      // ],
       onInsert: (newRecord) {
         final message = Message.fromJson(newRecord);
         context.read<MessageBloc>().add(MessageRealtimeInserted(message));
@@ -490,9 +500,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                             Icons.wifi_off_outlined,
                           );
                         } else if (state is MessageLoaded) {
-                          final userId = getIt<SharedPreferences>()
-                              .getInt(AppConfig.userIdKey);
-                          if (userId == null) {
+                          if (_currentUserId == null) {
                             return _buildEmptyState(
                               'Vui lòng đăng nhập',
                               Icons.login_outlined,
@@ -510,7 +518,8 @@ class _MessagesScreenState extends State<MessagesScreen>
                           return ListView(
                             controller: _scrollController,
                             padding: const EdgeInsets.only(top: 16, bottom: 16),
-                            children: _buildMessageWidgets(messages, userId),
+                            children:
+                                _buildMessageWidgets(messages, _currentUserId!),
                           );
                         } else {
                           return const SizedBox();

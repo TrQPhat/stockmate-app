@@ -3,7 +3,7 @@ class Dish {
   final String name;
   final String description;
   final String instructions;
-  final String imageUrl;
+  final String? imageUrl;
   final int cookTimeMinutes;
   final int storageId;
   final bool isAISuggested;
@@ -14,7 +14,7 @@ class Dish {
     required this.name,
     required this.description,
     required this.instructions,
-    required this.imageUrl,
+    this.imageUrl,
     required this.cookTimeMinutes,
     this.storageId = 19,
     this.isAISuggested = false,
@@ -28,10 +28,10 @@ class Dish {
       description: json['description'] ?? '',
       instructions: json['instructions'] ?? '',
       imageUrl: json['image_url'] ?? '',
-      cookTimeMinutes: json['cook_time_minutes'] ?? 0,
-      storageId: json['storage_id'] ?? 0,
-      isAISuggested: json['is_ai_suggested'] ?? false,
-      isFavorited: json['is_favorited'] ?? false,
+      cookTimeMinutes: int.tryParse(json['cook_time_minutes'].toString()) ?? 0,
+      storageId: int.tryParse(json['storage_id'].toString()) ?? 0,
+      isAISuggested: json['is_ai_suggested'] as bool? ?? false,
+      isFavorited: json['is_favorited'] as bool? ?? false,
     );
   }
 

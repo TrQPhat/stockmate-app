@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_bloc.dart';
 import 'package:stock_mate/bloc/dish/dish_event.dart';
+import 'package:stock_mate/bloc/note/note_bloc.dart';
+import 'package:stock_mate/bloc/note/note_state.dart';
+import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/models/dish.dart';
 import 'package:stock_mate/models/mock_data.dart';
 import 'package:stock_mate/models/note.dart';
@@ -21,20 +24,12 @@ class DishDetailScreen extends StatefulWidget {
 }
 
 class _DishDetailScreenState extends State<DishDetailScreen> {
-  List<Note> _notes = [];
   bool _isFavorited = false;
 
   @override
   void initState() {
     super.initState();
-    _loadNotes();
     _isFavorited = widget.dish.isFavorited;
-  }
-
-  void _loadNotes() {
-    setState(() {
-      _notes = MockData.getDishNotes(widget.dish.id ?? 0);
-    });
   }
 
   void _toggleFavorite() {
@@ -86,20 +81,29 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              widget.dish.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: AppTheme.primaryOrange.withOpacity(0.1),
-                  child: const Icon(
-                    Icons.restaurant,
-                    size: 80,
-                    color: AppTheme.primaryOrange,
+            widget.dish.imageUrl != null && widget.dish.imageUrl!.isNotEmpty
+                ? Image.network(
+                    "${AppConfig.rootImagePath}/${widget.dish.imageUrl!}",
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: AppTheme.primaryOrange.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.restaurant,
+                          size: 80,
+                          color: AppTheme.primaryOrange,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    color: AppTheme.primaryOrange.withOpacity(0.1),
+                    child: const Icon(
+                      Icons.restaurant,
+                      size: 80,
+                      color: AppTheme.primaryOrange,
+                    ),
                   ),
-                );
-              },
-            ),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -234,10 +238,22 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
               ),
               if (!widget.dish.isAISuggested) ...[
                 const SizedBox(width: 12),
-                _buildInfoChip(
-                  icon: Icons.comment,
-                  label: '${_notes.length} bình luận',
-                  color: AppTheme.primaryGreen,
+                BlocBuilder<NotesBloc, NotesState>(
+                  builder: (context, state) {
+                    if (state is NotesLoaded) {
+                      return _buildInfoChip(
+                        icon: Icons.comment,
+                        label: '${state.notes.length} bình luận',
+                        color: AppTheme.primaryGreen,
+                      );
+                    } else {
+                      return _buildInfoChip(
+                        icon: Icons.comment,
+                        label: '0 bình luận',
+                        color: AppTheme.primaryGreen,
+                      );
+                    }
+                  },
                 ),
               ]
             ],
@@ -301,51 +317,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              // ...widget.dish.instructions
-              //     .split('.')
-              //     .asMap()
-              //     .entries
-              //     .map((entry) {
-              //   int index = entry.key;
-              //   String step = entry.value;
-              //   return Padding(
-              //     padding: const EdgeInsets.only(bottom: 12),
-              //     child: Row(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         Container(
-              //           width: 24,
-              //           height: 24,
-              //           decoration: const BoxDecoration(
-              //             color: AppTheme.primaryOrange,
-              //             shape: BoxShape.circle,
-              //           ),
-              //           child: Center(
-              //             child: Text(
-              //               '${index + 1}',
-              //               style: const TextStyle(
-              //                 color: Colors.white,
-              //                 fontSize: 12,
-              //                 fontWeight: FontWeight.bold,
-              //               ),
-              //             ),
-              //           ),
-              //         ),
-              //         const SizedBox(width: 12),
-              //         Expanded(
-              //           child: Text(
-              //             step.replaceFirst(RegExp(r'^\d+\.\s*'), ''),
-              //             style: const TextStyle(
-              //               fontSize: 16,
-              //               color: AppTheme.textPrimary,
-              //               height: 1.5,
-              //             ),
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   );
-              // }).toList(),
               ...(() {
                 final indices = RegExp(r'(?=\d+\.\s+)')
                     .allMatches(widget.dish.instructions)

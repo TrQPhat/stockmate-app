@@ -1,20 +1,94 @@
 const { Grocery } = require("../models");
+const { Op } = require("sequelize");
 
 class GroceryController {
+  // Quét toàn bộ thực phẩm, tạo thông báo nếu có thực phẩm gần hết hạn hoặc hết hạn
+  async scanAndNotifyExpiringGroceries(req, res) {
+    try {
+      const { Grocery, Notification } = require("../models");
+      const today = new Date();
+      const threeDaysLater = new Date();
+      threeDaysLater.setDate(today.getDate() + 3);
+      const formatDate = (date) => date.toISOString().split("T")[0];
+
+      // Lấy thực phẩm hết hạn mà trạng thái chưa là 'het_han'
+      const expired = await Grocery.findAll({
+        where: {
+          expire_date: { [Op.lt]: formatDate(today) },
+          status: { [Op.ne]: 'het_han' },
+        },
+      });
+
+      // Lấy thực phẩm gần hết hạn (trong 3 ngày tới)
+      const expiring = await Grocery.findAll({
+        where: {
+          expire_date: {
+            [Op.gte]: formatDate(today),
+            [Op.lte]: formatDate(threeDaysLater),
+          },
+        },
+      });
+
+      let notifications = [];
+
+      if (expired.length > 0) {
+        const names = expired.map((g) => g.name).join(", ");
+        const notif = await Notification.create({
+          title: "Thực phẩm đã hết hạn",
+          message: `Các thực phẩm sau đã hết hạn: ${names}`,
+        });
+        notifications.push(notif);
+        // Đổi trạng thái các thực phẩm này thành 'het_han'
+        for (const g of expired) {
+          g.status = 'het_han';
+          await g.save();
+        }
+      }
+
+      if (expiring.length > 0) {
+        const names = expiring.map((g) => g.name).join(", ");
+        const notif = await Notification.create({
+          title: "Thực phẩm gần hết hạn",
+          message: `Các thực phẩm sau sẽ hết hạn trong 3 ngày tới: ${names}`,
+        });
+        notifications.push(notif);
+      }
+
+      res.status(200).json({
+        message: "Đã quét thực phẩm và tạo thông báo nếu có.",
+        notifications,
+      });
+    } catch (error) {
+      console.error("scanAndNotifyExpiringGroceries error:", error);
+      res.status(500).json({ error: "Lỗi khi quét và tạo thông báo" });
+    }
+  }
   
   
   // Lấy danh sách tất cả sản phẩm
   async getAllGroceries(req, res) {
     try {
-      const grocerys = await Grocery.findAll();
-      res.status(200).json(grocerys);
+      const { storage_id } = req.params;
+
+      if (!storage_id) {
+        return res.status(400).json({
+          error: "Thiếu storage_id trong params",
+        });
+      }
+
+      const groceries = await Grocery.findAll({
+        where: { storage_id }, // chỉ lấy theo kho
+      });
+
+      res.status(200).json(groceries);
     } catch (error) {
       res.status(500).json({
-        error: "Lỗi khi lấy danh sách sản phẩm",
+        error: "Lỗi khi lấy danh sách sản phẩm theo kho",
         detail: error.message,
       });
     }
   }
+
 
   // Lấy thông tin sản phẩm theo id
   async getGroceryById(req, res) {
@@ -32,15 +106,27 @@ class GroceryController {
 
   async getExpiringGroceries(req, res) {
     try {
+      const { storage_id } = req.params;
+
+      if (!storage_id) {
+        return res.status(400).json({
+          error: "Thiếu storage_id trong params",
+        });
+      }
+
+      // Lấy ngày hôm nay và 3 ngày sau dưới dạng YYYY-MM-DD (tương thích DATEONLY)
       const today = new Date();
       const threeDaysLater = new Date();
       threeDaysLater.setDate(today.getDate() + 3);
 
+      const formatDate = (date) => date.toISOString().split("T")[0];
+
       const expiringGroceries = await Grocery.findAll({
         where: {
+          storage_id, 
           expire_date: {
-            $gte: today,
-            $lte: threeDaysLater,
+            [Op.gte]: formatDate(today),
+            [Op.lte]: formatDate(threeDaysLater),
           },
         },
       });
@@ -57,12 +143,27 @@ class GroceryController {
   // Lấy danh sách thực phẩm đã hết hạn
   async getExpiredGroceries(req, res) {
     try {
+      const { storage_id } = req.params;
+
+      if (!storage_id) {
+        return res.status(400).json({
+          error: "Thiếu storage_id trong params",
+        });
+      }
       const today = new Date();
+      const formatDate = (date) => date.toISOString().split("T")[0];
+
       const expiredGroceries = await Grocery.findAll({
         where: {
-          expire_date: { $lt: today },
+          storage_id, 
+          expire_date: {
+            [Op.lt]: formatDate(today),
+          },
+          // (Tuỳ chọn) chỉ lấy các thực phẩm vẫn còn dùng
+          // status: 'con_dung'
         },
       });
+
       res.status(200).json(expiredGroceries);
     } catch (error) {
       res.status(500).json({
@@ -75,12 +176,6 @@ class GroceryController {
   // Tạo mới sản phẩm
   async createGrocery(req, res) {
     try {
-      // Kiểm tra nếu không có file ảnh được tải lên
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ response: false, message: "Vui lòng chọn ảnh sản phẩm!" });
-      }
       const {
         storage_id,
         name,
@@ -92,12 +187,10 @@ class GroceryController {
         note,
         status,
         position_id,
-        
       } = req.body;
-      console.log("Creating product with data:", req.body);
 
-      // Tạo đường dẫn ảnh (lưu file vào thư mục 'uploads/')
-      const image_path = `${req.file.filename}`;
+      // Nếu có file ảnh thì lấy tên file, nếu không thì null
+      const image_path = req.file ? `${req.file.filename}` : null;
       const newGrocery = await Grocery.create({
         storage_id,
         name,
@@ -111,7 +204,7 @@ class GroceryController {
         position_id,
         image_path,
       });
-      console.log("Grocery created:", newGrocery);
+
       res.status(201).json(newGrocery);
     } catch (error) {
       console.error("Error creating product:", error.errors || error.message);

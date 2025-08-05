@@ -203,7 +203,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (success) {
       emit(AuthSuccess(User(
         id: 0,
-        userId: "jadsaskhjalsdlka",
         email: '',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),

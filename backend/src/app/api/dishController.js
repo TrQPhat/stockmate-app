@@ -61,23 +61,24 @@ class DishController {
         name,
         description,
         instructions,
-        image_url,
         cook_time_minutes,
         storage_id,
       } = req.body;
+
+      const image_path = req.file ? `${req.file.filename}` : null;
 
       const newDish = await Dish.create({
         name,
         description,
         instructions,
-        image_url,
+        image_url: image_path,
         cook_time_minutes,
         storage_id,
       });
 
       res.status(201).json(newDish);
     } catch (error) {
-      console.error("Lỗi khi tạo món ăn:", error);
+      console.log("Lỗi khi tạo món ăn:", error);
       res.status(500).json({ error: "Lỗi khi tạo món ăn" });
     }
   }
@@ -101,11 +102,19 @@ class DishController {
         return res.status(404).json({ error: "Món ăn không tồn tại" });
       }
 
+      // Nếu có file ảnh mới thì cập nhật, còn không thì giữ nguyên
+      let newImageUrl = dish.image_url;
+      if (req.file) {
+        newImageUrl = `${req.file.filename}`;
+      } else if (image_url !== undefined) {
+        newImageUrl = image_url;
+      }
+
       await dish.update({
         name,
         description,
         instructions,
-        image_url,
+        image_url: newImageUrl,
         cook_time_minutes,
         storage_id,
       });

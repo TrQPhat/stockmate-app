@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_mate/bloc/dish/dish_bloc.dart';
+import 'package:stock_mate/bloc/dish/dish_event.dart';
+import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/theme/app_theme.dart';
 import 'package:stock_mate/models/dish.dart';
+import 'package:stock_mate/views/dishes/screen/input_dish_screen.dart';
 
 class DishCard extends StatefulWidget {
   final Dish dish;
@@ -8,12 +13,14 @@ class DishCard extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback? onDelete;
   final VoidCallback onToggleFavorite;
+  final DishBloc? userDishBloc;
 
   const DishCard({
     super.key,
     required this.dish,
     required this.canEdit,
     required this.onTap,
+    this.userDishBloc,
     this.onDelete,
     required this.onToggleFavorite,
   });
@@ -68,35 +75,35 @@ class _DishCardState extends State<DishCard>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.shadowColor,
-                  blurRadius: _isPressed ? 8 : 12,
-                  offset: Offset(0, _isPressed ? 2 : 4),
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: Card(
-              elevation: 0,
-              margin: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.shadowColor,
+                    blurRadius: _isPressed ? 8 : 12,
+                    offset: Offset(0, _isPressed ? 2 : 4),
+                    spreadRadius: 0,
+                  ),
+                ],
               ),
-              clipBehavior: Clip.antiAlias,
-              color: AppTheme.cardBackground,
-              child: GestureDetector(
-                onTapDown: _onTapDown,
-                onTapUp: _onTapUp,
-                onTapCancel: _onTapCancel,
+              child: Card(
+                elevation: 0,
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                clipBehavior: Clip.antiAlias,
+                color: AppTheme.cardBackground,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -108,9 +115,9 @@ class _DishCardState extends State<DishCard>
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -124,18 +131,17 @@ class _DishCardState extends State<DishCard>
           SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child: widget.dish.imageUrl.isNotEmpty
+            child: widget.dish.imageUrl?.isNotEmpty == true
                 ? Stack(
                     children: [
                       Image.network(
-                        widget.dish.imageUrl,
+                        "${AppConfig.rootImagePath}/${widget.dish.imageUrl!}",
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
                         errorBuilder: (context, error, stackTrace) =>
                             _buildImagePlaceholder(),
                       ),
-                      // Subtle gradient overlay for better text readability
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -256,6 +262,13 @@ class _DishCardState extends State<DishCard>
             onPressed: widget.onToggleFavorite,
           ),
           if (widget.onDelete != null) ...[
+            const SizedBox(width: 8),
+            _buildActionButton(
+              icon: Icons.edit,
+              color: Colors.blueAccent,
+              onPressed: () =>
+                  _showEditDishScreen(widget.dish, widget.userDishBloc!),
+            ),
             const SizedBox(width: 8),
             _buildActionButton(
               icon: Icons.delete_outline,
@@ -411,6 +424,20 @@ class _DishCardState extends State<DishCard>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showEditDishScreen(Dish dish, DishBloc userDishBloc) async {
+    await Navigator.push<Dish>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InputDishScreen(
+            dish: dish,
+            onEvent: (Dish dish) {
+              userDishBloc.add(UpdateDish(id: dish.id!, updatedDish: dish));
+              Navigator.of(context).pop();
+            }),
       ),
     );
   }

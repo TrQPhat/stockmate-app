@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stock_mate/views/classify/widgets/category_form.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/di/injection_container.dart';
 import '../../../core/theme/app_theme.dart';
@@ -150,16 +151,32 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
                 _buildSectionTitle('Thông tin cơ bản'),
                 SizedBox(height: 12.h),
                 _buildNameField(),
-                SizedBox(height: 16.h),
-                _buildCategoryField(),
+
                 SizedBox(height: 16.h),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(child: _buildQuantityField()),
                     SizedBox(width: 16.w),
                     Expanded(child: _buildUnitField()),
                   ],
                 ),
+                SizedBox(height: 24.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSectionTitle('Danh mục'),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle, color: Colors.green),
+                      tooltip: 'Thêm danh mục',
+                      onPressed: () {
+                        _addCategory();
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                _buildCategoryField(),
                 SizedBox(height: 24.h),
 
                 // Date section
@@ -355,38 +372,56 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
           categories = state.categories;
         }
 
-        return DropdownButtonFormField<int>(
-          value: (categories.isNotEmpty)
-              ? (selectedCategoryId ?? categories.first.id)
-              : null,
-          decoration: const InputDecoration(
-            labelText: 'Danh mục',
-            hintText: 'Chọn danh mục...',
-            prefixIcon: Icon(Icons.category),
-          ),
-          items: categories.isEmpty
-              ? const [
-                  DropdownMenuItem<int>(
-                    value: null,
-                    child: Text('Không có danh mục'),
-                  ),
-                ]
-              : categories
-                  .map(
-                    (category) => DropdownMenuItem<int>(
-                      value: category.id,
-                      child: Text(category.name),
-                    ),
-                  )
-                  .toList(),
-          onChanged: (value) {
-            setState(() {
-              print("value: $value");
-              selectedCategoryId = value;
-            });
-          },
+        return Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<int>(
+                value: (categories.isNotEmpty)
+                    ? (selectedCategoryId ?? categories.first.id)
+                    : null,
+                decoration: const InputDecoration(
+                  labelText: 'Danh mục',
+                  hintText: 'Chọn danh mục...',
+                  prefixIcon: Icon(Icons.category),
+                ),
+                items: categories.isEmpty
+                    ? const [
+                        DropdownMenuItem<int>(
+                          value: null,
+                          child: Text('Không có danh mục'),
+                        ),
+                      ]
+                    : categories
+                        .map(
+                          (category) => DropdownMenuItem<int>(
+                            value: category.id,
+                            child: Text(category.name),
+                          ),
+                        )
+                        .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategoryId = value;
+                  });
+                },
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  void _addCategory() {
+    showDialog(
+      context: context,
+      builder: (context) => CategoryForm(
+        category: null,
+        onSave: (newCategory) {
+          context.read<CategoriesBloc>().add(AddCategory(newCategory));
+          Navigator.of(context).pop();
+        },
+      ),
     );
   }
 
@@ -674,9 +709,6 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
       }
 
       String? imagePath = currentImagePath;
-      if (selectedImage == null) {
-        return;
-      }
 
       final grocery = Grocery(
         id: widget.isEdit ? widget.grocery!.id : 0,
@@ -698,7 +730,6 @@ class _InputGroceryPageState extends State<InputGroceryPage> {
         createdAt: widget.isEdit ? widget.grocery!.createdAt : DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      print("Thực phẩm cần thêm: ${jsonEncode(grocery)}");
 
       if (widget.isEdit) {
         context

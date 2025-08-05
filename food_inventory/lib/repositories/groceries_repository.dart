@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stock_mate/core/config/app_config.dart';
+import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/models/grocery.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -15,13 +16,16 @@ class GroceriesRepository {
   final baseUrl = "/groceries";
 
   // Lấy danh sách sản phẩm
-  Future<List<Grocery>> getGroceries({String? storageId}) async {
+  Future<List<Grocery>> getGroceries() async {
     try {
-      final queryParams = <String, dynamic>{};
-      if (storageId != null) queryParams['storage_id'] = storageId;
+      final prefs = getIt<SharedPreferences>();
+      final storageId = prefs.getInt(AppConfig.storageIdKey);
 
-      final response =
-          await _dioClient.get(baseUrl, queryParameters: queryParams);
+      if (storageId == null) {
+        throw Exception("Không tìm thấy storageId trong SharedPreferences");
+      }
+
+      final response = await _dioClient.get("$baseUrl/$storageId");
 
       // Kiểm tra dữ liệu trả về
       if (response.data is! List) {
@@ -42,13 +46,16 @@ class GroceriesRepository {
     }
   }
 
-  Future<List<Grocery>> getExpiredGroceries({String? storageId}) async {
+  Future<List<Grocery>> getExpiredGroceries() async {
     try {
-      final queryParams = <String, dynamic>{};
-      if (storageId != null) queryParams['storage_id'] = storageId;
+      final prefs = getIt<SharedPreferences>();
+      final storageId = prefs.getInt(AppConfig.storageIdKey);
 
-      final response = await _dioClient.get("$baseUrl/expired",
-          queryParameters: queryParams);
+      if (storageId == null) {
+        throw Exception("Không tìm thấy storageId trong SharedPreferences");
+      }
+
+      final response = await _dioClient.get("$baseUrl/expired/$storageId");
 
       // Kiểm tra dữ liệu trả về
       if (response.data is! List) {
@@ -69,13 +76,16 @@ class GroceriesRepository {
     }
   }
 
-  Future<List<Grocery>> getExpiringGroceries({String? storageId}) async {
+  Future<List<Grocery>> getExpiringGroceries() async {
     try {
-      final queryParams = <String, dynamic>{};
-      if (storageId != null) queryParams['storage_id'] = storageId;
+      final prefs = getIt<SharedPreferences>();
+      final storageId = prefs.getInt(AppConfig.storageIdKey);
 
-      final response = await _dioClient.get("$baseUrl/expiring",
-          queryParameters: queryParams);
+      if (storageId == null) {
+        throw Exception("Không tìm thấy storageId trong SharedPreferences");
+      }
+
+      final response = await _dioClient.get("$baseUrl/expiring/$storageId");
 
       // Kiểm tra dữ liệu trả về
       if (response.data is! List) {

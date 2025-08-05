@@ -2,6 +2,8 @@ const { json } = require("body-parser");
 const { Storage, StorageMember, sequelize, User } = require("../models");
 
 class StorageController {
+  
+
   // ✅ Lấy danh sách tất cả các storage (gồm cả owner và members)
   async getAllStorages(req, res) {
     try {
@@ -268,6 +270,139 @@ class StorageController {
     } catch (error) {
       console.error("getMembers error:", error);
       res.status(500).json({ error: "Lỗi khi lấy thành viên kho" });
+    }
+  }
+
+  // Chỉnh sửa role của thành viên trong kho
+  async updateMemberRole(req, res) {
+    try {
+      const { storage_id, user_id } = req.params;
+      const { role } = req.body;
+
+      if (!role) {
+        return res.status(400).json({
+          success: false,
+          error: "Thiếu role mới"
+        });
+      }
+
+      const member = await StorageMember.findOne({
+        where: { storage_id, user_id },
+      });
+
+      if (!member) {
+        return res.status(404).json({
+          success: false,
+          error: "Không tìm thấy thành viên trong kho"
+        });
+      }
+
+      member.role = role;
+      await member.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Cập nhật role thành công",
+        member,
+      });
+    } catch (error) {
+      console.error("updateMemberRole error:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Lỗi khi cập nhật role thành viên"
+      });
+    }
+  }
+
+  async removeMember(req, res) {
+    try {
+      const { storage_id, user_id } = req.params;
+
+      // Tìm thành viên trong kho dựa trên storage_id và user_id
+      const member = await StorageMember.findOne({
+        where: { storage_id, user_id },
+      });
+
+      // Nếu không tìm thấy thành viên, trả về lỗi 404
+      if (!member) {
+        return res.status(404).json({
+          success: false,
+          error: "Không tìm thấy thành viên trong kho"
+        });
+      }
+
+      // Nếu tìm thấy, xoá bản ghi thành viên
+      await member.destroy();
+
+      // Trả về thông báo thành công
+      return res.status(200).json({
+        success: true,
+        message: "Xoá thành viên ra khỏi kho thành công",
+      });
+      
+    } catch (error) {
+      console.error("removeMember error:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Lỗi khi xoá thành viên khỏi kho"
+      });
+    }
+  }
+
+  async inviteMember(req, res) {
+    try {
+      const { storage_id } = req.params;
+      const { email, role } = req.body;
+
+      // Các bước 1, 2, 3: Validation, tìm user, kiểm tra tồn tại... giữ nguyên như cũ
+      if (!email || !role) {
+        return res.status(400).json({ success: false, error: "Thiếu email hoặc role" });
+      }
+
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ success: false, error: "Người dùng với email này không tồn tại" });
+      }
+
+      const existingMember = await StorageMember.findOne({ where: { storage_id, user_id: user.id } });
+      if (existingMember) {
+        return res.status(409).json({ success: false, error: "Thành viên này đã có trong kho" });
+      }
+
+      // 4. Tạo bản ghi thành viên mới
+      const newMember = await StorageMember.create({
+        storage_id,
+        user_id: user.id,
+        role,
+      });
+
+      // 5. **[PHẦN THAY ĐỔI]** Tạo đối tượng trả về theo đúng định dạng client yêu cầu
+      const responsePayload = {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        full_name: user.fullName, // Giả sử model User của bạn dùng camelCase `fullName`
+        avatar_url: user.avatarUrl, // Tương tự
+        gender: user.gender,
+        created_at: user.createdAt, // Ngày user được tạo trong hệ thống
+        updated_at: user.updatedAt, // Ngày user được cập nhật lần cuối
+        role: newMember.role,       // Role lấy từ bản ghi `StorageMember` mới tạo
+        joined_at: newMember.createdAt, // Ngày tham gia kho chính là ngày bản ghi `StorageMember` được tạo
+      };
+
+      // 6. Trả về thành công với payload đã được định dạng
+      return res.status(201).json({
+        success: true,
+        message: "Mời thành viên thành công",
+        member: responsePayload, // Trả về đối tượng đã được định dạng
+      });
+
+    } catch (error) {
+      console.error("inviteMember error:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Lỗi khi mời thành viên"
+      });
     }
   }
 }

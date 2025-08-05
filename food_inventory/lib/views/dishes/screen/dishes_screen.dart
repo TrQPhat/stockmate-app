@@ -7,7 +7,7 @@ import 'package:stock_mate/core/di/injection_container.dart';
 import 'package:stock_mate/core/theme/app_theme.dart';
 import 'package:stock_mate/models/dish.dart';
 import '../widgets/dish_card.dart';
-import '../widgets/add_dish_dialog.dart';
+import 'input_dish_screen.dart';
 import 'dish_detail_screen.dart';
 
 class DishesScreen extends StatefulWidget {
@@ -100,7 +100,7 @@ class _DishesScreenState extends State<DishesScreen>
         floatingActionButton: _tabController.index == 0
             ? FloatingActionButton(
                 backgroundColor: AppTheme.primaryOrange,
-                onPressed: _showAddDishDialog,
+                onPressed: _showAddDishScreen,
                 child: const Icon(Icons.add, color: Colors.white),
               )
             : null,
@@ -142,7 +142,6 @@ class _DishesScreenState extends State<DishesScreen>
               if (state is DishLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               final dishes = state is DishLoaded ? state.dishes : <Dish>[];
               return _buildDishGrid(
                 dishes,
@@ -204,8 +203,11 @@ class _DishesScreenState extends State<DishesScreen>
     );
   }
 
-  Widget _buildDishGrid(List<Dish> dishes,
-      {required bool canEdit, required bool isUserDish}) {
+  Widget _buildDishGrid(
+    List<Dish> dishes, {
+    required bool canEdit,
+    required bool isUserDish,
+  }) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (dishes.isEmpty) {
@@ -247,7 +249,7 @@ class _DishesScreenState extends State<DishesScreen>
                     if (canEdit) ...[
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: _showAddDishDialog,
+                        onPressed: _showAddDishScreen,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryOrange,
                           foregroundColor: Colors.white,
@@ -272,6 +274,7 @@ class _DishesScreenState extends State<DishesScreen>
           ),
           itemCount: dishes.length,
           itemBuilder: (context, index) => DishCard(
+            userDishBloc: _userDishBloc,
             dish: dishes[index],
             canEdit: canEdit,
             onTap: () => _navigateToDishDetail(dishes[index]),
@@ -300,13 +303,11 @@ class _DishesScreenState extends State<DishesScreen>
     );
   }
 
-  void _showAddDishDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        insetPadding: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: AddDishDialog(onAddDish: (Dish dish) {
+  void _showAddDishScreen() async {
+    await Navigator.push<Dish>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InputDishScreen(onEvent: (Dish dish) {
           _userDishBloc.add(AddDish(dish));
           Navigator.of(context).pop();
         }),

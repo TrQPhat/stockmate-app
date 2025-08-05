@@ -43,7 +43,6 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
         onSave: (category) {
           context.read<CategoriesBloc>().add(AddCategory(category));
           Navigator.of(context).pop();
-          _showSuccessSnackBar('Đã thêm danh mục thành công');
         },
       ),
     );
@@ -58,7 +57,6 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
           if (updatedCategory.id == -1) return;
           context.read<CategoriesBloc>().add(UpdateCategory(updatedCategory));
           Navigator.of(context).pop();
-          _showSuccessSnackBar('Đã cập nhật danh mục thành công');
         },
       ),
     );
@@ -80,7 +78,6 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
             onPressed: () {
               context.read<CategoriesBloc>().add(DeleteCategory(category.id));
               Navigator.of(context).pop();
-              _showSuccessSnackBar('Đã xóa danh mục thành công');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorRed,
@@ -99,7 +96,6 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
         onSave: (position) {
           context.read<PositionBloc>().add(AddPosition(position));
           Navigator.of(context).pop();
-          _showSuccessSnackBar('Đã thêm vị trí thành công');
         },
       ),
     );
@@ -114,7 +110,6 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
           if (updatedPosition.id == -1) return;
           context.read<PositionBloc>().add(UpdatePosition(updatedPosition));
           Navigator.of(context).pop();
-          _showSuccessSnackBar('Đã cập nhật vị trí thành công');
         },
       ),
     );
@@ -136,7 +131,6 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
             onPressed: () {
               context.read<PositionBloc>().add(DeletePosition(position.id));
               Navigator.of(context).pop();
-              _showSuccessSnackBar('Đã xóa vị trí thành công');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorRed,
@@ -148,25 +142,25 @@ class _ManagementClassifyScreenState extends State<ManagementClassifyScreen>
     );
   }
 
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.successGreen,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+  // void _showSuccessSnackBar(String message) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(message),
+  //       backgroundColor: AppTheme.successGreen,
+  //       behavior: SnackBarBehavior.floating,
+  //     ),
+  //   );
+  // }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorRed,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+  // void _showErrorSnackBar(String message) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(message),
+  //       backgroundColor: AppTheme.errorRed,
+  //       behavior: SnackBarBehavior.floating,
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

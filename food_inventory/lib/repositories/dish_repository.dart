@@ -1,6 +1,7 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/core/di/injection_container.dart';
@@ -185,7 +186,7 @@ class DishesRepository {
         Mỗi món ăn được đề xuất phải được trả về dưới dạng một đối tượng JSON.
         Nếu có nhiều cách kết hợp, hãy ưu tiên các món ăn sử dụng đa dạng và nhiều loại thực phẩm nhất có thể từ danh sách.
 
-        Đối với "image_url", hãy cung cấp một URL hình ảnh giả định (placeholder) phù hợp với món ăn.
+        Đối với "image_url", chỉ cần trả về cho tôi một giá trị rỗng.
 
         Đây là cấu trúc JSON cho MỖI món ăn được đề xuất:
         ```json
@@ -194,7 +195,7 @@ class DishesRepository {
             "description": "",
             "instructions": "",
             "cook_time_minutes": 0,
-            "image_url": ""
+            "image_url": null
         }
         Và đây là định dạng của MẢNG JSON bạn cần trả về. Đảm bảo toàn bộ phản hồi là JSON hợp lệ và không có văn bản thừa bên ngoài khối JSON:
         [
@@ -219,7 +220,7 @@ class DishesRepository {
             "description": "",
             "instructions": "",
             "cook_time_minutes": 0,
-            "image_url": ""
+            "image_url": null
         }
         Và toàn bộ phản hồi phải là một MẢNG JSON chứa 7-10 món ăn, ví dụ:
         [
@@ -294,9 +295,40 @@ class DishesRepository {
 
   Future<Dish> updateDish(Dish dish) async {
     try {
+      final formDataMap = {
+        'name': dish.name,
+        'description': dish.description,
+        'instructions': dish.instructions,
+        'cook_time_minutes': dish.cookTimeMinutes,
+        'storage_id': dish.storageId,
+      };
+
+      final formData = FormData.fromMap(formDataMap);
+
+      if (dish.imageUrl != null && dish.imageUrl!.isNotEmpty) {
+        final path = dish.imageUrl!;
+        final mimeType = lookupMimeType(path);
+
+        if (mimeType != null) {
+          final parts = mimeType.split('/');
+          final multipartFile = await MultipartFile.fromFile(
+            path,
+            filename: path.split('/').last,
+            contentType: MediaType(parts[0], parts[1]),
+          );
+
+          formData.files.add(MapEntry('image', multipartFile));
+        }
+      }
+
       final response = await _dioClient.put(
         "$baseUrl/${dish.id}",
-        data: dish.toJson(),
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
       );
 
       return Dish.fromJson(response.data);
@@ -327,19 +359,50 @@ class DishesRepository {
 
   Future<Dish> createDish(Dish dish) async {
     try {
+      final formDataMap = {
+        'name': dish.name,
+        'description': dish.description,
+        'instructions': dish.instructions,
+        'cook_time_minutes': dish.cookTimeMinutes,
+        'storage_id': dish.storageId,
+      };
+
+      final formData = FormData.fromMap(formDataMap);
+
+      if (dish.imageUrl != null && dish.imageUrl!.isNotEmpty) {
+        final path = dish.imageUrl!;
+        final mimeType = lookupMimeType(path);
+
+        if (mimeType != null) {
+          final parts = mimeType.split('/');
+          final multipartFile = await MultipartFile.fromFile(
+            path,
+            filename: path.split('/').last,
+            contentType: MediaType(parts[0], parts[1]),
+          );
+
+          formData.files.add(MapEntry('image', multipartFile));
+        }
+      }
+
       final response = await _dioClient.post(
         baseUrl,
-        data: dish.toJson(),
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
       );
-
       return Dish.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception('Vui lòng kiểm tra lại kết nối');
+        throw Exception('Vui lòng kiểm tra lại dữ liệu: ${e.response?.data}');
       } else {
         throw Exception('Lỗi kết nối đến máy chủ, thử lại sau');
       }
     } catch (e) {
+      print("Có lỗi xảy ra ${e.toString()}");
       throw Exception('Đã có lỗi xảy ra khi thêm món ăn');
     }
   }

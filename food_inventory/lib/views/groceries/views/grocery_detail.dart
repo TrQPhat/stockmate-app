@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
 import 'package:stock_mate/bloc/category/categories_bloc.dart';
 import 'package:stock_mate/bloc/grocery/groceries_bloc.dart';
 import 'package:stock_mate/core/config/app_config.dart';
 import 'package:stock_mate/models/category.dart';
 import 'package:stock_mate/models/grocery.dart';
 import 'package:stock_mate/views/groceries/views/input_grocery_page.dart';
-
-import '../../../core/theme/app_theme.dart';
 
 class GroceryDetailPage extends StatefulWidget {
   final Grocery grocery;
@@ -241,16 +238,6 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
                     Icon(Icons.edit_outlined, color: primaryGreen, size: 20.w),
                     SizedBox(width: 12.w),
                     const Text('Chỉnh sửa'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'share',
-                child: Row(
-                  children: [
-                    Icon(Icons.share_outlined, color: Colors.blue, size: 20.w),
-                    SizedBox(width: 12.w),
-                    const Text('Chia sẻ'),
                   ],
                 ),
               ),

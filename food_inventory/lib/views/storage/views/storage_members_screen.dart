@@ -32,7 +32,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
   void _loadCurrentUser() {
     final prefs = getIt<SharedPreferences>();
     _currentUserId = prefs.getInt(AppConfig.userIdKey);
-    _currentUserRole = prefs.getString('user_role');
+    _currentUserRole = prefs.getString(AppConfig.userRoleKey);
   }
 
   @override
@@ -346,7 +346,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
   }
 
   Widget _buildMemberCard(User member) {
-    final isCurrentUser = member.userId == _currentUserId;
+    final isCurrentUser = member.id == _currentUserId;
     final canManageThisMember =
         _canManageMembers && !isCurrentUser && member.role != 'owner';
 
@@ -574,8 +574,10 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppTheme.primaryGreen.withOpacity(0.2),
-                            AppTheme.lightGreen.withOpacity(0.1),
+                            const Color(0xFF66BB6A)
+                                .withOpacity(0.6), // Xanh lá tươi
+                            const Color(0xFFA5D6A7)
+                                .withOpacity(0.5), // Xanh mint nhẹ
                           ],
                         ),
                         borderRadius: BorderRadius.circular(10),
@@ -931,7 +933,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
       case 'owner':
         return 'Chủ sở hữu';
       case 'editor':
-        return 'Biên tập viên';
+        return 'Người chỉnh sửa';
       case 'viewer':
         return 'Người xem';
       default:
@@ -1108,7 +1110,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
                   children: [
                     Icon(Icons.edit, size: 20, color: AppTheme.primaryGreen),
                     SizedBox(width: 8),
-                    Text('Biên tập viên',
+                    Text('Người chỉnh sửa',
                         style: TextStyle(color: AppTheme.textPrimary)),
                   ],
                 ),
@@ -1153,14 +1155,10 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
             ElevatedButton(
               onPressed: selectedRole != member.role
                   ? () {
+                      context
+                          .read<StorageBloc>()
+                          .add(UpdateMemberRole(member.id, selectedRole));
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Đã thay đổi quyền của ${member.fullName ?? member.email} thành ${_getRoleDisplayName(selectedRole)}'),
-                          backgroundColor: AppTheme.successGreen,
-                        ),
-                      );
                     }
                   : null,
               style: ElevatedButton.styleFrom(
@@ -1213,14 +1211,8 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              context.read<StorageBloc>().add(RemoveMember(member.id));
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      'Đã xóa ${member.fullName ?? member.email} khỏi kho hàng'),
-                  backgroundColor: AppTheme.errorRed,
-                ),
-              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorRed,
@@ -1236,9 +1228,11 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
   void _showInviteMemberDialog() {
     final emailController = TextEditingController();
     String selectedRole = 'viewer';
-
+    bool isLoading = false;
     showDialog(
       context: context,
+      // Thêm barrierDismissible: !isLoading để ngăn người dùng tắt dialog khi đang xử lý
+      barrierDismissible: !isLoading,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: AppTheme.cardBackground,
@@ -1249,6 +1243,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // ... Phần TextField và RadioListTile giữ nguyên ...
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(
@@ -1278,7 +1273,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
               ),
               RadioListTile<String>(
                 title: const Text(
-                  'Biên tập viên',
+                  'Người chỉnh sửa',
                   style: TextStyle(color: AppTheme.textPrimary),
                 ),
                 subtitle: const Text(
@@ -1308,30 +1303,46 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              // Vô hiệu hóa nút hủy khi đang loading
+              onPressed: isLoading ? null : () => Navigator.of(context).pop(),
               style: TextButton.styleFrom(
                 foregroundColor: AppTheme.textSecondary,
               ),
               child: const Text('Hủy'),
             ),
             ElevatedButton(
-              onPressed: () {
-                if (emailController.text.isNotEmpty) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content:
-                          Text('Đã gửi lời mời đến ${emailController.text}'),
-                      backgroundColor: AppTheme.successGreen,
-                    ),
-                  );
-                }
-              },
+              onPressed: isLoading
+                  ? null // Vô hiệu hóa nút khi đang loading
+                  : () {
+                      final email = emailController.text.trim();
+                      if (email.isEmpty) {
+                        // Có thể hiện một SnackBar lỗi nhỏ ở đây nếu muốn
+                        return;
+                      }
+
+                      // 1. Gọi BLoC event với thông tin đã nhập
+                      context.read<StorageBloc>().add(
+                            InviteMember(email: email, role: selectedRole),
+                          );
+
+                      // 2. Đóng dialog sau khi gửi event
+                      Navigator.of(context).pop();
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryGreen,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Gửi lời mời'),
+              // Hiển thị vòng xoay loading hoặc text
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('Gửi lời mời'),
             ),
           ],
         ),
@@ -1359,7 +1370,7 @@ class _StorageMembersScreenState extends State<StorageMembersScreen> {
                 AppTheme.primaryOrange),
             const SizedBox(height: 12),
             _buildRoleInfo(
-                'Biên tập viên',
+                'Người chỉnh sửa',
                 'Có thể chỉnh sửa và quản lý sản phẩm trong kho',
                 Icons.edit,
                 AppTheme.primaryGreen),
